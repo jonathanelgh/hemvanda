@@ -14,7 +14,7 @@ import {
   cleaningPriceBarSpacerClassName,
 } from "@/components/booking/cleaning-price-bar";
 import {
-  contactPreferenceOptions,
+  getCleaningBookingCopy,
   type BookingParams,
   type CleaningFrequency,
   type ContactPreference,
@@ -36,6 +36,7 @@ export function CleaningExpertForm({
   tjanst,
   postnummer,
   kommun,
+  plats,
   onBack,
 }: CleaningExpertFormProps) {
   const [squareMeters, setSquareMeters] = useState("");
@@ -53,6 +54,7 @@ export function CleaningExpertForm({
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const copy = getCleaningBookingCopy(plats);
 
   const infoComplete = isCleaningInfoComplete(squareMeters, hasPets);
 
@@ -71,6 +73,7 @@ export function CleaningExpertForm({
           tjanst,
           postnummer,
           kommun,
+          plats,
           bookingPath: "expert",
           squareMeters: Number(squareMeters),
           hasPets,
@@ -110,8 +113,7 @@ export function CleaningExpertForm({
           Tack, vi hör av oss.
         </h2>
         <p className="mt-4 text-sm leading-7 text-muted">
-          En av våra experter kontaktar dig för att hitta rätt upplägg för din
-          hemstädning i {kommun}.
+          {copy.expertSuccessMessage(kommun)}
         </p>
       </div>
     );
@@ -142,12 +144,15 @@ export function CleaningExpertForm({
         onTidyingChange={setTidying}
         weekdayPreference={weekdayPreference}
         onWeekdayPreferenceChange={setWeekdayPreference}
+        squareMetersLabel={copy.squareMetersLabel}
+        petsLabel={copy.petsLabel}
+        tidyingDescription={copy.tidyingDescription}
       />
 
       <section className={bookingSectionClassName}>
         <h3 className="font-display text-2xl text-green">Hur vill du bli kontaktad?</h3>
         <div className="mt-4 grid gap-3">
-          {contactPreferenceOptions.map((option) => (
+          {copy.contactPreferenceOptions.map((option) => (
             <label
               key={option.value}
               className="flex cursor-pointer items-start gap-4 rounded-lg border border-green/10 bg-white px-4 py-4 transition has-checked:border-gold has-checked:bg-ivory"

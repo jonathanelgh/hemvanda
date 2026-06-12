@@ -4,6 +4,7 @@ export type Service = {
   eyebrow: string;
   description: string;
   hero: string;
+  heroImage?: string;
   summary: string;
   icon: "hammer" | "sparkles" | "truck" | "chair" | "wrench" | "more";
   accent: string;
@@ -30,6 +31,7 @@ export const services: Service[] = [
       "Städning för hem som ska kännas omhändertagna, fräscha och enkla att trivas i.",
     hero:
       "Kom hem till en renare vardag. Vi hjälper dig med återkommande städning, storstädning och flyttstäd med varm och professionell känsla.",
+    heroImage: "/stad-hero-img.webp",
     summary:
       "Hemvanda städar med omsorg om både detaljerna och helheten, så att ditt hem känns lättare att leva i.",
     icon: "sparkles",

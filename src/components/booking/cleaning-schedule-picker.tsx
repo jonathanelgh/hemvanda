@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   buildMonthGrid,
   DEFAULT_AVAILABLE_TIMES,
@@ -33,6 +33,36 @@ export function CleaningSchedulePicker({
     () => buildMonthGrid(viewYear, viewMonth),
     [viewYear, viewMonth],
   );
+
+  const [availableTimes, setAvailableTimes] = useState<string[]>(
+    [...DEFAULT_AVAILABLE_TIMES],
+  );
+
+  useEffect(() => {
+    if (!selectedDate) {
+      setAvailableTimes([...DEFAULT_AVAILABLE_TIMES]);
+      return;
+    }
+
+    let cancelled = false;
+
+    fetch(`/api/booking/availability?date=${selectedDate}`)
+      .then((response) => response.json())
+      .then((data: { times?: string[] }) => {
+        if (!cancelled) {
+          setAvailableTimes(data.times?.length ? data.times : [...DEFAULT_AVAILABLE_TIMES]);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAvailableTimes([...DEFAULT_AVAILABLE_TIMES]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDate]);
 
   const canContinue = Boolean(selectedDate && selectedTime);
 
@@ -187,7 +217,7 @@ export function CleaningSchedulePicker({
             Välj en tid för din första städning.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
-            {DEFAULT_AVAILABLE_TIMES.map((time) => (
+            {availableTimes.map((time) => (
               <button
                 key={time}
                 type="button"

@@ -15,6 +15,7 @@ import {
 } from "@/components/booking/cleaning-price-bar";
 import { CleaningSchedulePicker } from "@/components/booking/cleaning-schedule-picker";
 import {
+  getCleaningBookingCopy,
   keyAccessOptions,
   type BookingParams,
   type CleaningFrequency,
@@ -37,6 +38,7 @@ export function CleaningDirectForm({
   tjanst,
   postnummer,
   kommun,
+  plats,
   onBack,
 }: CleaningDirectFormProps) {
   const [subStep, setSubStep] = useState<"info" | "schedule" | "details" | "success">(
@@ -57,6 +59,7 @@ export function CleaningDirectForm({
   const [address, setAddress] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const copy = getCleaningBookingCopy(plats);
 
   const infoComplete = isCleaningInfoComplete(squareMeters, hasPets);
 
@@ -96,6 +99,7 @@ export function CleaningDirectForm({
           tjanst,
           postnummer,
           kommun,
+          plats,
           bookingPath: "direct",
           squareMeters: Number(squareMeters),
           hasPets,
@@ -137,8 +141,7 @@ export function CleaningDirectForm({
           Tack, {name || "vi har tagit emot din bokning"}.
         </h2>
         <p className="mt-4 text-sm leading-7 text-muted">
-          Vi bekräftar din hemstädning och återkommer med exakt tid och pris
-          baserat på dina uppgifter.
+          {copy.directSuccessMessage}
         </p>
       </div>
     );
@@ -255,7 +258,7 @@ export function CleaningDirectForm({
           disabled={status === "loading"}
           className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-52"
         >
-          {status === "loading" ? "Bokar..." : "Boka städning"}
+          {status === "loading" ? "Bokar..." : copy.submitButtonLabel}
         </button>
       </form>
       {priceBar}
@@ -288,6 +291,9 @@ export function CleaningDirectForm({
         onTidyingChange={setTidying}
         weekdayPreference={weekdayPreference}
         onWeekdayPreferenceChange={setWeekdayPreference}
+        squareMetersLabel={copy.squareMetersLabel}
+        petsLabel={copy.petsLabel}
+        tidyingDescription={copy.tidyingDescription}
       />
 
       <div className="space-y-3">

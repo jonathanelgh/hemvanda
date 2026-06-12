@@ -61,6 +61,7 @@ export default async function BookingPage({ searchParams }: Props) {
               tjanst={context.service.slug}
               postnummer={context.postnummer}
               kommun={context.kommun}
+              plats={context.plats}
             />
           </div>
         ) : (

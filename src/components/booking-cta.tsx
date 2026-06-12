@@ -1,3 +1,7 @@
+import {
+  cleaningPropertyOptions,
+  WEB_BOOKING_SERVICE_SLUG,
+} from "@/lib/booking";
 import { services } from "@/lib/services";
 
 type BookingCtaProps = {
@@ -11,14 +15,19 @@ export function BookingCta({
   defaultService,
   formId = "boka",
 }: BookingCtaProps) {
+  const selectionMode =
+    defaultService === WEB_BOOKING_SERVICE_SLUG ? "locations" : "services";
   const initialService = defaultService ?? services[0]?.slug ?? "";
   const serviceInputName = `${formId}-service`;
+  const isLocationMode = selectionMode === "locations";
 
   return (
     <>
       <form
         id={formId}
         data-booking-form
+        data-selection-mode={selectionMode}
+        data-fixed-service={isLocationMode ? WEB_BOOKING_SERVICE_SLUG : undefined}
         noValidate
         className={
           compact
@@ -81,6 +90,7 @@ export function BookingCta({
         id={`${formId}-service-modal`}
         data-service-modal
         data-modal-for={formId}
+        data-selection-mode={selectionMode}
         className="fixed inset-0 z-[9999] hidden items-end justify-center bg-green/45 p-0 backdrop-blur-sm md:items-center md:p-4"
         aria-hidden="true"
       >
@@ -88,10 +98,10 @@ export function BookingCta({
           type="button"
           data-modal-close
           className="absolute inset-0 cursor-default"
-          aria-label="Stäng tjänsteval"
+          aria-label={isLocationMode ? "Stäng platsval" : "Stäng tjänsteval"}
         />
         <div
-          className="relative flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-xl border border-green/10 bg-card shadow-[0_24px_80px_rgba(47,58,51,0.24)] md:max-w-2xl md:rounded-xl"
+          className="relative z-10 flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-xl border border-green/10 bg-card shadow-[0_24px_80px_rgba(47,58,51,0.24)] md:max-w-2xl md:rounded-xl"
           role="dialog"
           aria-modal="true"
           aria-labelledby={`${formId}-services-title`}
@@ -122,50 +132,103 @@ export function BookingCta({
                 id={`${formId}-services-title`}
                 className="font-display text-3xl text-green"
               >
-                Hur kan vi hjälpa dig?
+                {isLocationMode ? "Var ska vi städa?" : "Hur kan vi hjälpa dig?"}
               </h2>
-              <p className="mt-2 text-sm text-muted">
-                Där du bor i{" "}
-                <span data-modal-place className="font-semibold text-green" />
-                <span
-                  data-modal-place-loading
-                  className="hidden text-muted"
-                  aria-hidden="true"
-                >
-                  ...
-                </span>
-                , erbjuder vi följande tjänster
-              </p>
+              {!isLocationMode ? (
+                <p className="mt-2 text-sm text-muted">
+                  Där du bor i{" "}
+                  <span data-modal-place className="font-semibold text-green" />
+                  <span
+                    data-modal-place-loading
+                    className="hidden text-muted"
+                    aria-hidden="true"
+                  >
+                    ...
+                  </span>
+                  , erbjuder vi följande tjänster
+                </p>
+              ) : null}
             </div>
           </div>
 
+          {isLocationMode ? (
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="flex-1 overflow-y-auto p-5 md:p-6">
+                <div className="grid gap-3">
+                  {cleaningPropertyOptions.map((option) => (
+                    <label
+                      key={option.value}
+                      className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-green/10 bg-white px-4 py-4 text-left text-sm text-green/80 transition has-checked:border-gold has-checked:bg-ivory has-checked:text-green hover:border-gold/50"
+                    >
+                      <span>
+                        <span className="block font-semibold">{option.label}</span>
+                        <span className="mt-1 block text-sm leading-6 text-muted">
+                          {option.description}
+                        </span>
+                      </span>
+                      <input
+                        type="radio"
+                        name="plats"
+                        value={option.value}
+                        defaultChecked={option.value === "hem"}
+                        required
+                        data-location-input
+                        className="ml-4 h-4 w-4 shrink-0 accent-gold"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 border-t border-green/10 bg-card p-4 md:p-6">
+                <p
+                  data-modal-hint
+                  className="mb-3 hidden text-sm text-red-700"
+                  aria-live="polite"
+                />
+                <button
+                  type="button"
+                  data-modal-continue
+                  className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink"
+                >
+                  Fortsätt
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
           <div className="flex-1 overflow-y-auto p-5 md:p-6">
             <div className="grid gap-3">
               {services.map((service) => (
-                <label
-                  key={service.slug}
-                  className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-green/10 bg-white px-4 py-4 text-left text-sm text-green/80 transition has-checked:border-gold has-checked:bg-ivory has-checked:text-green hover:border-gold/50"
-                >
-                  <span>
-                    <span className="block font-semibold">{service.title}</span>
-                    <span className="mt-1 block text-sm leading-6 text-muted">
-                      {service.description}
-                    </span>
-                  </span>
-                  <input
-                    type="radio"
-                    name={serviceInputName}
-                    value={service.slug}
-                    defaultChecked={service.slug === initialService}
-                    data-service-input
-                    className="ml-4 h-4 w-4 shrink-0 accent-gold"
-                  />
-                </label>
-              ))}
+                    <label
+                      key={service.slug}
+                      className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-green/10 bg-white px-4 py-4 text-left text-sm text-green/80 transition has-checked:border-gold has-checked:bg-ivory has-checked:text-green hover:border-gold/50"
+                    >
+                      <span>
+                        <span className="block font-semibold">{service.title}</span>
+                        <span className="mt-1 block text-sm leading-6 text-muted">
+                          {service.description}
+                        </span>
+                      </span>
+                      <input
+                        type="radio"
+                        name={serviceInputName}
+                        value={service.slug}
+                        defaultChecked={service.slug === initialService}
+                        data-service-input
+                        className="ml-4 h-4 w-4 shrink-0 accent-gold"
+                      />
+                    </label>
+                  ))}
             </div>
           </div>
 
           <div className="sticky bottom-0 border-t border-green/10 bg-card p-4 md:p-6">
+            <p
+              data-modal-hint
+              className="mb-3 hidden text-sm text-red-700"
+              aria-live="polite"
+            />
             <button
               type="button"
               data-modal-continue
@@ -174,6 +237,8 @@ export function BookingCta({
               Fortsätt
             </button>
           </div>
+            </>
+          )}
         </div>
       </div>
     </>

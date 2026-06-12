@@ -6,31 +6,32 @@ import {
 } from "@/components/booking/booking-styles";
 import { CheckIcon } from "@/components/booking/check-icon";
 import {
-  cleaningHighlights,
-  cleaningMethodOptions,
+  getCleaningBookingCopy,
   type CleaningBookingPath,
+  type CleaningPropertyType,
 } from "@/lib/booking";
 
 type CleaningMethodStepProps = {
+  plats?: CleaningPropertyType;
   onSelect: (path: CleaningBookingPath) => void;
 };
 
-export function CleaningMethodStep({ onSelect }: CleaningMethodStepProps) {
+export function CleaningMethodStep({ plats, onSelect }: CleaningMethodStepProps) {
+  const copy = getCleaningBookingCopy(plats);
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="font-display text-4xl leading-tight text-green md:text-5xl">
-          Hur vill du boka din hemstädning?
+          {copy.methodTitle}
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-8 text-muted">
-          Välj om du vill boka direkt eller prata med en av våra experter.
-          Behöver du mer information? Läs mer om våra abonnemang, momentlistor
-          och svar på vanliga frågor.
+          {copy.methodDescription}
         </p>
       </div>
 
       <ul className="grid gap-3 sm:grid-cols-3">
-        {cleaningHighlights.map((highlight) => (
+        {copy.highlights.map((highlight) => (
           <li
             key={highlight}
             className={bookingHighlightClassName}
@@ -42,7 +43,7 @@ export function CleaningMethodStep({ onSelect }: CleaningMethodStepProps) {
       </ul>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {cleaningMethodOptions.map((option) => (
+        {copy.methodOptions.map((option) => (
           <button
             key={option.value}
             type="button"

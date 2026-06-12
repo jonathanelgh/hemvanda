@@ -69,15 +69,14 @@ export default function Home() {
                 Telefonen blir nyckeln till dina bokningar.
               </h2>
               <p className="mt-6 text-base leading-8 text-white/72">
-                Första versionen förbereder ett telefonbaserat konto. Senare kan
-                kunder logga in med kod, se bokningar, uppdatera instruktioner
-                och följa sina uppdrag.
+                Logga in med mobilnummer och SMS-kod. Snart kan du även se
+                bokningar, uppdatera instruktioner och följa dina uppdrag.
               </p>
               <Link
                 href="/logga-in"
                 className="mt-8 inline-flex rounded-full bg-gold px-6 py-3 text-sm font-bold text-green transition hover:bg-sand"
               >
-                Se login-flödet
+                Logga in
               </Link>
             </div>
             <div>

@@ -11,6 +11,11 @@
     return onlyDigits.slice(0, 3) + " " + onlyDigits.slice(3);
   }
 
+  function formatZipForUrl(zip) {
+    if (zip.length !== 5) return zip;
+    return zip.slice(0, 3) + " " + zip.slice(3);
+  }
+
   function modalFor(form) {
     if (!form) return null;
     var formId = form.id;
@@ -32,9 +37,31 @@
     return parentForm || null;
   }
 
-  function selectedService(modal) {
+  function selectionMode(form, modal) {
+    if (form && form.dataset.selectionMode) return form.dataset.selectionMode;
+    if (modal && modal.dataset.selectionMode) return modal.dataset.selectionMode;
+    return "services";
+  }
+
+  function selectedService(form, modal) {
+    if (selectionMode(form, modal) === "locations") {
+      return (
+        (form && form.dataset.fixedService) ||
+        (modal && modal.dataset.fixedService) ||
+        "stad"
+      );
+    }
+
+    if (form && form.dataset.fixedService) return form.dataset.fixedService;
+
     var checked = modal.querySelector("[data-service-input]:checked");
     var first = modal.querySelector("[data-service-input]");
+    return (checked || first || {}).value || "";
+  }
+
+  function selectedLocation(modal) {
+    var checked = modal.querySelector("[data-location-input]:checked");
+    var first = modal.querySelector("[data-location-input]");
     return (checked || first || {}).value || "";
   }
 
@@ -44,6 +71,21 @@
     hint.className = isError
       ? "mt-4 text-xs leading-5 text-red-700"
       : "mt-4 text-xs leading-5 text-muted";
+  }
+
+  function setModalHint(modal, text) {
+    if (!modal) return;
+    var hint = modal.querySelector("[data-modal-hint]");
+    if (!hint) return;
+
+    if (!text) {
+      hint.textContent = "";
+      hint.classList.add("hidden");
+      return;
+    }
+
+    hint.textContent = text;
+    hint.classList.remove("hidden");
   }
 
   function placeFromLabel(label, masked) {
@@ -56,6 +98,21 @@
     if (!form) return;
     if (place) form.dataset.resolvedPlace = place;
     else delete form.dataset.resolvedPlace;
+  }
+
+  function storeResolvedZip(form, zip) {
+    if (!form) return;
+    if (zip) form.dataset.resolvedZip = zip;
+    else delete form.dataset.resolvedZip;
+  }
+
+  function getResolvedZip(form) {
+    if (!form) return "";
+    return form.dataset.resolvedZip || "";
+  }
+
+  function hasVerifiedPostal(form, zip) {
+    return Boolean(zip && getResolvedZip(form) === zip && getResolvedPlace(form));
   }
 
   function getResolvedPlace(form) {
@@ -73,6 +130,9 @@
   function setSubmitState(form, state, masked) {
     var submit = form.querySelector("[data-submit-button]");
     var hint = form.querySelector("[data-postal-hint]");
+    var modal = modalFor(form);
+    var isLocations = selectionMode(form, modal) === "locations";
+    var readyLabel = isLocations ? "Välj plats" : "Välj tjänst";
     if (!submit) return;
 
     if (state === "idle") {
@@ -95,10 +155,10 @@
 
     if (state === "ready") {
       submit.disabled = false;
-      submit.textContent = "Välj tjänst";
+      submit.textContent = readyLabel;
       setHint(
         hint,
-        "Postnumret är verifierat. Klicka Välj tjänst för att fortsätta.",
+        "Postnumret är verifierat. Klicka " + readyLabel + " för att fortsätta.",
         false,
       );
       return;
@@ -132,6 +192,7 @@
     if (!modal) return;
     var place = getResolvedPlace(form);
     setModalPlace(modal, place, isPlaceLoading(form) && !place);
+    setModalHint(modal, "");
   }
 
   function setPostalPlace(form, masked, place, isLoading) {
@@ -176,6 +237,9 @@
     var modal = modalFor(form);
     if (!modal) return;
     portalModal(modal);
+    if (form.dataset.fixedService) {
+      modal.dataset.fixedService = form.dataset.fixedService;
+    }
     syncModalPlaceFromForm(form);
     modal.classList.remove("hidden");
     modal.classList.add("flex");
@@ -199,35 +263,52 @@
     var modal = modalFor(form);
     var input = form.querySelector("[data-postal-input]");
     var hint = form.querySelector("[data-postal-hint]");
-    var zip = digits(input ? input.value : "");
-    var service = selectedService(modal);
+    var zip = digits(input ? input.value : "") || getResolvedZip(form);
+    var place = getResolvedPlace(form);
+    var isLocations = selectionMode(form, modal) === "locations";
+    var service = selectedService(form, modal);
+    var propertyType = isLocations ? selectedLocation(modal) : "";
 
     if (zip.length !== 5) {
       setHint(hint, "Ogiltigt postnummer. Ange fem siffror.", true);
+      setModalHint(modal, "Ogiltigt postnummer. Ange fem siffror.");
       closeModal(form);
       return;
     }
 
-    if (!getResolvedPlace(form)) {
+    if (!place) {
       setHint(hint, "Vänta tills orten har verifierats.", true);
+      setModalHint(modal, "Vänta tills orten har verifierats.");
       return;
     }
 
-    if (!service) {
+    if (isLocations) {
+      if (!propertyType) {
+        setHint(hint, "Välj plats för att fortsätta.", true);
+        setModalHint(modal, "Välj plats för att fortsätta.");
+        return;
+      }
+    } else if (!service) {
       setHint(hint, "Välj en tjänst för att fortsätta.", true);
+      setModalHint(modal, "Välj en tjänst för att fortsätta.");
       return;
     }
 
-    var place = getResolvedPlace(form);
-
-    window.location.href =
+    setModalHint(modal, "");
+    var url =
       "/booking?" +
       "tjanst=" +
       encodeURIComponent(service) +
       "&postnummer=" +
-      encodeURIComponent(zip) +
+      encodeURIComponent(formatZipForUrl(zip)) +
       "&kommun=" +
       encodeURIComponent(place);
+
+    if (propertyType) {
+      url += "&plats=" + encodeURIComponent(propertyType);
+    }
+
+    window.location.assign(url);
   }
 
   function resolvePlace(data, masked) {
@@ -247,6 +328,7 @@
     function reset() {
       closeModal(form);
       setPostalPlace(form, "", "", false);
+      storeResolvedZip(form, "");
       if (input) input.setAttribute("aria-label", "Postnummer");
       setSubmitState(form, "idle");
     }
@@ -258,6 +340,12 @@
 
     if (zip.length !== 5) {
       reset();
+      return;
+    }
+
+    if (hasVerifiedPostal(form, zip)) {
+      setPostalPlace(form, masked, getResolvedPlace(form), false);
+      setSubmitState(form, "ready", masked);
       return;
     }
 
@@ -278,11 +366,13 @@
         var place = resolvePlace(data, masked);
         if (!place) throw new Error("place missing");
 
+        storeResolvedZip(form, zip);
         setPostalPlace(form, masked, place, false);
         setSubmitState(form, "ready", masked);
       })
       .catch(function () {
         if (lookupIds.get(form) !== currentLookup) return;
+        storeResolvedZip(form, "");
         setPostalPlace(form, masked, "", false);
         setSubmitState(form, "error", masked);
       });
@@ -300,7 +390,7 @@
       return;
     }
 
-    if (isPlaceLoading(form)) {
+    if (isPlaceLoading(form) && !hasVerifiedPostal(form, zip)) {
       setHint(hint, "Vänta tills orten har verifierats.", true);
       return;
     }
@@ -355,6 +445,8 @@
 
       var continueButton = event.target && event.target.closest("[data-modal-continue]");
       if (continueButton) {
+        event.preventDefault();
+
         var continueModal = continueButton.closest("[data-service-modal]");
         var continueForm = continueModal ? formForModal(continueModal) : null;
         if (continueForm) continueBooking(continueForm);

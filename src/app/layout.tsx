@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
@@ -41,10 +40,7 @@ export default function RootLayout({
       lang="sv"
       className={`${playfair.variable} ${montserrat.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="flex min-h-full flex-col">
-        <Script src="/booking.js?v=10" strategy="afterInteractive" />
-        {children}
-      </body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

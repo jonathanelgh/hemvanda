@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookingCta } from "@/components/booking-cta";
 import { Icon } from "@/components/icons";
@@ -45,22 +44,39 @@ export default async function ServicePage({ params }: Props) {
     <div className="min-h-screen bg-background text-green">
       <SiteHeader />
       <main>
-        <section className="relative overflow-hidden bg-ivory py-20">
-          <div className="container-shell grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+        <section
+          className={`relative overflow-hidden py-20 ${service.heroImage ? "" : "bg-ivory"}`}
+        >
+          {service.heroImage ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={service.heroImage}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover object-center"
+                aria-hidden
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--background)_0%,rgba(248,245,239,0.96)_10%,rgba(248,245,239,0.88)_38%,rgba(248,245,239,0.72)_58%,var(--background)_100%)] lg:hidden" />
+              <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,var(--background)_0%,rgba(248,245,239,0.94)_22%,rgba(248,245,239,0.55)_48%,rgba(248,245,239,0.15)_68%,transparent_82%)] lg:block" />
+              <div className="absolute inset-0 hidden bg-[linear-gradient(180deg,transparent_0%,transparent_62%,rgba(248,245,239,0.35)_82%,var(--background)_100%)] lg:block" />
+              <div className="absolute inset-0 hidden bg-[radial-gradient(circle_at_18%_20%,rgba(201,164,106,0.12),transparent_42%)] lg:block" />
+            </>
+          ) : null}
+          <div className="relative z-10 container-shell grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
             <div>
-              <Link
-                href="/"
-                className="text-sm font-semibold text-green/60 transition hover:text-gold"
+              <p
+                className={`text-xs font-bold uppercase tracking-[0.34em] text-gold ${service.heroImage ? "drop-shadow-[0_1px_8px_rgba(248,245,239,0.85)]" : ""}`}
               >
-                Tillbaka till startsidan
-              </Link>
-              <p className="mt-10 text-xs font-bold uppercase tracking-[0.34em] text-gold">
                 {service.eyebrow}
               </p>
-              <h1 className="mt-5 font-display text-6xl leading-none text-green md:text-8xl">
+              <h1
+                className={`mt-5 font-display text-6xl leading-none md:text-8xl ${service.heroImage ? "text-black drop-shadow-[0_1px_12px_rgba(248,245,239,0.85)]" : "text-green"}`}
+              >
                 {service.title}
               </h1>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-muted">
+              <p
+                className={`mt-7 max-w-2xl text-lg leading-8 ${service.heroImage ? "text-black/80 max-lg:text-black/90" : "text-muted"}`}
+              >
                 {service.hero}
               </p>
             </div>

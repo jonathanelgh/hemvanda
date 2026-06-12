@@ -50,6 +50,9 @@ type CleaningInfoSectionsProps = {
   onTidyingChange: (value: TidyingOption) => void;
   weekdayPreference: WeekdayPreference;
   onWeekdayPreferenceChange: (value: WeekdayPreference) => void;
+  squareMetersLabel?: string;
+  petsLabel?: string;
+  tidyingDescription?: string;
 };
 
 export function CleaningInfoSections({
@@ -63,11 +66,14 @@ export function CleaningInfoSections({
   onTidyingChange,
   weekdayPreference,
   onWeekdayPreferenceChange,
+  squareMetersLabel = "Bostadsyta (kvm)",
+  petsLabel = "Har du husdjur hemma?",
+  tidyingDescription = "När du bokar undanplockning slipper du förbereda hemmet själv. Vi börjar med att plocka undan, så att vi därefter kan fokusera fullt ut på städningen av ditt hem.",
 }: CleaningInfoSectionsProps) {
   return (
     <>
       <section className={bookingSectionClassName}>
-        <FieldLegend label="Bostadsyta (kvm)" required />
+        <FieldLegend label={squareMetersLabel} required />
         <input
           type="number"
           min={10}
@@ -80,7 +86,7 @@ export function CleaningInfoSections({
         />
 
         <div className="mt-6">
-          <FieldLegend label="Har du husdjur hemma?" required learnMore />
+          <FieldLegend label={petsLabel} required learnMore />
           <div className="grid gap-3 sm:grid-cols-2">
             {(["ja", "nej"] as PetAnswer[]).map((value) => (
               <label
@@ -177,9 +183,7 @@ export function CleaningInfoSections({
               Ja, lägg till undanplockning
             </span>
             <span className="mt-1 block text-sm leading-6 text-muted">
-              När du bokar undanplockning slipper du förbereda hemmet själv. Vi
-              börjar med att plocka undan, så att vi därefter kan fokusera fullt
-              ut på städningen av ditt hem.
+              {tidyingDescription}
             </span>
           </span>
         </label>

@@ -4,13 +4,18 @@ import {
   contactPreferenceOptions,
   keyAccessOptions,
   WEB_BOOKING_SERVICE_SLUG,
+  cleaningPropertyOptions,
   type CleaningBookingPath,
+  type CleaningFrequency,
+  type CleaningPropertyType,
   type ContactPreference,
   type KeyAccess,
   type PetAnswer,
   type TidyingOption,
   type WeekdayPreference,
 } from "@/lib/booking";
+import { saveCleaningBooking } from "@/lib/db/bookings";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +23,7 @@ type CleaningBookingPayload = {
   tjanst?: string;
   postnummer?: string;
   kommun?: string;
+  plats?: CleaningPropertyType;
   bookingPath?: CleaningBookingPath;
   squareMeters?: number;
   hasPets?: PetAnswer;
@@ -71,7 +77,20 @@ function validateCleaningInfo(payload: CleaningBookingPayload) {
   return null;
 }
 
+function parsePropertyType(value?: string) {
+  return cleaningPropertyOptions.some((option) => option.value === value)
+    ? (value as CleaningPropertyType)
+    : undefined;
+}
+
 export async function POST(request: Request) {
+  if (!isSupabaseAdminConfigured()) {
+    return Response.json(
+      { error: "Databasen är inte konfigurerad. Lägg till SUPABASE_SERVICE_ROLE_KEY." },
+      { status: 503 },
+    );
+  }
+
   let payload: CleaningBookingPayload;
 
   try {
@@ -91,6 +110,8 @@ export async function POST(request: Request) {
   if (!payload.kommun?.trim()) {
     return Response.json({ error: "Ort saknas." }, { status: 400 });
   }
+
+  const propertyType = parsePropertyType(payload.plats);
 
   if (!payload.name?.trim() || !payload.phone?.trim() || !payload.email?.trim()) {
     return Response.json({ error: "Kontaktuppgifter saknas." }, { status: 400 });
@@ -118,11 +139,37 @@ export async function POST(request: Request) {
       return Response.json({ error: "Adress saknas." }, { status: 400 });
     }
 
-    return Response.json({
-      ok: true,
-      bookingId: `stad-expert-${Date.now()}`,
-      message: "Förfrågan är registrerad.",
-    });
+    try {
+      const bookingId = await saveCleaningBooking({
+        serviceSlug: payload.tjanst,
+        bookingPath: "expert",
+        postalCode: payload.postnummer!,
+        municipality: payload.kommun,
+        squareMeters: payload.squareMeters!,
+        hasPets: payload.hasPets!,
+        frequency: payload.frequency as CleaningFrequency,
+        tidying: payload.tidying!,
+        weekdayPreference: payload.weekdayPreference!,
+        contactPreference: payload.contactPreference,
+        name: payload.name,
+        phone: payload.phone,
+        email: payload.email,
+        address: payload.address,
+        message: payload.message,
+        propertyType,
+      });
+
+      return Response.json({
+        ok: true,
+        bookingId,
+        message: "Förfrågan är registrerad.",
+      });
+    } catch (error) {
+      return Response.json(
+        { error: error instanceof Error ? error.message : "Kunde inte spara förfrågan." },
+        { status: 500 },
+      );
+    }
   }
 
   if (payload.bookingPath !== "direct") {
@@ -166,9 +213,36 @@ export async function POST(request: Request) {
     return Response.json({ error: "Välj en ledig tid." }, { status: 400 });
   }
 
-  return Response.json({
-    ok: true,
-    bookingId: `stad-${Date.now()}`,
-    message: "Bokningen är registrerad.",
-  });
+  try {
+    const bookingId = await saveCleaningBooking({
+      serviceSlug: payload.tjanst,
+      bookingPath: "direct",
+      postalCode: payload.postnummer!,
+      municipality: payload.kommun,
+      squareMeters: payload.squareMeters!,
+      hasPets: payload.hasPets!,
+      frequency: payload.frequency as CleaningFrequency,
+      tidying: payload.tidying!,
+      weekdayPreference: payload.weekdayPreference!,
+      keyAccess: payload.keyAccess,
+      preferredDate: payload.preferredDate,
+      preferredTime: payload.preferredTime,
+      name: payload.name,
+      phone: payload.phone,
+      email: payload.email,
+      address: payload.address,
+      propertyType,
+    });
+
+    return Response.json({
+      ok: true,
+      bookingId,
+      message: "Bokningen är registrerad.",
+    });
+  } catch (error) {
+    return Response.json(
+      { error: error instanceof Error ? error.message : "Kunde inte slutföra bokningen." },
+      { status: 500 },
+    );
+  }
 }

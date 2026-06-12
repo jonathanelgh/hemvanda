@@ -15,6 +15,7 @@ export function CleaningBookingFlow({
   tjanst,
   postnummer,
   kommun,
+  plats,
 }: CleaningBookingFlowProps) {
   const [step, setStep] = useState<FlowStep>("method");
   const service = getService(tjanst);
@@ -24,7 +25,7 @@ export function CleaningBookingFlow({
   return (
     <div className="space-y-8">
       {step === "method" ? (
-        <CleaningMethodStep onSelect={setStep} />
+        <CleaningMethodStep plats={plats} onSelect={setStep} />
       ) : null}
 
       {step === "direct" ? (
@@ -32,6 +33,7 @@ export function CleaningBookingFlow({
           tjanst={tjanst}
           postnummer={postnummer}
           kommun={kommun}
+          plats={plats}
           onBack={() => setStep("method")}
         />
       ) : null}
@@ -41,6 +43,7 @@ export function CleaningBookingFlow({
           tjanst={tjanst}
           postnummer={postnummer}
           kommun={kommun}
+          plats={plats}
           onBack={() => setStep("method")}
         />
       ) : null}

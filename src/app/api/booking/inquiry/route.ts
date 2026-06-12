@@ -1,5 +1,7 @@
 import { normalizeZipCode } from "@/lib/coverage";
 import { isWebBookingService } from "@/lib/booking";
+import { saveServiceInquiry } from "@/lib/db/bookings";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { getService } from "@/lib/services";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +22,13 @@ function isValidEmail(email: string) {
 }
 
 export async function POST(request: Request) {
+  if (!isSupabaseAdminConfigured()) {
+    return Response.json(
+      { error: "Databasen är inte konfigurerad. Lägg till SUPABASE_SERVICE_ROLE_KEY." },
+      { status: 503 },
+    );
+  }
+
   let payload: InquiryBookingPayload;
 
   try {
@@ -64,9 +73,27 @@ export async function POST(request: Request) {
     );
   }
 
-  return Response.json({
-    ok: true,
-    inquiryId: `inquiry-${Date.now()}`,
-    message: "Förfrågan är registrerad.",
-  });
+  try {
+    const inquiryId = await saveServiceInquiry({
+      serviceSlug: service.slug,
+      postalCode: payload.postnummer!,
+      municipality: payload.kommun,
+      name: payload.name,
+      phone: payload.phone,
+      email: payload.email,
+      timeframe: payload.timeframe?.trim() || "snarast",
+      message: payload.message,
+    });
+
+    return Response.json({
+      ok: true,
+      inquiryId,
+      message: "Förfrågan är registrerad.",
+    });
+  } catch (error) {
+    return Response.json(
+      { error: error instanceof Error ? error.message : "Kunde inte spara förfrågan." },
+      { status: 500 },
+    );
+  }
 }
