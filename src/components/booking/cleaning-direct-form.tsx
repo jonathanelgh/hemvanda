@@ -170,7 +170,7 @@ export function CleaningDirectForm({
           weekdayPreference={weekdayPreference}
           showPrice={showsFixedPrice}
         />
-        <BookingAccountSuccessNote email={email} />
+        {showsFixedPrice ? <BookingAccountSuccessNote email={email} /> : null}
       </div>
     );
   }

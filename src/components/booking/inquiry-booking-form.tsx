@@ -5,7 +5,6 @@ import {
   bookingSectionClassName,
   bookingSuccessClassName,
 } from "@/components/booking/booking-styles";
-import { BookingAccountSuccessNote } from "@/components/booking/booking-account-success";
 import type { BookingParams } from "@/lib/booking";
 import { serviceDisplayName } from "@/lib/booking";
 import { readApiError } from "@/lib/api-client";
@@ -82,7 +81,6 @@ export function InquiryBookingForm({
           {service ? serviceDisplayName(service).toLowerCase() : "din tjänst"} i{" "}
           {kommun}.
         </p>
-        <BookingAccountSuccessNote email={email} />
       </div>
     );
   }

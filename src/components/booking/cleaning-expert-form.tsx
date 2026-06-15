@@ -5,7 +5,6 @@ import {
   bookingSectionClassName,
   bookingSuccessClassName,
 } from "@/components/booking/booking-styles";
-import { BookingAccountSuccessNote } from "@/components/booking/booking-account-success";
 import {
   CleaningInfoSections,
   isCleaningInfoComplete,
@@ -121,7 +120,6 @@ export function CleaningExpertForm({
         <p className="mt-4 text-sm leading-7 text-muted">
           {copy.expertSuccessMessage(kommun)}
         </p>
-        <BookingAccountSuccessNote email={email} />
       </div>
     );
   }
