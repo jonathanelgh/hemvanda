@@ -2,6 +2,7 @@ import type { DashboardBooking } from "@/lib/admin/queries";
 
 const bookingTypeLabels: Record<string, string> = {
   cleaning_direct: "Direktbokning",
+  service_booking: "Tjänstebokning",
   cleaning_expert: "Expertlead",
   service_inquiry: "Förfrågan",
 };
@@ -39,8 +40,9 @@ export function AdminBookingsTable({
             <tr>
               <th className="px-5 py-4 font-semibold">Kund</th>
               <th className="px-5 py-4 font-semibold">Typ</th>
+              <th className="px-5 py-4 font-semibold">Frekvens</th>
               <th className="px-5 py-4 font-semibold">Ort</th>
-              <th className="px-5 py-4 font-semibold">Tid</th>
+              <th className="px-5 py-4 font-semibold">Nästa besök</th>
               <th className="px-5 py-4 font-semibold">Status</th>
             </tr>
           </thead>
@@ -54,12 +56,22 @@ export function AdminBookingsTable({
                   {bookingTypeLabels[booking.bookingType] ?? booking.bookingType}
                 </td>
                 <td className="px-5 py-4 text-muted">
+                  {booking.frequencyLabel ?? "—"}
+                </td>
+                <td className="px-5 py-4 text-muted">
                   {booking.postalCode} {booking.municipality}
                 </td>
                 <td className="px-5 py-4 text-muted">
-                  {booking.preferredDate
-                    ? `${booking.preferredDate}${booking.preferredTime ? ` ${booking.preferredTime}` : ""}`
-                    : "—"}
+                  {booking.nextVisitDate
+                    ? `${booking.nextVisitDate}${booking.nextVisitTime ? ` ${booking.nextVisitTime}` : ""}`
+                    : booking.preferredDate
+                      ? `${booking.preferredDate}${booking.preferredTime ? ` ${booking.preferredTime}` : ""}`
+                      : "—"}
+                  {booking.upcomingVisitCount > 1 ? (
+                    <span className="mt-1 block text-xs text-green/60">
+                      +{booking.upcomingVisitCount - 1} till planerade
+                    </span>
+                  ) : null}
                 </td>
                 <td className="px-5 py-4">
                   <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-green">

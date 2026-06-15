@@ -1,3 +1,4 @@
+import { BRAND_NAME } from "@/lib/brand";
 import { Icon } from "./icons";
 
 export function SectionHeading({
@@ -94,7 +95,7 @@ export function StepsSection() {
         <SectionHeading
           eyebrow="Så fungerar det"
           title="Tre steg till ett hem som känns nytt."
-          description="Hemvanda är byggt för att göra vardagen enklare, från första kontakt till färdigt resultat."
+          description={`${BRAND_NAME} är byggt för att göra vardagen enklare, från första kontakt till färdigt resultat.`}
           centered
         />
         <div className="mt-14 grid gap-5 md:grid-cols-3">

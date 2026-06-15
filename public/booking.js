@@ -131,8 +131,13 @@
     var submit = form.querySelector("[data-submit-button]");
     var hint = form.querySelector("[data-postal-hint]");
     var modal = modalFor(form);
-    var isLocations = selectionMode(form, modal) === "locations";
-    var readyLabel = isLocations ? "Välj plats" : "Välj tjänst";
+    var mode = selectionMode(form, modal);
+    var readyLabel =
+      mode === "locations"
+        ? "Välj plats"
+        : mode === "fixed"
+          ? "Fortsätt"
+          : "Välj tjänst";
     if (!submit) return;
 
     if (state === "idle") {
@@ -397,6 +402,12 @@
 
     if (!getResolvedPlace(form)) {
       setHint(hint, "Kunde inte hitta orten för postnumret. Kontrollera och försök igen.", true);
+      return;
+    }
+
+    var modal = modalFor(form);
+    if (selectionMode(form, modal) === "fixed") {
+      continueBooking(form);
       return;
     }
 

@@ -5,6 +5,7 @@ import { CleaningBookingFlow } from "@/components/booking/cleaning-booking-flow"
 import { InquiryBookingForm } from "@/components/booking/inquiry-booking-form";
 import { BookingHeader } from "@/components/booking-header";
 import { SiteFooter } from "@/components/site-footer";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   parseBookingSearchParams,
   resolveBookingContext,
@@ -12,9 +13,9 @@ import {
 } from "@/lib/booking";
 
 export const metadata: Metadata = {
-  title: "Boka | Hemvanda",
+  title: `Boka | ${BRAND_NAME}`,
   description:
-    "Boka hemstädning direkt online eller skicka en förfrågan för övriga Hemvanda-tjänster.",
+    `Boka hemstädning direkt online eller skicka en förfrågan för övriga ${BRAND_NAME}-tjänster.`,
 };
 
 type Props = {

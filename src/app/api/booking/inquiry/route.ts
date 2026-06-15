@@ -1,6 +1,6 @@
 import { normalizeZipCode } from "@/lib/coverage";
 import { isWebBookingService } from "@/lib/booking";
-import { saveServiceInquiry } from "@/lib/db/bookings";
+import { saveServiceLead } from "@/lib/db/leads";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { getService } from "@/lib/services";
 
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const inquiryId = await saveServiceInquiry({
+    const leadId = await saveServiceLead({
       serviceSlug: service.slug,
       postalCode: payload.postnummer!,
       municipality: payload.kommun,
@@ -87,8 +87,8 @@ export async function POST(request: Request) {
 
     return Response.json({
       ok: true,
-      inquiryId,
-      message: "Förfrågan är registrerad.",
+      leadId,
+      message: "Förfrågan är registrerad som lead.",
     });
   } catch (error) {
     return Response.json(

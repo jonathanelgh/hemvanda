@@ -50,7 +50,7 @@ export async function getCustomerSession() {
   };
 }
 
-export async function redirectIfCustomerLoggedIn(destination = "/") {
+export async function redirectIfCustomerLoggedIn(destination = "/mitt-konto") {
   const session = await getCustomerSession();
 
   if (session.user && session.profile) {

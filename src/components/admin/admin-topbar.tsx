@@ -9,14 +9,12 @@ import type { TeamProfile } from "@/lib/admin/auth";
 type AdminTopBarProps = {
   profile: TeamProfile;
   title: string;
-  subtitle?: string;
   onMenuClick?: () => void;
 };
 
 export function AdminTopBar({
   profile,
   title,
-  subtitle,
   onMenuClick,
 }: AdminTopBarProps) {
   const [open, setOpen] = useState(false);
@@ -44,7 +42,7 @@ export function AdminTopBar({
     "HV";
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-green/10 bg-card px-4 md:px-6">
+    <header className="relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-green/10 bg-card px-4 md:px-6">
       <div className="flex items-center gap-3">
         {onMenuClick ? (
           <button
@@ -58,7 +56,6 @@ export function AdminTopBar({
         ) : null}
         <div>
           <h1 className="font-display text-2xl text-green">{title}</h1>
-          {subtitle ? <p className="text-sm text-muted">{subtitle}</p> : null}
         </div>
       </div>
 
@@ -79,6 +76,10 @@ export function AdminTopBar({
               {profile.role === "admin" ? "Administratör" : "Personal"}
             </span>
           </span>
+          <AdminIcon
+            name="chevron"
+            className={`hidden h-4 w-4 text-muted transition-transform sm:block ${open ? "-rotate-90" : "rotate-90"}`}
+          />
         </button>
 
         {open ? (

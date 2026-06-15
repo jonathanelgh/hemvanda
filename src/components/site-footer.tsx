@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { BRAND_NAME } from "@/lib/brand";
 import { services } from "@/lib/services";
 import { BrandLogo } from "./brand-logo";
 
-const companyLinks = ["Om Hemvanda", "Trygghet", "Hållbarhet", "Karriär"];
+const companyLinks = [`Om ${BRAND_NAME}`, "Trygghet", "Hållbarhet", "Karriär"];
 const supportLinks = ["Kontakta oss", "FAQ", "Villkor", "Integritet"];
 
 export function SiteFooter() {
@@ -14,7 +15,7 @@ export function SiteFooter() {
             <BrandLogo />
           </div>
           <p className="mt-6 max-w-sm text-sm leading-7 text-white/70">
-            Hemvanda hjälper dig att förvandla hemmet med städ, snickeri,
+            {BRAND_NAME} hjälper dig att förvandla hemmet med städ, snickeri,
             bygg, renovering, handyman, inredning och utvalda övriga tjänster.
             En kontakt, ett tryggt upplägg och ett hem som känns rätt.
           </p>
@@ -36,7 +37,7 @@ export function SiteFooter() {
               </Link>
             ))}
           </FooterColumn>
-          <FooterColumn title="Hemvanda">
+          <FooterColumn title={BRAND_NAME}>
             {companyLinks.map((link) => (
               <a key={link} href="#">
                 {link}
@@ -54,7 +55,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-white/10 py-6">
         <div className="container-shell flex flex-col gap-3 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 Hemvanda. Alla rättigheter förbehållna.</span>
+          <span>© 2026 {BRAND_NAME}. Alla rättigheter förbehållna.</span>
           <span>Förvandlar hem, skapar känsla.</span>
         </div>
       </div>

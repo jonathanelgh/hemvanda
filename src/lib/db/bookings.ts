@@ -2,21 +2,28 @@ import { normalizeZipCode } from "@/lib/coverage";
 import { calculateCleaningPrice } from "@/lib/cleaning-pricing";
 import {
   formatCleaningPropertyMessage,
-  type CleaningBookingPath,
   type CleaningFrequency,
   type CleaningPropertyType,
-  type ContactPreference,
   type KeyAccess,
   type PetAnswer,
   type TidyingOption,
   type WeekdayPreference,
 } from "@/lib/booking";
+import { ensureCustomerAccount } from "@/lib/auth/customer-account";
+import { generateCleaningVisits } from "@/lib/db/cleaning-visits";
+import type { AdminScheduleBookingInput } from "@/lib/admin/schedule-booking";
+import {
+  isCleaningServiceSlug,
+  usesCalculatedCleaningPrice,
+} from "@/lib/admin/schedule-booking";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  getAvailableTimesForDate,
+} from "@/lib/db/weekly-availability";
 import type { Json } from "@/lib/supabase/database.types";
 
 type CleaningBookingInput = {
   serviceSlug: string;
-  bookingPath: CleaningBookingPath;
   postalCode: string;
   municipality: string;
   squareMeters: number;
@@ -24,7 +31,6 @@ type CleaningBookingInput = {
   frequency: CleaningFrequency;
   tidying: TidyingOption;
   weekdayPreference: WeekdayPreference;
-  contactPreference?: ContactPreference;
   keyAccess?: KeyAccess;
   preferredDate?: string;
   preferredTime?: string;
@@ -34,22 +40,8 @@ type CleaningBookingInput = {
   address?: string;
   message?: string;
   propertyType?: CleaningPropertyType;
+  sourceLeadId?: string;
 };
-
-type ServiceInquiryInput = {
-  serviceSlug: string;
-  postalCode: string;
-  municipality: string;
-  name: string;
-  phone: string;
-  email: string;
-  timeframe: string;
-  message: string;
-};
-
-function toDbTime(time: string) {
-  return time.length === 5 ? `${time}:00` : time;
-}
 
 async function upsertServiceArea(postalCode: string, municipality: string) {
   const supabase = createAdminClient();
@@ -65,6 +57,38 @@ async function upsertServiceArea(postalCode: string, municipality: string) {
   );
 }
 
+async function linkBookingToCustomer(
+  bookingId: string,
+  input: {
+    name: string;
+    phone: string;
+    email: string;
+    address?: string;
+    postalCode?: string;
+    municipality?: string;
+  },
+) {
+  try {
+    const account = await ensureCustomerAccount(input);
+
+    if (!account) {
+      console.error(
+        "linkBookingToCustomer: no customer account created for",
+        input.email,
+      );
+      return;
+    }
+
+    const supabase = createAdminClient();
+    await supabase
+      .from("bookings")
+      .update({ profile_id: account.userId })
+      .eq("id", bookingId);
+  } catch (error) {
+    console.error("linkBookingToCustomer failed:", error);
+  }
+}
+
 async function createStatusEvent(bookingId: string, note?: string) {
   const supabase = createAdminClient();
 
@@ -75,49 +99,9 @@ async function createStatusEvent(bookingId: string, note?: string) {
   });
 }
 
-async function reserveAvailabilitySlot(
-  bookingId: string,
-  preferredDate: string,
-  preferredTime: string,
-  serviceSlug: string,
-) {
-  const supabase = createAdminClient();
-  const startTime = toDbTime(preferredTime);
-
-  const { data: slot, error: slotError } = await supabase
-    .from("availability_slots")
-    .select("id, is_available")
-    .eq("slot_date", preferredDate)
-    .eq("start_time", startTime)
-    .eq("service_slug", serviceSlug)
-    .maybeSingle();
-
-  if (slotError) {
-    throw new Error("Kunde inte kontrollera lediga tider.");
-  }
-
-  if (!slot?.is_available) {
-    throw new Error("Den valda tiden är inte längre tillgänglig.");
-  }
-
-  const { error: updateError } = await supabase
-    .from("availability_slots")
-    .update({
-      is_available: false,
-      booking_id: bookingId,
-    })
-    .eq("id", slot.id);
-
-  if (updateError) {
-    throw new Error("Kunde inte reservera vald tid.");
-  }
-}
-
 export async function saveCleaningBooking(input: CleaningBookingInput) {
   const supabase = createAdminClient();
   const postalCode = normalizeZipCode(input.postalCode) ?? input.postalCode;
-  const bookingType =
-    input.bookingPath === "direct" ? "cleaning_direct" : "cleaning_expert";
 
   const quote = calculateCleaningPrice({
     squareMeters: String(input.squareMeters),
@@ -132,7 +116,7 @@ export async function saveCleaningBooking(input: CleaningBookingInput) {
   const { data: booking, error: bookingError } = await supabase
     .from("bookings")
     .insert({
-      booking_type: bookingType,
+      booking_type: "cleaning_direct",
       service_slug: input.serviceSlug,
       contact_name: input.name.trim(),
       contact_phone: input.phone.trim(),
@@ -141,8 +125,9 @@ export async function saveCleaningBooking(input: CleaningBookingInput) {
       municipality: input.municipality.trim(),
       street_address: input.address?.trim() ?? null,
       message: formatCleaningPropertyMessage(input.propertyType, input.message),
-      source: "web",
+      source: input.sourceLeadId ? "lead_conversion" : "web",
       status: "submitted",
+      source_lead_id: input.sourceLeadId ?? null,
     })
     .select("id")
     .single();
@@ -153,13 +138,13 @@ export async function saveCleaningBooking(input: CleaningBookingInput) {
 
   const { error: detailsError } = await supabase.from("cleaning_booking_details").insert({
     booking_id: booking.id,
-    booking_path: input.bookingPath,
+    booking_path: "direct",
     square_meters: input.squareMeters,
     has_pets: input.hasPets === "ja",
     frequency: input.frequency,
     tidying: input.tidying,
     weekday_preference: input.weekdayPreference,
-    contact_preference: input.contactPreference ?? null,
+    contact_preference: null,
     key_access: input.keyAccess ?? null,
     preferred_date: input.preferredDate ?? null,
     preferred_time: input.preferredTime ?? null,
@@ -171,75 +156,310 @@ export async function saveCleaningBooking(input: CleaningBookingInput) {
     throw new Error("Kunde inte spara städdetaljer.");
   }
 
-  if (input.bookingPath === "direct" && input.preferredDate && input.preferredTime) {
-    await reserveAvailabilitySlot(
-      booking.id,
-      input.preferredDate,
-      input.preferredTime,
-      input.serviceSlug,
-    );
+  if (input.preferredDate && input.preferredTime) {
+    await generateCleaningVisits({
+      bookingId: booking.id,
+      frequency: input.frequency,
+      startDate: input.preferredDate,
+      startTime: input.preferredTime,
+    });
   }
 
   await createStatusEvent(booking.id);
 
+  await linkBookingToCustomer(booking.id, {
+    name: input.name,
+    phone: input.phone,
+    email: input.email,
+    address: input.address,
+    postalCode,
+    municipality: input.municipality,
+  });
+
   return booking.id;
 }
 
-export async function saveServiceInquiry(input: ServiceInquiryInput) {
+function toDbTime(time: string) {
+  return time.length === 5 ? `${time}:00` : time;
+}
+
+async function insertSingleScheduleVisit(
+  bookingId: string,
+  input: {
+    visitDate: string;
+    visitTime: string;
+    staffId?: string | null;
+    note?: string | null;
+    durationMinutes?: number;
+  },
+) {
+  const supabase = createAdminClient();
+
+  const { error } = await supabase.from("cleaning_visits").insert({
+    booking_id: bookingId,
+    visit_date: input.visitDate,
+    visit_time: toDbTime(input.visitTime),
+    sequence_number: 1,
+    status: "scheduled",
+    staff_id: input.staffId ?? null,
+    note: input.note?.trim() || null,
+    duration_minutes: input.durationMinutes ?? 120,
+  });
+
+  if (error) {
+    throw new Error("Kunde inte skapa schemalagt besök.");
+  }
+}
+
+async function updateFirstCleaningVisit(
+  bookingId: string,
+  input: {
+    visitDate: string;
+    visitTime: string;
+    staffId?: string | null;
+    note?: string | null;
+    durationMinutes?: number;
+  },
+) {
+  const supabase = createAdminClient();
+  const visitTime = toDbTime(input.visitTime);
+  const visitUpdate: {
+    staff_id?: string | null;
+    note?: string | null;
+    duration_minutes?: number;
+  } = {};
+
+  if (input.staffId) {
+    visitUpdate.staff_id = input.staffId;
+  }
+
+  if (input.note?.trim()) {
+    visitUpdate.note = input.note.trim();
+  }
+
+  if (input.durationMinutes) {
+    visitUpdate.duration_minutes = input.durationMinutes;
+  }
+
+  if (Object.keys(visitUpdate).length === 0) {
+    return;
+  }
+
+  await supabase
+    .from("cleaning_visits")
+    .update(visitUpdate)
+    .eq("booking_id", bookingId)
+    .eq("visit_date", input.visitDate)
+    .eq("visit_time", visitTime);
+}
+
+async function linkBookingProfile(
+  bookingId: string,
+  input: AdminScheduleBookingInput,
+  postalCode: string,
+) {
+  if (input.profileId) {
+    return;
+  }
+
+  await linkBookingToCustomer(bookingId, {
+    name: input.name,
+    phone: input.phone,
+    email: input.email,
+    address: input.address,
+    postalCode,
+    municipality: input.municipality,
+  });
+}
+
+export async function saveAdminScheduleBooking(input: AdminScheduleBookingInput) {
+  if (isCleaningServiceSlug(input.serviceSlug)) {
+    return saveAdminCleaningScheduleBooking(input);
+  }
+
+  return saveAdminServiceScheduleBooking(input);
+}
+
+async function saveAdminCleaningScheduleBooking(input: AdminScheduleBookingInput) {
   const supabase = createAdminClient();
   const postalCode = normalizeZipCode(input.postalCode) ?? input.postalCode;
+  const propertyType = input.cleaningPropertyType ?? "hem";
+  const usesCalculatedPrice = usesCalculatedCleaningPrice(
+    input.serviceSlug,
+    propertyType,
+  );
+
+  if (!input.squareMeters || input.squareMeters < 10) {
+    throw new Error("Ange en giltig yta (minst 10 kvm).");
+  }
+
+  if (!input.hasPets || !input.frequency || !input.tidying) {
+    throw new Error("Fyll i alla städuppgifter.");
+  }
+
+  if (!usesCalculatedPrice) {
+    if (!input.pricingMode) {
+      throw new Error("Välj prisupplägg.");
+    }
+
+    if (input.pricingMode === "fixed" && (!input.fixedPriceKr || input.fixedPriceKr <= 0)) {
+      throw new Error("Ange ett fast pris.");
+    }
+  }
+
+  const quote = usesCalculatedPrice
+    ? calculateCleaningPrice({
+        squareMeters: String(input.squareMeters),
+        hasPets: input.hasPets,
+        frequency: input.frequency,
+        tidying: input.tidying,
+        weekdayPreference: "valj-dag",
+      })
+    : null;
 
   await upsertServiceArea(postalCode, input.municipality);
 
   const { data: booking, error: bookingError } = await supabase
     .from("bookings")
     .insert({
-      booking_type: "service_inquiry",
+      booking_type: "cleaning_direct",
       service_slug: input.serviceSlug,
       contact_name: input.name.trim(),
       contact_phone: input.phone.trim(),
       contact_email: input.email.trim(),
       postal_code: postalCode,
       municipality: input.municipality.trim(),
-      message: input.message.trim(),
-      source: "web",
-      status: "submitted",
+      street_address: input.address?.trim() ?? null,
+      message: formatCleaningPropertyMessage(propertyType, input.message),
+      source: "admin",
+      status: "confirmed",
+      profile_id: input.profileId ?? null,
     })
     .select("id")
     .single();
 
   if (bookingError || !booking) {
-    throw new Error("Kunde inte spara förfrågan.");
+    throw new Error("Kunde inte spara bokningen.");
+  }
+
+  const { error: detailsError } = await supabase.from("cleaning_booking_details").insert({
+    booking_id: booking.id,
+    booking_path: "direct",
+    square_meters: input.squareMeters,
+    has_pets: input.hasPets === "ja",
+    frequency: input.frequency,
+    tidying: input.tidying,
+    weekday_preference: "valj-dag",
+    contact_preference: null,
+    key_access: input.keyAccess ?? "hemma",
+    preferred_date: input.visitDate,
+    preferred_time: toDbTime(input.visitTime),
+    quoted_monthly_price_ore: quote ? Math.round(quote.total * 100) : null,
+    pricing_breakdown: quote ? (quote as unknown as Json) : null,
+    admin_pricing_mode: usesCalculatedPrice ? "fixed" : input.pricingMode ?? null,
+    admin_fixed_price_ore:
+      !usesCalculatedPrice && input.pricingMode === "fixed" && input.fixedPriceKr
+        ? Math.round(input.fixedPriceKr * 100)
+        : null,
+  });
+
+  if (detailsError) {
+    console.error("cleaning_booking_details insert failed:", detailsError);
+    throw new Error("Kunde inte spara städdetaljer.");
+  }
+
+  if (usesCalculatedPrice && input.frequency) {
+    await generateCleaningVisits({
+      bookingId: booking.id,
+      frequency: input.frequency,
+      startDate: input.visitDate,
+      startTime: input.visitTime,
+    });
+
+    await updateFirstCleaningVisit(booking.id, input);
+  } else {
+    await insertSingleScheduleVisit(booking.id, input);
+  }
+
+  await supabase.from("booking_status_events").insert({
+    booking_id: booking.id,
+    status: "confirmed",
+    note: "Städbokning skapad från schema.",
+  });
+
+  await linkBookingProfile(booking.id, input, postalCode);
+
+  return booking.id;
+}
+
+async function saveAdminServiceScheduleBooking(input: AdminScheduleBookingInput) {
+  const supabase = createAdminClient();
+  const postalCode = normalizeZipCode(input.postalCode) ?? input.postalCode;
+
+  if (!input.message?.trim()) {
+    throw new Error("Beskriv uppdraget.");
+  }
+
+  if (!input.pricingMode) {
+    throw new Error("Välj prisupplägg.");
+  }
+
+  if (input.pricingMode === "fixed" && (!input.fixedPriceKr || input.fixedPriceKr <= 0)) {
+    throw new Error("Ange ett fast pris.");
+  }
+
+  await upsertServiceArea(postalCode, input.municipality);
+
+  const { data: booking, error: bookingError } = await supabase
+    .from("bookings")
+    .insert({
+      booking_type: "service_booking",
+      service_slug: input.serviceSlug,
+      contact_name: input.name.trim(),
+      contact_phone: input.phone.trim(),
+      contact_email: input.email.trim(),
+      postal_code: postalCode,
+      municipality: input.municipality.trim(),
+      street_address: input.address?.trim() ?? null,
+      message: input.message.trim(),
+      source: "admin",
+      status: "confirmed",
+      profile_id: input.profileId ?? null,
+    })
+    .select("id")
+    .single();
+
+  if (bookingError || !booking) {
+    throw new Error("Kunde inte spara bokningen.");
   }
 
   const { error: detailsError } = await supabase.from("service_inquiry_details").insert({
     booking_id: booking.id,
-    timeframe: input.timeframe,
+    timeframe: input.timeframe ?? "flexibel",
+    admin_pricing_mode: input.pricingMode,
+    admin_fixed_price_ore:
+      input.pricingMode === "fixed" && input.fixedPriceKr
+        ? Math.round(input.fixedPriceKr * 100)
+        : null,
   });
 
   if (detailsError) {
-    throw new Error("Kunde inte spara förfrågansdetaljer.");
+    throw new Error("Kunde inte spara tjänstedetaljer.");
   }
 
-  await createStatusEvent(booking.id, "Förfrågan mottagen via webben.");
+  await insertSingleScheduleVisit(booking.id, input);
+
+  await supabase.from("booking_status_events").insert({
+    booking_id: booking.id,
+    status: "confirmed",
+    note: "Tjänstebokning skapad från schema.",
+  });
+
+  await linkBookingProfile(booking.id, input, postalCode);
 
   return booking.id;
 }
 
 export async function listAvailableTimes(serviceSlug: string, slotDate: string) {
-  const supabase = createAdminClient();
-
-  const { data, error } = await supabase
-    .from("availability_slots")
-    .select("start_time")
-    .eq("service_slug", serviceSlug)
-    .eq("slot_date", slotDate)
-    .eq("is_available", true)
-    .order("start_time");
-
-  if (error) {
-    throw new Error("Kunde inte hämta lediga tider.");
-  }
-
-  return (data ?? []).map((slot) => slot.start_time.slice(0, 5));
+  return getAvailableTimesForDate(serviceSlug, slotDate);
 }

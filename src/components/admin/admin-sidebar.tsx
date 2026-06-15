@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AdminIcon } from "@/components/admin/admin-icon";
 import { getNavItemsForRole } from "@/lib/admin/navigation";
+import { BRAND_NAME } from "@/lib/brand";
 import type { TeamProfile } from "@/lib/admin/auth";
 
 type AdminSidebarProps = {
@@ -18,14 +19,14 @@ export function AdminSidebar({ profile, collapsed, onToggle }: AdminSidebarProps
 
   return (
     <aside
-      className={`flex h-full shrink-0 flex-col border-r border-white/10 bg-ink text-white transition-all duration-300 ${
+      className={`flex h-screen shrink-0 flex-col border-r border-white/10 bg-ink text-white transition-all duration-300 ${
         collapsed ? "w-[4.5rem]" : "w-64"
       }`}
     >
       <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
         {!collapsed ? (
           <div>
-            <p className="font-display text-xl leading-none">HemVända</p>
+            <p className="font-display text-xl leading-none">{BRAND_NAME}</p>
             <p className="mt-1 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-gold">
               CRM
             </p>

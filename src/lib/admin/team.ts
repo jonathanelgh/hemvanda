@@ -1,4 +1,5 @@
 import type { TeamRole } from "@/lib/admin/auth";
+import { normalizePhoneToE164 } from "@/lib/phone";
 import {
   createAdminClient,
   isSupabaseAdminConfigured,
@@ -14,6 +15,7 @@ export type InviteTeamMemberInput = {
   email: string;
   password?: string;
   fullName: string;
+  phone: string;
   role: TeamRole;
   jobTitle?: string;
   invitedBy: string;
@@ -67,6 +69,34 @@ async function findAuthUserIdByEmail(
   return null;
 }
 
+async function syncTeamMemberProfile(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  input: { fullName: string; email: string; phone: string | null },
+) {
+  const { data: existing } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const profile = {
+    full_name: input.fullName,
+    email: input.email,
+    phone: input.phone,
+  };
+
+  if (existing) {
+    await admin.from("profiles").update(profile).eq("id", userId);
+    return;
+  }
+
+  await admin.from("profiles").insert({
+    id: userId,
+    ...profile,
+  });
+}
+
 export async function inviteTeamMember(
   input: InviteTeamMemberInput,
 ): Promise<TeamActionResult> {
@@ -80,10 +110,15 @@ export async function inviteTeamMember(
   const email = normalizeEmail(input.email);
   const fullName = input.fullName.trim();
   const jobTitle = input.jobTitle?.trim() || null;
+  const phone = normalizePhoneToE164(input.phone) || null;
   const role = input.role;
 
   if (!email || !fullName) {
     return { ok: false, error: "E-post och namn krävs." };
+  }
+
+  if (!phone) {
+    return { ok: false, error: "Telefonnummer krävs." };
   }
 
   if (role !== "admin" && role !== "staff") {
@@ -110,6 +145,8 @@ export async function inviteTeamMember(
         .update({
           role,
           job_title: jobTitle,
+          full_name: fullName,
+          phone,
           is_active: true,
           invited_by: input.invitedBy,
         })
@@ -123,6 +160,8 @@ export async function inviteTeamMember(
         user_id: existingUserId,
         role,
         job_title: jobTitle,
+        full_name: fullName,
+        phone,
         invited_by: input.invitedBy,
       });
 
@@ -131,10 +170,11 @@ export async function inviteTeamMember(
       }
     }
 
-    await admin
-      .from("profiles")
-      .update({ full_name: fullName, email })
-      .eq("id", existingUserId);
+    await syncTeamMemberProfile(admin, existingUserId, {
+      fullName,
+      email,
+      phone,
+    });
 
     return {
       ok: true,
@@ -173,6 +213,8 @@ export async function inviteTeamMember(
     user_id: userId,
     role,
     job_title: jobTitle,
+    full_name: fullName,
+    phone,
     invited_by: input.invitedBy,
   });
 
@@ -181,9 +223,88 @@ export async function inviteTeamMember(
     return { ok: false, error: "Kunde inte ge teamåtkomst." };
   }
 
-  await admin.from("profiles").update({ full_name: fullName, email }).eq("id", userId);
+  await syncTeamMemberProfile(admin, userId, {
+    fullName,
+    email,
+    phone,
+  });
 
   return { ok: true, message: "Teammedlem inbjuden." };
+}
+
+export type UpdateTeamMemberInput = {
+  teamMemberId: string;
+  fullName: string;
+  phone: string;
+  jobTitle?: string;
+};
+
+export async function updateTeamMemberDetails(
+  input: UpdateTeamMemberInput,
+): Promise<TeamActionResult> {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      ok: false,
+      error: "SUPABASE_SERVICE_ROLE_KEY saknas. Teamhantering är inte tillgänglig.",
+    };
+  }
+
+  const fullName = input.fullName.trim();
+  const phone = normalizePhoneToE164(input.phone) || null;
+  const jobTitle = input.jobTitle?.trim() || null;
+
+  if (!fullName) {
+    return { ok: false, error: "Namn krävs." };
+  }
+
+  if (!phone) {
+    return { ok: false, error: "Telefonnummer krävs." };
+  }
+
+  const admin = createAdminClient();
+  const { data: member, error: fetchError } = await admin
+    .from("team_members")
+    .select("id, user_id")
+    .eq("id", input.teamMemberId)
+    .maybeSingle();
+
+  if (fetchError || !member) {
+    return { ok: false, error: "Teammedlem hittades inte." };
+  }
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", member.user_id)
+    .maybeSingle();
+
+  const { error } = await admin
+    .from("team_members")
+    .update({
+      full_name: fullName,
+      phone,
+      job_title: jobTitle,
+    })
+    .eq("id", input.teamMemberId);
+
+  if (error) {
+    return { ok: false, error: "Kunde inte uppdatera teammedlem." };
+  }
+
+  if (profile?.email) {
+    await syncTeamMemberProfile(admin, member.user_id, {
+      fullName,
+      email: profile.email,
+      phone,
+    });
+  } else {
+    await admin
+      .from("profiles")
+      .update({ full_name: fullName, phone })
+      .eq("id", member.user_id);
+  }
+
+  return { ok: true, message: "Teammedlem uppdaterad." };
 }
 
 export async function setTeamMemberActive(

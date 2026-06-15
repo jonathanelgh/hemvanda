@@ -4,6 +4,7 @@ import { ServiceCard } from "@/components/service-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SectionHeading, StepsSection, ValuesSection } from "@/components/sections";
+import { BRAND_NAME } from "@/lib/brand";
 import { services } from "@/lib/services";
 
 export default function Home() {
@@ -29,7 +30,7 @@ export default function Home() {
                 Vi ger hem nytt liv.
               </h1>
               <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-black/80 max-lg:text-black/90 lg:mx-0">
-                Hemvanda samlar städ, snickeri, bygg, renovering, handyman och
+                {BRAND_NAME} samlar städ, snickeri, bygg, renovering, handyman och
                 inredning i ett tryggt upplägg. När hemmet behöver mer kan vi
                 även hjälpa med rörmokare, elektriker, besiktningsman och flytt.
               </p>
@@ -63,14 +64,14 @@ export default function Home() {
           <div className="container-shell grid items-center gap-12 lg:grid-cols-2">
             <div className="rounded-xl bg-green p-8 text-white md:p-12">
               <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold">
-                Mitt Hemvanda
+                Mitt {BRAND_NAME}
               </p>
               <h2 className="mt-5 font-display text-5xl leading-tight">
-                Telefonen blir nyckeln till dina bokningar.
+                E-posten blir nyckeln till dina bokningar.
               </h2>
               <p className="mt-6 text-base leading-8 text-white/72">
-                Logga in med mobilnummer och SMS-kod. Snart kan du även se
-                bokningar, uppdatera instruktioner och följa dina uppdrag.
+                Logga in med en säker länk till din e-post. Se bokningar,
+                uppdatera instruktioner och följ dina uppdrag.
               </p>
               <Link
                 href="/logga-in"
@@ -81,9 +82,9 @@ export default function Home() {
             </div>
             <div>
               <SectionHeading
-                eyebrow="Varför Hemvanda"
+                eyebrow={`Varför ${BRAND_NAME}`}
                 title="En kontakt för allt som får hemmet att kännas rätt."
-                description="Precis som Hemfrid leder med enkel bokning och trygg leverans, bygger Hemvanda ett tydligt flöde runt tjänst, plats och behov. Skillnaden är en bredare hemförvandling: städ, snickeri, bygg, renovering, handyman, inredning och utvalda specialisttjänster."
+                description={`${BRAND_NAME} gör det enkelt att boka trygg hjälp hemma. Vi bygger flödet runt tjänst, plats och behov – från städ och snickeri till bygg, renovering, handyman, inredning och utvalda specialisttjänster.`}
               />
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {["Personlig plan", "Tydlig kommunikation", "Trygga uppdrag", "Premium känsla"].map(

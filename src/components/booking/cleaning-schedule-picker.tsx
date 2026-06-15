@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   buildMonthGrid,
-  DEFAULT_AVAILABLE_TIMES,
   formatSwedishMonthYear,
   SWEDISH_WEEKDAYS,
 } from "@/lib/booking-calendar";
@@ -34,28 +33,41 @@ export function CleaningSchedulePicker({
     [viewYear, viewMonth],
   );
 
-  const [availableTimes, setAvailableTimes] = useState<string[]>(
-    [...DEFAULT_AVAILABLE_TIMES],
-  );
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
 
   useEffect(() => {
     if (!selectedDate) {
-      setAvailableTimes([...DEFAULT_AVAILABLE_TIMES]);
+      setAvailableTimes([]);
       return;
     }
 
     let cancelled = false;
 
     fetch(`/api/booking/availability?date=${selectedDate}`)
-      .then((response) => response.json())
+      .then(async (response) => {
+        if (!response.ok) {
+          return { times: [] as string[] };
+        }
+
+        try {
+          const text = await response.text();
+          if (!text.trim()) {
+            return { times: [] as string[] };
+          }
+
+          return JSON.parse(text) as { times?: string[] };
+        } catch {
+          return { times: [] as string[] };
+        }
+      })
       .then((data: { times?: string[] }) => {
         if (!cancelled) {
-          setAvailableTimes(data.times?.length ? data.times : [...DEFAULT_AVAILABLE_TIMES]);
+          setAvailableTimes(Array.isArray(data.times) ? data.times : []);
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setAvailableTimes([...DEFAULT_AVAILABLE_TIMES]);
+          setAvailableTimes([]);
         }
       });
 
@@ -216,22 +228,28 @@ export function CleaningSchedulePicker({
           <p className="mt-2 text-sm text-muted">
             Välj en tid för din första städning.
           </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            {availableTimes.map((time) => (
-              <button
-                key={time}
-                type="button"
-                onClick={() => onTimeChange(time)}
-                className={`h-12 min-w-24 rounded-full border px-6 text-sm font-semibold transition ${
-                  selectedTime === time
-                    ? "border-green bg-green text-white"
-                    : "border-green/15 bg-white text-green hover:border-gold hover:bg-ivory"
-                }`}
-              >
-                {time}
-              </button>
-            ))}
-          </div>
+          {availableTimes.length > 0 ? (
+            <div className="mt-4 flex flex-wrap gap-3">
+              {availableTimes.map((time) => (
+                <button
+                  key={time}
+                  type="button"
+                  onClick={() => onTimeChange(time)}
+                  className={`h-12 min-w-24 rounded-full border px-6 text-sm font-semibold transition ${
+                    selectedTime === time
+                      ? "border-green bg-green text-white"
+                      : "border-green/15 bg-white text-green hover:border-gold hover:bg-ivory"
+                  }`}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 rounded-xl border border-dashed border-green/15 bg-ivory/50 px-4 py-3 text-sm text-muted">
+              Inga lediga tider den här dagen. Välj ett annat datum.
+            </p>
+          )}
         </section>
       ) : null}
 

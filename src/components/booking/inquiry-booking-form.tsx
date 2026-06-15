@@ -5,8 +5,10 @@ import {
   bookingSectionClassName,
   bookingSuccessClassName,
 } from "@/components/booking/booking-styles";
+import { BookingAccountSuccessNote } from "@/components/booking/booking-account-success";
 import type { BookingParams } from "@/lib/booking";
 import { serviceDisplayName } from "@/lib/booking";
+import { readApiError } from "@/lib/api-client";
 import { getService } from "@/lib/services";
 
 type InquiryBookingFormProps = BookingParams;
@@ -52,8 +54,9 @@ export function InquiryBookingForm({
       });
 
       if (!response.ok) {
-        const data = (await response.json()) as { error?: string };
-        throw new Error(data.error ?? "Kunde inte skicka förfrågan.");
+        throw new Error(
+          await readApiError(response, "Kunde inte skicka förfrågan."),
+        );
       }
 
       setStatus("success");
@@ -79,6 +82,7 @@ export function InquiryBookingForm({
           {service ? serviceDisplayName(service).toLowerCase() : "din tjänst"} i{" "}
           {kommun}.
         </p>
+        <BookingAccountSuccessNote email={email} />
       </div>
     );
   }

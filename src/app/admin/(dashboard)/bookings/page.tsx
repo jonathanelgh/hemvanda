@@ -11,11 +11,6 @@ export default async function AdminBookingsPage() {
     <AdminShell
       profile={profile}
       title={isAdmin(profile) ? "Bokningar" : "Mina uppdrag"}
-      subtitle={
-        isAdmin(profile)
-          ? "Alla inkomna bokningar och schemalagda städningar."
-          : "Detaljer för jobb som är tilldelade till dig."
-      }
     >
       <AdminBookingsTable
         bookings={bookings}

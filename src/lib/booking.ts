@@ -1,4 +1,5 @@
 import { formatZipCode, normalizeZipCode } from "@/lib/coverage";
+import { BRAND_POSSESSIVE } from "@/lib/brand";
 import { getService, type Service } from "@/lib/services";
 
 export const WEB_BOOKING_SERVICE_SLUG = "stad";
@@ -94,7 +95,7 @@ const cleaningBookingCopyByPlats: Record<CleaningPropertyType, CleaningBookingCo
     methodTitle: "Hur vill du boka din hemstädning?",
     methodDescription:
       "Välj om du vill boka direkt eller prata med en av våra experter. Behöver du mer information? Läs mer om våra abonnemang, momentlistor och svar på vanliga frågor.",
-    highlights: ["Fast månadspris", "Kollektivavtal", "Städkit värde 735:- ingår"],
+    highlights: ["Fast månadspris", "Kollektivavtal", "Städmaterial ingår"],
     methodOptions: [
       {
         value: "direct",
@@ -110,7 +111,7 @@ const cleaningBookingCopyByPlats: Record<CleaningPropertyType, CleaningBookingCo
       },
     ],
     directSuccessMessage:
-      "Vi bekräftar din hemstädning och återkommer med exakt tid och pris baserat på dina uppgifter.",
+      "Din bokning är registrerad med fast pris enligt dina val. Vi kommer på vald tid för första städtillfället och skickar en bekräftelse till dig.",
     expertSuccessMessage: (kommun) =>
       `En av våra experter kontaktar dig för att hitta rätt upplägg för din hemstädning i ${kommun}.`,
     submitButtonLabel: "Boka hemstädning",
@@ -123,18 +124,18 @@ const cleaningBookingCopyByPlats: Record<CleaningPropertyType, CleaningBookingCo
   kontor: {
     methodTitle: "Hur vill du boka er kontorsstädning?",
     methodDescription:
-      "Välj om du vill boka direkt eller prata med en av våra experter. Behöver du mer information? Läs mer om våra abonnemang, städmoment och svar på vanliga frågor för kontor.",
+      "Välj om du vill skicka en förfrågan online eller prata med en av våra experter. Vi återkommer med pris och upplägg anpassat efter er lokal.",
     highlights: [
-      "Fast månadspris",
+      "Offert efter behov",
       "Kollektivavtal",
       "Anpassat efter er verksamhet",
     ],
     methodOptions: [
       {
         value: "direct",
-        title: "Boka direkt online",
+        title: "Skicka förfrågan online",
         description:
-          "Fyll i era uppgifter och boka kontorsstädning med bara några få klick.",
+          "Fyll i era uppgifter och önskemål så återkommer vi med pris och förslag på upplägg.",
       },
       {
         value: "expert",
@@ -144,10 +145,10 @@ const cleaningBookingCopyByPlats: Record<CleaningPropertyType, CleaningBookingCo
       },
     ],
     directSuccessMessage:
-      "Vi bekräftar er kontorsstädning och återkommer med exakt tid och pris baserat på era uppgifter.",
+      "Vi har tagit emot er förfrågan och återkommer med pris och bekräftad tid baserat på era uppgifter och önskemål.",
     expertSuccessMessage: (kommun) =>
-      `En av våra experter kontaktar er för att hitta rätt upplägg för er kontorsstädning i ${kommun}.`,
-    submitButtonLabel: "Boka kontorsstädning",
+      `En av våra experter kontaktar er för att diskutera upplägg och pris för er kontorsstädning i ${kommun}.`,
+    submitButtonLabel: "Skicka förfrågan",
     squareMetersLabel: "Lokalyta (kvm)",
     petsLabel: "Finns husdjur på arbetsplatsen?",
     tidyingDescription:
@@ -170,14 +171,14 @@ const cleaningBookingCopyByPlats: Record<CleaningPropertyType, CleaningBookingCo
   ovrigt: {
     methodTitle: "Hur vill du boka din städning?",
     methodDescription:
-      "Välj om du vill boka direkt eller prata med en av våra experter. Behöver du mer information? Läs mer om våra abonnemang, momentlistor och svar på vanliga frågor.",
-    highlights: ["Fast månadspris", "Kollektivavtal", "Skräddarsytt efter er lokal"],
+      "Välj om du vill skicka en förfrågan online eller prata med en av våra experter. Vi återkommer med pris och upplägg anpassat efter din lokal.",
+    highlights: ["Offert efter behov", "Kollektivavtal", "Skräddarsytt efter er lokal"],
     methodOptions: [
       {
         value: "direct",
-        title: "Boka direkt online",
+        title: "Skicka förfrågan online",
         description:
-          "Fyll i dina uppgifter och boka städning med bara några få klick.",
+          "Fyll i dina uppgifter och önskemål så återkommer vi med pris och förslag på upplägg.",
       },
       {
         value: "expert",
@@ -187,10 +188,10 @@ const cleaningBookingCopyByPlats: Record<CleaningPropertyType, CleaningBookingCo
       },
     ],
     directSuccessMessage:
-      "Vi bekräftar din städning och återkommer med exakt tid och pris baserat på dina uppgifter.",
+      "Vi har tagit emot din förfrågan och återkommer med pris och bekräftad tid baserat på dina uppgifter och önskemål.",
     expertSuccessMessage: (kommun) =>
-      `En av våra experter kontaktar dig för att hitta rätt upplägg för din städning i ${kommun}.`,
-    submitButtonLabel: "Boka städning",
+      `En av våra experter kontaktar dig för att diskutera upplägg och pris för din städning i ${kommun}.`,
+    submitButtonLabel: "Skicka förfrågan",
     squareMetersLabel: "Yta (kvm)",
     petsLabel: "Finns husdjur i lokalen?",
     tidyingDescription:
@@ -216,6 +217,10 @@ export function getCleaningBookingCopy(plats?: CleaningPropertyType): CleaningBo
   return cleaningBookingCopyByPlats[plats ?? "hem"];
 }
 
+export function isHomeCleaningBooking(plats?: CleaningPropertyType) {
+  return !plats || plats === "hem";
+}
+
 export const cleaningHighlights = cleaningBookingCopyByPlats.hem.highlights;
 
 export const cleaningMethodOptions = cleaningBookingCopyByPlats.hem.methodOptions;
@@ -232,7 +237,7 @@ export const cleaningFrequencyPlans: {
     label: "Varje vecka",
     benefits: [
       "Samma städare varje gång",
-      "Städmedel ingår (värde 735 kr)",
+      "Städmaterial ingår",
       "Veckoanpassade moment",
       "Spara upp till 25 % per städning",
     ],
@@ -245,7 +250,7 @@ export const cleaningFrequencyPlans: {
     badge: "Mest populär",
     benefits: [
       "Samma städare varje gång",
-      "Städmedel ingår (värde 735 kr)",
+      "Städmaterial ingår",
       "Spara upp till 20 % per städning",
     ],
     description:
@@ -254,7 +259,7 @@ export const cleaningFrequencyPlans: {
   {
     value: "var-fjarde-vecka",
     label: "Var fjärde vecka",
-    benefits: ["Städmedel ingår (värde 735 kr)"],
+    benefits: ["Städmaterial ingår"],
     description:
       "En enklare lösning med längre mellanrum mellan städningarna.",
   },
@@ -283,7 +288,7 @@ export const keyAccessOptions: { value: KeyAccess; label: string }[] = [
   {
     value: "lamnar-kontor",
     label:
-      "Jag lämnar nycklar på hemvandas kontor senast 3 dagar innan första bokade tiden",
+      `Jag lämnar nycklar på ${BRAND_POSSESSIVE} kontor senast 3 dagar innan första bokade tiden`,
   },
   { value: "redan-lamnat", label: "Jag har redan lämnat nycklar" },
 ];
@@ -363,4 +368,22 @@ export function formatCleaningPropertyMessage(
   if (!prefix) return trimmedMessage || null;
   if (!trimmedMessage) return prefix;
   return `${prefix}\n\n${trimmedMessage}`;
+}
+
+export function formatCleaningLeadScheduleMessage(input: {
+  preferredDate?: string;
+  preferredTime?: string;
+  keyAccessLabel?: string;
+}) {
+  const lines: string[] = [];
+
+  if (input.preferredDate && input.preferredTime) {
+    lines.push(`Önskad start: ${input.preferredDate} kl ${input.preferredTime}`);
+  }
+
+  if (input.keyAccessLabel) {
+    lines.push(`Nyckelåtkomst: ${input.keyAccessLabel}`);
+  }
+
+  return lines.length > 0 ? lines.join("\n") : null;
 }

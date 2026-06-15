@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Playfair_Display } from "next/font/google";
+import { BRAND_NAME } from "@/lib/brand";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -15,9 +16,9 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Hemvanda | Förvandlar hem, skapar känsla",
+  title: `${BRAND_NAME} | Förvandlar hem, skapar känsla`,
   description:
-    "Hemvanda hjälper dig med städ, snickeri, bygg, renovering, handyman, inredning och utvalda övriga tjänster.",
+    `${BRAND_NAME} hjälper dig med städ, snickeri, bygg, renovering, handyman, inredning och utvalda övriga tjänster.`,
   formatDetection: {
     telephone: false,
   },

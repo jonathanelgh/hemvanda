@@ -1,45 +1,35 @@
+import { SettingsTabs } from "@/components/admin/settings-tabs";
 import { AdminShell } from "@/components/admin/admin-shell";
-import { requireTeamSession } from "@/lib/admin/auth";
+import { isAdmin, requireTeamSession } from "@/lib/admin/auth";
+import { WEB_BOOKING_SERVICE_SLUG } from "@/lib/booking";
+import { EMPTY_WEEKLY_SCHEDULE } from "@/lib/booking-availability";
+import { getWeeklyAvailabilitySchedule } from "@/lib/db/weekly-availability";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 export default async function AdminSettingsPage() {
   const { profile, user } = await requireTeamSession();
+  const adminView = isAdmin(profile);
+
+  const schedule =
+    adminView && isSupabaseAdminConfigured()
+      ? await getWeeklyAvailabilitySchedule(WEB_BOOKING_SERVICE_SLUG).catch(
+          () => EMPTY_WEEKLY_SCHEDULE,
+        )
+      : adminView
+        ? EMPTY_WEEKLY_SCHEDULE
+        : null;
 
   return (
-    <AdminShell profile={profile} title="Inställningar" subtitle="Ditt konto i CRM:et.">
-      <div className="max-w-2xl rounded-2xl border border-green/10 bg-white p-6 shadow-sm">
-        <dl className="space-y-5 text-sm">
-          <div>
-            <dt className="text-xs font-bold uppercase tracking-[0.18em] text-muted">
-              Namn
-            </dt>
-            <dd className="mt-1 font-semibold text-green">
-              {profile.fullName || "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs font-bold uppercase tracking-[0.18em] text-muted">
-              E-post
-            </dt>
-            <dd className="mt-1 font-semibold text-green">{profile.email || user.email}</dd>
-          </div>
-          <div>
-            <dt className="text-xs font-bold uppercase tracking-[0.18em] text-muted">
-              Roll
-            </dt>
-            <dd className="mt-1 font-semibold capitalize text-green">
-              {profile.role === "admin" ? "Administratör" : "Personal"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs font-bold uppercase tracking-[0.18em] text-muted">
-              Jobbtitel
-            </dt>
-            <dd className="mt-1 font-semibold text-green">
-              {profile.jobTitle || "—"}
-            </dd>
-          </div>
-        </dl>
-      </div>
+    <AdminShell
+      profile={profile}
+      title="Inställningar"
+    >
+      <SettingsTabs
+        profile={profile}
+        userEmail={user.email}
+        isAdmin={adminView}
+        schedule={schedule}
+      />
     </AdminShell>
   );
 }

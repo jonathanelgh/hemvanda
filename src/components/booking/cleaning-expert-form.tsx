@@ -5,6 +5,7 @@ import {
   bookingSectionClassName,
   bookingSuccessClassName,
 } from "@/components/booking/booking-styles";
+import { BookingAccountSuccessNote } from "@/components/booking/booking-account-success";
 import {
   CleaningInfoSections,
   isCleaningInfoComplete,
@@ -15,6 +16,7 @@ import {
 } from "@/components/booking/cleaning-price-bar";
 import {
   getCleaningBookingCopy,
+  isHomeCleaningBooking,
   type BookingParams,
   type CleaningFrequency,
   type ContactPreference,
@@ -22,6 +24,7 @@ import {
   type TidyingOption,
   type WeekdayPreference,
 } from "@/lib/booking";
+import { readApiError } from "@/lib/api-client";
 
 type CleaningExpertFormProps = BookingParams & {
   onBack: () => void;
@@ -55,6 +58,8 @@ export function CleaningExpertForm({
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const copy = getCleaningBookingCopy(plats);
+  const showsFixedPrice = isHomeCleaningBooking(plats);
+  const contentSpacer = showsFixedPrice ? cleaningPriceBarSpacerClassName : "";
 
   const infoComplete = isCleaningInfoComplete(squareMeters, hasPets);
 
@@ -90,8 +95,9 @@ export function CleaningExpertForm({
       });
 
       if (!response.ok) {
-        const data = (await response.json()) as { error?: string };
-        throw new Error(data.error ?? "Kunde inte skicka förfrågan.");
+        throw new Error(
+          await readApiError(response, "Kunde inte skicka förfrågan."),
+        );
       }
 
       setStatus("success");
@@ -115,13 +121,14 @@ export function CleaningExpertForm({
         <p className="mt-4 text-sm leading-7 text-muted">
           {copy.expertSuccessMessage(kommun)}
         </p>
+        <BookingAccountSuccessNote email={email} />
       </div>
     );
   }
 
   return (
     <>
-    <form onSubmit={handleSubmit} className={`space-y-8 ${cleaningPriceBarSpacerClassName}`}>
+    <form onSubmit={handleSubmit} className={`space-y-8 ${contentSpacer}`}>
       <div className="flex items-center justify-between gap-4">
         <h2 className="font-display text-3xl text-green">Kontakta mig</h2>
         <button
@@ -247,13 +254,15 @@ export function CleaningExpertForm({
         <p className="text-xs text-muted">*Fyll i dessa fält för att fortsätta</p>
       </div>
     </form>
-    <CleaningPriceBar
-      squareMeters={squareMeters}
-      hasPets={hasPets}
-      frequency={frequency}
-      tidying={tidying}
-      weekdayPreference={weekdayPreference}
-    />
+    {showsFixedPrice ? (
+      <CleaningPriceBar
+        squareMeters={squareMeters}
+        hasPets={hasPets}
+        frequency={frequency}
+        tidying={tidying}
+        weekdayPreference={weekdayPreference}
+      />
+    ) : null}
     </>
   );
 }

@@ -2,6 +2,7 @@ import { normalizeZipCode } from "@/lib/coverage";
 import {
   cleaningFrequencyPlans,
   contactPreferenceOptions,
+  isHomeCleaningBooking,
   keyAccessOptions,
   WEB_BOOKING_SERVICE_SLUG,
   cleaningPropertyOptions,
@@ -15,6 +16,8 @@ import {
   type WeekdayPreference,
 } from "@/lib/booking";
 import { saveCleaningBooking } from "@/lib/db/bookings";
+import { saveCleaningLead } from "@/lib/db/leads";
+import { isTimeAvailableForBooking } from "@/lib/db/weekly-availability";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -84,20 +87,21 @@ function parsePropertyType(value?: string) {
 }
 
 export async function POST(request: Request) {
-  if (!isSupabaseAdminConfigured()) {
-    return Response.json(
-      { error: "Databasen är inte konfigurerad. Lägg till SUPABASE_SERVICE_ROLE_KEY." },
-      { status: 503 },
-    );
-  }
-
-  let payload: CleaningBookingPayload;
-
   try {
-    payload = (await request.json()) as CleaningBookingPayload;
-  } catch {
-    return Response.json({ error: "Ogiltig förfrågan." }, { status: 400 });
-  }
+    if (!isSupabaseAdminConfigured()) {
+      return Response.json(
+        { error: "Databasen är inte konfigurerad. Lägg till SUPABASE_SERVICE_ROLE_KEY." },
+        { status: 503 },
+      );
+    }
+
+    let payload: CleaningBookingPayload;
+
+    try {
+      payload = (await request.json()) as CleaningBookingPayload;
+    } catch {
+      return Response.json({ error: "Ogiltig förfrågan." }, { status: 400 });
+    }
 
   if (payload.tjanst !== WEB_BOOKING_SERVICE_SLUG) {
     return Response.json({ error: "Fel tjänst för webbbokning." }, { status: 400 });
@@ -140,9 +144,8 @@ export async function POST(request: Request) {
     }
 
     try {
-      const bookingId = await saveCleaningBooking({
+      const { leadId } = await saveCleaningLead({
         serviceSlug: payload.tjanst,
-        bookingPath: "expert",
         postalCode: payload.postnummer!,
         municipality: payload.kommun,
         squareMeters: payload.squareMeters!,
@@ -161,8 +164,8 @@ export async function POST(request: Request) {
 
       return Response.json({
         ok: true,
-        bookingId,
-        message: "Förfrågan är registrerad.",
+        leadId,
+        message: "Förfrågan är registrerad som lead.",
       });
     } catch (error) {
       return Response.json(
@@ -209,30 +212,77 @@ export async function POST(request: Request) {
     return Response.json({ error: "Välj ett datum i framtiden." }, { status: 400 });
   }
 
-  if (!["08:00", "13:00"].includes(payload.preferredTime ?? "")) {
+  if (!payload.preferredTime?.trim()) {
     return Response.json({ error: "Välj en ledig tid." }, { status: 400 });
   }
 
+  const isAvailable = await isTimeAvailableForBooking(
+    payload.tjanst!,
+    payload.preferredDate!,
+    payload.preferredTime!,
+  );
+
+  if (!isAvailable) {
+    return Response.json({ error: "Välj en ledig tid." }, { status: 400 });
+  }
+
+  if (!isHomeCleaningBooking(propertyType)) {
+    const keyAccessLabel = keyAccessOptions.find(
+      (option) => option.value === payload.keyAccess,
+    )?.label;
+
+    try {
+      const { leadId } = await saveCleaningLead({
+        serviceSlug: payload.tjanst,
+        postalCode: payload.postnummer!,
+        municipality: payload.kommun,
+        squareMeters: payload.squareMeters!,
+        hasPets: payload.hasPets!,
+        frequency: payload.frequency as CleaningFrequency,
+        tidying: payload.tidying!,
+        weekdayPreference: payload.weekdayPreference!,
+        preferredDate: payload.preferredDate,
+        preferredTime: payload.preferredTime,
+        keyAccessLabel,
+        name: payload.name,
+        phone: payload.phone,
+        email: payload.email,
+        address: payload.address,
+        propertyType,
+      });
+
+      return Response.json({
+        ok: true,
+        leadId,
+        message: "Förfrågan är registrerad.",
+      });
+    } catch (error) {
+      return Response.json(
+        { error: error instanceof Error ? error.message : "Kunde inte spara förfrågan." },
+        { status: 500 },
+      );
+    }
+  }
+
   try {
-    const bookingId = await saveCleaningBooking({
-      serviceSlug: payload.tjanst,
-      bookingPath: "direct",
-      postalCode: payload.postnummer!,
-      municipality: payload.kommun,
-      squareMeters: payload.squareMeters!,
-      hasPets: payload.hasPets!,
-      frequency: payload.frequency as CleaningFrequency,
-      tidying: payload.tidying!,
-      weekdayPreference: payload.weekdayPreference!,
-      keyAccess: payload.keyAccess,
-      preferredDate: payload.preferredDate,
-      preferredTime: payload.preferredTime,
-      name: payload.name,
-      phone: payload.phone,
-      email: payload.email,
-      address: payload.address,
-      propertyType,
-    });
+      const bookingId = await saveCleaningBooking({
+        serviceSlug: payload.tjanst,
+        postalCode: payload.postnummer!,
+        municipality: payload.kommun,
+        squareMeters: payload.squareMeters!,
+        hasPets: payload.hasPets!,
+        frequency: payload.frequency as CleaningFrequency,
+        tidying: payload.tidying!,
+        weekdayPreference: payload.weekdayPreference!,
+        keyAccess: payload.keyAccess,
+        preferredDate: payload.preferredDate,
+        preferredTime: payload.preferredTime,
+        name: payload.name,
+        phone: payload.phone,
+        email: payload.email,
+        address: payload.address,
+        propertyType,
+      });
 
     return Response.json({
       ok: true,
@@ -242,6 +292,18 @@ export async function POST(request: Request) {
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "Kunde inte slutföra bokningen." },
+      { status: 500 },
+    );
+  }
+  } catch (error) {
+    console.error("stad booking route failed:", error);
+    return Response.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Ett oväntat fel uppstod. Försök igen.",
+      },
       { status: 500 },
     );
   }

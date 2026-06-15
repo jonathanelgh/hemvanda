@@ -98,6 +98,7 @@ export type Database = {
           profile_id: string | null;
           service_slug: string;
           source: string;
+          source_lead_id: string | null;
           status: Database["public"]["Enums"]["booking_status"];
           street_address: string | null;
           updated_at: string;
@@ -115,6 +116,7 @@ export type Database = {
           profile_id?: string | null;
           service_slug: string;
           source?: string;
+          source_lead_id?: string | null;
           status?: Database["public"]["Enums"]["booking_status"];
           street_address?: string | null;
           updated_at?: string;
@@ -132,6 +134,7 @@ export type Database = {
           profile_id?: string | null;
           service_slug?: string;
           source?: string;
+          source_lead_id?: string | null;
           status?: Database["public"]["Enums"]["booking_status"];
           street_address?: string | null;
           updated_at?: string;
@@ -148,6 +151,8 @@ export type Database = {
       };
       cleaning_booking_details: {
         Row: {
+          admin_fixed_price_ore: number | null;
+          admin_pricing_mode: string | null;
           booking_id: string;
           booking_path: string;
           contact_preference: string | null;
@@ -163,6 +168,8 @@ export type Database = {
           weekday_preference: string;
         };
         Insert: {
+          admin_fixed_price_ore?: number | null;
+          admin_pricing_mode?: string | null;
           booking_id: string;
           booking_path: string;
           contact_preference?: string | null;
@@ -178,6 +185,8 @@ export type Database = {
           weekday_preference: string;
         };
         Update: {
+          admin_fixed_price_ore?: number | null;
+          admin_pricing_mode?: string | null;
           booking_id?: string;
           booking_path?: string;
           contact_preference?: string | null;
@@ -198,6 +207,199 @@ export type Database = {
             columns: ["booking_id"];
             isOneToOne: true;
             referencedRelation: "bookings";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      cleaning_visits: {
+        Row: {
+          booking_id: string;
+          created_at: string;
+          duration_minutes: number;
+          id: string;
+          note: string | null;
+          sequence_number: number;
+          staff_id: string | null;
+          status: Database["public"]["Enums"]["cleaning_visit_status"];
+          updated_at: string;
+          visit_date: string;
+          visit_time: string;
+        };
+        Insert: {
+          booking_id: string;
+          created_at?: string;
+          duration_minutes?: number;
+          id?: string;
+          note?: string | null;
+          sequence_number?: number;
+          staff_id?: string | null;
+          status?: Database["public"]["Enums"]["cleaning_visit_status"];
+          updated_at?: string;
+          visit_date: string;
+          visit_time: string;
+        };
+        Update: {
+          booking_id?: string;
+          created_at?: string;
+          duration_minutes?: number;
+          id?: string;
+          note?: string | null;
+          sequence_number?: number;
+          staff_id?: string | null;
+          status?: Database["public"]["Enums"]["cleaning_visit_status"];
+          updated_at?: string;
+          visit_date?: string;
+          visit_time?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cleaning_visits_booking_id_fkey";
+            columns: ["booking_id"];
+            isOneToOne: false;
+            referencedRelation: "bookings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "cleaning_visits_staff_id_fkey";
+            columns: ["staff_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      cleaning_lead_details: {
+        Row: {
+          contact_preference: string | null;
+          frequency: string;
+          has_pets: boolean;
+          lead_id: string;
+          property_type: string | null;
+          square_meters: number;
+          tidying: string;
+          weekday_preference: string;
+        };
+        Insert: {
+          contact_preference?: string | null;
+          frequency: string;
+          has_pets?: boolean;
+          lead_id: string;
+          property_type?: string | null;
+          square_meters: number;
+          tidying: string;
+          weekday_preference: string;
+        };
+        Update: {
+          contact_preference?: string | null;
+          frequency?: string;
+          has_pets?: boolean;
+          lead_id?: string;
+          property_type?: string | null;
+          square_meters?: number;
+          tidying?: string;
+          weekday_preference?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cleaning_lead_details_lead_id_fkey";
+            columns: ["lead_id"];
+            isOneToOne: true;
+            referencedRelation: "leads";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      leads: {
+        Row: {
+          contact_email: string;
+          contact_name: string;
+          contact_phone: string;
+          converted_booking_id: string | null;
+          created_at: string;
+          id: string;
+          lead_type: Database["public"]["Enums"]["lead_type"];
+          message: string | null;
+          municipality: string;
+          postal_code: string;
+          profile_id: string | null;
+          service_slug: string;
+          source: string;
+          status: Database["public"]["Enums"]["lead_status"];
+          street_address: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          contact_email: string;
+          contact_name: string;
+          contact_phone: string;
+          converted_booking_id?: string | null;
+          created_at?: string;
+          id?: string;
+          lead_type: Database["public"]["Enums"]["lead_type"];
+          message?: string | null;
+          municipality: string;
+          postal_code: string;
+          profile_id?: string | null;
+          service_slug: string;
+          source?: string;
+          status?: Database["public"]["Enums"]["lead_status"];
+          street_address?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          contact_email?: string;
+          contact_name?: string;
+          contact_phone?: string;
+          converted_booking_id?: string | null;
+          created_at?: string;
+          id?: string;
+          lead_type?: Database["public"]["Enums"]["lead_type"];
+          message?: string | null;
+          municipality?: string;
+          postal_code?: string;
+          profile_id?: string | null;
+          service_slug?: string;
+          source?: string;
+          status?: Database["public"]["Enums"]["lead_status"];
+          street_address?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "leads_converted_booking_id_fkey";
+            columns: ["converted_booking_id"];
+            isOneToOne: false;
+            referencedRelation: "bookings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leads_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      service_lead_details: {
+        Row: {
+          lead_id: string;
+          timeframe: string;
+        };
+        Insert: {
+          lead_id: string;
+          timeframe?: string;
+        };
+        Update: {
+          lead_id?: string;
+          timeframe?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "service_lead_details_lead_id_fkey";
+            columns: ["lead_id"];
+            isOneToOne: true;
+            referencedRelation: "leads";
             referencedColumns: ["id"];
           },
         ];
@@ -342,14 +544,20 @@ export type Database = {
       };
       service_inquiry_details: {
         Row: {
+          admin_fixed_price_ore: number | null;
+          admin_pricing_mode: string | null;
           booking_id: string;
           timeframe: string;
         };
         Insert: {
+          admin_fixed_price_ore?: number | null;
+          admin_pricing_mode?: string | null;
           booking_id: string;
           timeframe?: string;
         };
         Update: {
+          admin_fixed_price_ore?: number | null;
+          admin_pricing_mode?: string | null;
           booking_id?: string;
           timeframe?: string;
         };
@@ -363,33 +571,63 @@ export type Database = {
           },
         ];
       };
+      weekly_availability: {
+        Row: {
+          created_at: string;
+          id: string;
+          service_slug: string;
+          start_time: string;
+          weekday: number;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          service_slug?: string;
+          start_time: string;
+          weekday: number;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          service_slug?: string;
+          start_time?: string;
+          weekday?: number;
+        };
+        Relationships: [];
+      };
       team_members: {
         Row: {
           created_at: string;
+          full_name: string | null;
           id: string;
           invited_by: string | null;
           is_active: boolean;
           job_title: string | null;
+          phone: string | null;
           role: Database["public"]["Enums"]["team_role"];
           updated_at: string;
           user_id: string;
         };
         Insert: {
           created_at?: string;
+          full_name?: string | null;
           id?: string;
           invited_by?: string | null;
           is_active?: boolean;
           job_title?: string | null;
+          phone?: string | null;
           role?: Database["public"]["Enums"]["team_role"];
           updated_at?: string;
           user_id: string;
         };
         Update: {
           created_at?: string;
+          full_name?: string | null;
           id?: string;
           invited_by?: string | null;
           is_active?: boolean;
           job_title?: string | null;
+          phone?: string | null;
           role?: Database["public"]["Enums"]["team_role"];
           updated_at?: string;
           user_id?: string;
@@ -411,7 +649,10 @@ export type Database = {
         | "confirmed"
         | "cancelled"
         | "completed";
-      booking_type: "cleaning_direct" | "cleaning_expert" | "service_inquiry";
+      booking_type: "cleaning_direct" | "cleaning_expert" | "service_inquiry" | "service_booking";
+      cleaning_visit_status: "scheduled" | "completed" | "cancelled" | "skipped";
+      lead_status: "submitted" | "contacted" | "converted" | "cancelled";
+      lead_type: "cleaning_expert" | "service_inquiry";
       team_role: "admin" | "staff";
     };
     CompositeTypes: {
@@ -550,7 +791,10 @@ export const Constants = {
         "cancelled",
         "completed",
       ],
-      booking_type: ["cleaning_direct", "cleaning_expert", "service_inquiry"],
+      booking_type: ["cleaning_direct", "cleaning_expert", "service_inquiry", "service_booking"],
+      cleaning_visit_status: ["scheduled", "completed", "cancelled", "skipped"],
+      lead_status: ["submitted", "contacted", "converted", "cancelled"],
+      lead_type: ["cleaning_expert", "service_inquiry"],
       team_role: ["admin", "staff"],
     },
   },

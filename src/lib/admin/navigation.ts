@@ -3,7 +3,7 @@ import type { TeamRole } from "@/lib/admin/auth";
 export type AdminNavItem = {
   label: string;
   href: string;
-  icon: "overview" | "bookings" | "leads" | "customers" | "team" | "settings";
+  icon: "overview" | "bookings" | "schedule" | "leads" | "customers" | "team" | "settings";
   roles: TeamRole[];
 };
 
@@ -21,10 +21,16 @@ export const adminNavItems: AdminNavItem[] = [
     roles: ["admin", "staff"],
   },
   {
+    label: "Schema",
+    href: "/admin/schedule",
+    icon: "schedule",
+    roles: ["admin", "staff"],
+  },
+  {
     label: "Leads",
     href: "/admin/leads",
     icon: "leads",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
   },
   {
     label: "Kunder",

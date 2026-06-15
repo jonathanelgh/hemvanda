@@ -4,6 +4,7 @@ type AdminIconProps = {
   name:
     | "overview"
     | "bookings"
+    | "schedule"
     | "leads"
     | "customers"
     | "team"
@@ -43,6 +44,18 @@ export function AdminIcon({ name, className = "h-5 w-5" }: AdminIconProps) {
           <path d="M16 3v3" />
           <path d="M4 8h16" />
           <path d="M6 6h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
+        </svg>
+      );
+    case "schedule":
+      return (
+        <svg {...common}>
+          <path d="M8 3v3" />
+          <path d="M16 3v3" />
+          <path d="M4 8h16" />
+          <path d="M6 6h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
+          <path d="M8 12h3v3H8z" />
+          <path d="M13 12h3v3h-3z" />
+          <path d="M8 17h8" />
         </svg>
       );
     case "leads":

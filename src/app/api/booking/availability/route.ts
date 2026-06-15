@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getDefaultAvailabilityFallback } from "@/lib/db/weekly-availability";
 import { listAvailableTimes } from "@/lib/db/bookings";
 import { WEB_BOOKING_SERVICE_SLUG } from "@/lib/booking";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -6,10 +7,6 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  if (!isSupabaseAdminConfigured()) {
-    return NextResponse.json({ times: ["08:00", "13:00"] });
-  }
-
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
 
@@ -17,10 +14,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Ogiltigt datum." }, { status: 400 });
   }
 
+  if (!isSupabaseAdminConfigured()) {
+    return NextResponse.json({ times: getDefaultAvailabilityFallback(date) });
+  }
+
   try {
     const times = await listAvailableTimes(WEB_BOOKING_SERVICE_SLUG, date);
-    return NextResponse.json({ times });
+    return NextResponse.json({
+      times: times.length > 0 ? times : getDefaultAvailabilityFallback(date),
+    });
   } catch {
-    return NextResponse.json({ times: ["08:00", "13:00"] });
+    return NextResponse.json({ times: getDefaultAvailabilityFallback(date) });
   }
 }

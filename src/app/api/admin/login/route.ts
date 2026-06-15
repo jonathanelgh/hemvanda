@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/admin");
 
-  const { supabase, getCookieHeaders } = createRouteHandlerClient(request);
+  const { supabase, withCookies } = createRouteHandlerClient(request);
   const result = await authenticateAdminLoginWithClient(
     supabase,
     email,
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     ? result.redirectTo
     : buildAdminLoginErrorUrl(result.error, next);
 
-  return NextResponse.redirect(new URL(redirectPath, request.url), {
-    headers: getCookieHeaders(),
-  });
+  return withCookies(
+    NextResponse.redirect(new URL(redirectPath, request.url)),
+  );
 }

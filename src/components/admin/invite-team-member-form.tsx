@@ -57,6 +57,19 @@ export function InviteTeamMemberForm() {
 
         <label className="block">
           <span className="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-green/60">
+            Telefon
+          </span>
+          <input
+            name="phone"
+            type="tel"
+            required
+            className="h-12 w-full rounded-xl border border-green/15 bg-white px-4 text-green outline-none"
+            placeholder="07X XXX XX XX"
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-green/60">
             E-post
           </span>
           <input

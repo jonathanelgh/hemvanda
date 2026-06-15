@@ -6,6 +6,7 @@ import { ServiceCard } from "@/components/service-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SectionHeading, ValuesSection } from "@/components/sections";
+import { BRAND_NAME } from "@/lib/brand";
 import { getService, services } from "@/lib/services";
 
 type Props = {
@@ -216,7 +217,7 @@ export default async function ServicePage({ params }: Props) {
                   Nästa steg
                 </p>
                 <h2 className="mt-4 font-display text-5xl leading-tight">
-                  Boka {service.title.toLowerCase()} med Hemvanda.
+                  Boka {service.title.toLowerCase()} med {BRAND_NAME}.
                 </h2>
               </div>
               <BookingCta

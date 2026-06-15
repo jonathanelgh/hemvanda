@@ -10,7 +10,6 @@ export default async function AdminCustomersPage() {
     <AdminShell
       profile={profile}
       title="Kunder"
-      subtitle="Kontakter som kommit in via bokningar och förfrågningar."
     >
       {customers.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-green/15 bg-white px-6 py-12 text-center text-sm text-muted">

@@ -1,3 +1,5 @@
+import { BRAND_NAME } from "@/lib/brand";
+
 const errorMessages: Record<string, string> = {
   missing_fields: "E-post och lösenord krävs.",
   invalid_credentials: "Fel e-post eller lösenord.",
@@ -22,7 +24,7 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
     <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,rgba(201,164,106,0.18),transparent_35%),linear-gradient(135deg,#f8f5ef,#e7e1d6)] px-4">
       <div className="w-full max-w-md rounded-2xl border border-green/10 bg-card p-8 shadow-[0_24px_80px_rgba(47,58,51,0.12)]">
         <p className="text-xs font-bold uppercase tracking-[0.24em] text-gold">
-          Hemvanda CRM
+          {BRAND_NAME} CRM
         </p>
         <h1 className="mt-3 font-display text-4xl text-green">Logga in</h1>
         <p className="mt-3 text-sm leading-7 text-muted">

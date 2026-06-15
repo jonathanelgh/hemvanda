@@ -15,8 +15,13 @@ export function BookingCta({
   defaultService,
   formId = "boka",
 }: BookingCtaProps) {
-  const selectionMode =
-    defaultService === WEB_BOOKING_SERVICE_SLUG ? "locations" : "services";
+  const hasFixedService = Boolean(defaultService);
+  const isCleaningService = defaultService === WEB_BOOKING_SERVICE_SLUG;
+  const selectionMode = isCleaningService
+    ? "locations"
+    : hasFixedService
+      ? "fixed"
+      : "services";
   const initialService = defaultService ?? services[0]?.slug ?? "";
   const serviceInputName = `${formId}-service`;
   const isLocationMode = selectionMode === "locations";
@@ -27,7 +32,7 @@ export function BookingCta({
         id={formId}
         data-booking-form
         data-selection-mode={selectionMode}
-        data-fixed-service={isLocationMode ? WEB_BOOKING_SERVICE_SLUG : undefined}
+        data-fixed-service={hasFixedService ? defaultService : undefined}
         noValidate
         className={
           compact
@@ -86,6 +91,7 @@ export function BookingCta({
         </p>
       </form>
 
+      {selectionMode !== "fixed" ? (
       <div
         id={`${formId}-service-modal`}
         data-service-modal
@@ -241,6 +247,7 @@ export function BookingCta({
           )}
         </div>
       </div>
+      ) : null}
     </>
   );
 }

@@ -5,6 +5,8 @@ import {
   bookingSectionClassName,
   bookingSuccessClassName,
 } from "@/components/booking/booking-styles";
+import { BookingAccountSuccessNote } from "@/components/booking/booking-account-success";
+import { CleaningBookingSuccessSummary } from "@/components/booking/cleaning-booking-success-summary";
 import {
   CleaningInfoSections,
   isCleaningInfoComplete,
@@ -14,8 +16,10 @@ import {
   cleaningPriceBarSpacerClassName,
 } from "@/components/booking/cleaning-price-bar";
 import { CleaningSchedulePicker } from "@/components/booking/cleaning-schedule-picker";
+import { readApiError } from "@/lib/api-client";
 import {
   getCleaningBookingCopy,
+  isHomeCleaningBooking,
   keyAccessOptions,
   type BookingParams,
   type CleaningFrequency,
@@ -60,10 +64,11 @@ export function CleaningDirectForm({
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const copy = getCleaningBookingCopy(plats);
+  const showsFixedPrice = isHomeCleaningBooking(plats);
 
   const infoComplete = isCleaningInfoComplete(squareMeters, hasPets);
 
-  const priceBar = (
+  const priceBar = showsFixedPrice ? (
     <CleaningPriceBar
       squareMeters={squareMeters}
       hasPets={hasPets}
@@ -71,7 +76,9 @@ export function CleaningDirectForm({
       tidying={tidying}
       weekdayPreference={weekdayPreference}
     />
-  );
+  ) : null;
+
+  const contentSpacer = showsFixedPrice ? cleaningPriceBarSpacerClassName : "";
 
   function handleInfoContinue(event: React.FormEvent) {
     event.preventDefault();
@@ -117,8 +124,14 @@ export function CleaningDirectForm({
       });
 
       if (!response.ok) {
-        const data = (await response.json()) as { error?: string };
-        throw new Error(data.error ?? "Kunde inte slutföra bokningen.");
+        throw new Error(
+          await readApiError(
+            response,
+            showsFixedPrice
+              ? "Kunde inte slutföra bokningen."
+              : "Kunde inte skicka förfrågan.",
+          ),
+        );
       }
 
       setSubStep("success");
@@ -126,7 +139,11 @@ export function CleaningDirectForm({
     } catch (error) {
       setStatus("error");
       setErrorMessage(
-        error instanceof Error ? error.message : "Kunde inte slutföra bokningen.",
+        error instanceof Error
+          ? error.message
+          : showsFixedPrice
+            ? "Kunde inte slutföra bokningen."
+            : "Kunde inte skicka förfrågan.",
       );
     }
   }
@@ -135,14 +152,25 @@ export function CleaningDirectForm({
     return (
       <div className={bookingSuccessClassName}>
         <p className="text-xs font-bold uppercase tracking-[0.24em] text-gold">
-          Bokning mottagen
+          {showsFixedPrice ? "Bokning mottagen" : "Förfrågan mottagen"}
         </p>
         <h2 className="mt-3 font-display text-3xl text-green md:text-4xl">
-          Tack, {name || "vi har tagit emot din bokning"}.
+          Tack, {name || (showsFixedPrice ? "vi har tagit emot din bokning" : "vi har tagit emot din förfrågan")}.
         </h2>
         <p className="mt-4 text-sm leading-7 text-muted">
           {copy.directSuccessMessage}
         </p>
+        <CleaningBookingSuccessSummary
+          selectedDate={selectedDate}
+          selectedTime={selectedTime}
+          squareMeters={squareMeters}
+          hasPets={hasPets}
+          frequency={frequency}
+          tidying={tidying}
+          weekdayPreference={weekdayPreference}
+          showPrice={showsFixedPrice}
+        />
+        <BookingAccountSuccessNote email={email} />
       </div>
     );
   }
@@ -150,7 +178,7 @@ export function CleaningDirectForm({
   if (subStep === "schedule") {
     return (
       <>
-        <div className={cleaningPriceBarSpacerClassName}>
+        <div className={contentSpacer}>
           <CleaningSchedulePicker
             selectedDate={selectedDate}
             selectedTime={selectedTime}
@@ -168,9 +196,11 @@ export function CleaningDirectForm({
   if (subStep === "details") {
     return (
       <>
-      <form onSubmit={handleSubmit} className={`space-y-8 ${cleaningPriceBarSpacerClassName}`}>
+      <form onSubmit={handleSubmit} className={`space-y-8 ${contentSpacer}`}>
         <div className="flex items-center justify-between gap-4">
-          <h2 className="font-display text-3xl text-green">Slutför bokningen</h2>
+          <h2 className="font-display text-3xl text-green">
+            {showsFixedPrice ? "Slutför bokningen" : "Slutför förfrågan"}
+          </h2>
           <button
             type="button"
             onClick={() => setSubStep("schedule")}
@@ -258,7 +288,11 @@ export function CleaningDirectForm({
           disabled={status === "loading"}
           className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-52"
         >
-          {status === "loading" ? "Bokar..." : copy.submitButtonLabel}
+          {status === "loading"
+            ? showsFixedPrice
+              ? "Bokar..."
+              : "Skickar..."
+            : copy.submitButtonLabel}
         </button>
       </form>
       {priceBar}
@@ -268,7 +302,7 @@ export function CleaningDirectForm({
 
   return (
     <>
-    <form onSubmit={handleInfoContinue} className={`space-y-8 ${cleaningPriceBarSpacerClassName}`}>
+    <form onSubmit={handleInfoContinue} className={`space-y-8 ${contentSpacer}`}>
       <div className="flex items-center justify-between gap-4">
         <h2 className="font-display text-3xl text-green">Städinformation</h2>
         <button

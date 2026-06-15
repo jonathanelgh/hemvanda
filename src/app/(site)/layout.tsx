@@ -7,7 +7,7 @@ export default function SiteLayout({
 }>) {
   return (
     <>
-      <Script src="/booking.js?v=16" strategy="afterInteractive" />
+      <Script src="/booking.js?v=17" strategy="afterInteractive" />
       {children}
     </>
   );

@@ -35,7 +35,6 @@ const STORSTADNING_RATE_PER_SQM = 12;
 const PET_SURCHARGE = 149;
 const TIDYING_SURCHARGE = 395;
 const WEEKDAY_SURCHARGE = 49;
-const CLEANING_KIT_VALUE = 735;
 const DEFAULT_SQM = 50;
 
 const frequencyConfig: Record<
@@ -112,9 +111,9 @@ export function calculateCleaningPrice(input: CleaningPricingInput): CleaningPri
   }
 
   lines.push({
-    label: "Städkit ingår",
+    label: "Städmaterial ingår",
     amount: 0,
-    note: `Värde ${formatKr(CLEANING_KIT_VALUE)}`,
+    note: "Ingår i priset",
   });
 
   if (!isOneTime) {

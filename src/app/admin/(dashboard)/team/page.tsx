@@ -14,7 +14,6 @@ export default async function AdminTeamPage() {
     <AdminShell
       profile={profile}
       title="Team"
-      subtitle="Administratörer och personal med åtkomst till CRM:et."
     >
       {!adminConfigured ? (
         <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm leading-7 text-red-800">
