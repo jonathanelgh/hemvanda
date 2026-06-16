@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icons";
+import { PageHero } from "@/components/page-hero";
 import { SectionHeading } from "@/components/sections";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -55,34 +56,23 @@ export default function AboutPage() {
     <div className="min-h-screen bg-background text-green">
       <SiteHeader />
       <main>
-        <section className="relative overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hemvanda-bg.webp"
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            aria-hidden
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(248,245,239,0.92)_0%,rgba(248,245,239,0.82)_45%,var(--background)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(201,164,106,0.18),transparent_45%)]" />
-          <div className="relative z-10 container-shell py-20 md:py-28">
-            <div className="max-w-3xl">
-              <p className="text-xs font-bold uppercase tracking-[0.34em] text-gold">
-                Om {BRAND_NAME}
-              </p>
-              <h1 className="mt-5 font-display text-5xl leading-[0.98] text-green md:text-7xl">
-                {BRAND_TAGLINE}
-                <span className="block text-gold">– med omsorg i varje detalj.</span>
-              </h1>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-muted">
-                Vi startade {BRAND_NAME} med en enkel idé: hemmet förtjänner mer än
-                stressade beställningar och otydliga lösningar. Vi samlar det du
-                behöver – från städ och hantverk till renovering – i ett tryggt
-                sammanhang där kvalitet, känsla och tydlighet går hand i hand.
-              </p>
-            </div>
+        <PageHero>
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.34em] text-gold drop-shadow-[0_1px_8px_rgba(248,245,239,0.85)]">
+              Om {BRAND_NAME}
+            </p>
+            <h1 className="mt-5 font-display text-5xl leading-[0.98] text-black drop-shadow-[0_1px_12px_rgba(248,245,239,0.85)] md:text-7xl">
+              {BRAND_TAGLINE}
+              <span className="block text-gold">– med omsorg i varje detalj.</span>
+            </h1>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-black/80 max-lg:text-black/90">
+              Vi startade {BRAND_NAME} med en enkel idé: hemmet förtjänner mer än
+              stressade beställningar och otydliga lösningar. Vi samlar det du
+              behöver – från städ och hantverk till renovering – i ett tryggt
+              sammanhang där kvalitet, känsla och tydlighet går hand i hand.
+            </p>
           </div>
-        </section>
+        </PageHero>
 
         <section className="py-24">
           <div className="container-shell grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">

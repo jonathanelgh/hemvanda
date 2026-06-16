@@ -1,7 +1,25 @@
-import type { Service } from "@/lib/services";
+export type IconName =
+  | "hammer"
+  | "sparkles"
+  | "truck"
+  | "chair"
+  | "wrench"
+  | "more"
+  | "shield"
+  | "heart"
+  | "leaf"
+  | "users"
+  | "calendar"
+  | "home"
+  | "clipboard"
+  | "layers"
+  | "box"
+  | "bolt"
+  | "droplet"
+  | "search";
 
 type IconProps = {
-  name: Service["icon"] | "shield" | "heart" | "leaf" | "users";
+  name: IconName;
   className?: string;
 };
 
@@ -100,6 +118,68 @@ export function Icon({ name, className = "h-6 w-6" }: IconProps) {
           <path d="M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
           <path d="M20 19c0-1.8-1.2-3.3-3-3.8" />
           <path d="M16 4.2a3 3 0 0 1 0 5.6" />
+        </svg>
+      );
+    case "calendar":
+      return (
+        <svg {...common}>
+          <path d="M7 3v2" />
+          <path d="M17 3v2" />
+          <path d="M4 7h16" />
+          <path d="M5 5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" />
+          <path d="M8 11h4" />
+        </svg>
+      );
+    case "home":
+      return (
+        <svg {...common}>
+          <path d="M4 10.5 12 4l8 6.5" />
+          <path d="M6 9.5V20h12V9.5" />
+          <path d="M10 20v-5h4v5" />
+        </svg>
+      );
+    case "clipboard":
+      return (
+        <svg {...common}>
+          <path d="M9 5h6a2 2 0 0 1 2 2v13H7V7a2 2 0 0 1 2-2z" />
+          <path d="M9 5V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1" />
+          <path d="M9 12h6" />
+          <path d="M9 16h4" />
+        </svg>
+      );
+    case "layers":
+      return (
+        <svg {...common}>
+          <path d="M12 4 3 9l9 5 9-5-9-5z" />
+          <path d="m3 14 9 5 9-5" />
+          <path d="m3 19 9 5 9-5" />
+        </svg>
+      );
+    case "box":
+      return (
+        <svg {...common}>
+          <path d="M12 3 20 7v10l-8 4-8-4V7z" />
+          <path d="M12 3v18" />
+          <path d="M4 7l8 4 8-4" />
+        </svg>
+      );
+    case "bolt":
+      return (
+        <svg {...common}>
+          <path d="M13 2 4 14h7l-1 8 9-12h-7z" />
+        </svg>
+      );
+    case "droplet":
+      return (
+        <svg {...common}>
+          <path d="M12 3c4 5 7 8.5 7 12a7 7 0 1 1-14 0c0-3.5 3-7 7-12z" />
+        </svg>
+      );
+    case "search":
+      return (
+        <svg {...common}>
+          <path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z" />
+          <path d="m21 21-4.3-4.3" />
         </svg>
       );
   }

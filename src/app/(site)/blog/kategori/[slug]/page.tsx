@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogCard } from "@/components/blog/blog-card";
+import { PageHero } from "@/components/page-hero";
 import { SectionHeading } from "@/components/sections";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -48,8 +49,8 @@ export default async function BlogCategoryPage({ params }: BlogCategoryPageProps
     <>
       <SiteHeader />
       <main>
-        <section className="border-b border-green/10 bg-card py-16 sm:py-20">
-          <div className="container-shell">
+        <PageHero>
+          <div className="max-w-4xl">
             <Link
               href="/blog"
               className="text-sm font-semibold text-green/70 transition hover:text-gold"
@@ -65,7 +66,7 @@ export default async function BlogCategoryPage({ params }: BlogCategoryPageProps
               }
             />
           </div>
-        </section>
+        </PageHero>
 
         <section className="py-16 sm:py-20">
           <div className="container-shell">

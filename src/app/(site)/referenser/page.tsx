@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ShowcaseCard } from "@/components/showcase/showcase-card";
+import { PageHero } from "@/components/page-hero";
 import { SectionHeading } from "@/components/sections";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -31,8 +32,8 @@ export default async function ReferenserPage({ searchParams }: ReferenserPagePro
     <>
       <SiteHeader />
       <main>
-        <section className="border-b border-green/10 bg-card py-16 sm:py-20">
-          <div className="container-shell">
+        <PageHero>
+          <div className="max-w-4xl">
             <SectionHeading
               eyebrow="Referenser"
               title="Tidigare jobb vi är stolta över"
@@ -44,7 +45,7 @@ export default async function ReferenserPage({ searchParams }: ReferenserPagePro
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                   !serviceSlug
                     ? "bg-green text-white"
-                    : "border border-green/15 text-green hover:border-gold hover:text-gold"
+                    : "border border-green/15 bg-white/80 text-green hover:border-gold hover:text-gold"
                 }`}
               >
                 Alla
@@ -56,7 +57,7 @@ export default async function ReferenserPage({ searchParams }: ReferenserPagePro
                   className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                     serviceSlug === service.slug
                       ? "bg-green text-white"
-                      : "border border-green/15 text-green hover:border-gold hover:text-gold"
+                      : "border border-green/15 bg-white/80 text-green hover:border-gold hover:text-gold"
                   }`}
                 >
                   {service.title}
@@ -64,7 +65,7 @@ export default async function ReferenserPage({ searchParams }: ReferenserPagePro
               ))}
             </div>
           </div>
-        </section>
+        </PageHero>
 
         <section className="py-16 sm:py-20">
           <div className="container-shell">

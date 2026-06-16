@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { callOpenAiJson, generateCoverImage } from "../_shared/openai.ts";
-import { corsHeaders, ensureUniqueSlug, jsonResponse, slugify } from "../_shared/blog-utils.ts";
+import { corsHeaders, ensureUniqueSlug, jsonResponse, sanitizeArticleContent, slugify } from "../_shared/blog-utils.ts";
 
 type ServiceContext = {
   slug: string;
@@ -112,7 +112,7 @@ async function generateArticle(topic: string, services: ServiceContext[], servic
     {
       role: "system",
       content:
-        "Du är en svensk copywriter och SEO-specialist för HemVända. Skriv informativa bloggartiklar som HTML för TipTap. Svara med giltig JSON.",
+        "Du är en svensk copywriter och SEO-specialist för HemVända. Skriv färdiga bloggartiklar som HTML för TipTap – aldrig dispositioner, steg-rubriker eller interna anteckningar. Svara med giltig JSON.",
     },
     {
       role: "user",
@@ -131,9 +131,11 @@ Krav på innehåll:
 - HTML utan <html>, <body> eller <h1>
 - Använd <h2>, <h3>, <p>, <ul>, <li>, <strong>
 - Inkludera lokala referenser till Stockholm och närliggande områden
-- Inkludera en tydlig CTA som uppmuntrar bokning via HemVända
+- Avsluta med 1–2 vanliga stycken (<p>) som naturligt uppmuntrar läsaren att boka via HemVända
 - Skriv för människor, inte keyword stuffing
 - Undvik påhittade priser, garantier eller erbjudanden
+- ALDRIG rubriker som beskriver artikelns struktur eller skrivprocess, t.ex. "Inledning", "Avslutning och CTA", "Sammanfattning", "CTA" eller "Call to action"
+- Alla rubriker ska vara informativa och läsbara för besökaren, inte interna planeringsetiketter
 
 SEO:
 - seoTitle max 60 tecken
@@ -271,7 +273,7 @@ Deno.serve(async (req) => {
         title: article.title.trim(),
         slug,
         excerpt: article.excerpt.trim(),
-        content: article.content.trim(),
+        content: sanitizeArticleContent(article.content.trim()),
         cover_image_url: coverImageUrl,
         category_id: body.categoryId ?? null,
         status,

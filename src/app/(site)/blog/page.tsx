@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BlogCard } from "@/components/blog/blog-card";
+import { PageHero } from "@/components/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { SectionHeading } from "@/components/sections";
 import { SiteFooter } from "@/components/site-footer";
@@ -35,8 +36,8 @@ export default async function BlogPage() {
       />
       <SiteHeader />
       <main>
-        <section className="border-b border-green/10 bg-card py-16 sm:py-20">
-          <div className="container-shell">
+        <PageHero>
+          <div className="max-w-4xl">
             <SectionHeading
               eyebrow="Blogg"
               title="Guider, tips och inspiration för hemmet"
@@ -54,7 +55,7 @@ export default async function BlogPage() {
                   <Link
                     key={category.id}
                     href={`/blog/kategori/${category.slug}`}
-                    className="rounded-full border border-green/15 px-4 py-2 text-sm font-semibold text-green transition hover:border-gold hover:text-gold"
+                    className="rounded-full border border-green/15 bg-white/80 px-4 py-2 text-sm font-semibold text-green transition hover:border-gold hover:text-gold"
                   >
                     {category.name}
                   </Link>
@@ -62,7 +63,7 @@ export default async function BlogPage() {
               </div>
             ) : null}
           </div>
-        </section>
+        </PageHero>
 
         <section className="py-16 sm:py-20">
           <div className="container-shell">

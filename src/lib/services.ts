@@ -1,3 +1,5 @@
+import type { IconName } from "@/components/icons";
+
 export type Service = {
   slug: string;
   title: string;
@@ -5,10 +7,14 @@ export type Service = {
   description: string;
   hero: string;
   heroImage?: string;
+  summaryTitle: string;
   summary: string;
-  icon: "hammer" | "sparkles" | "truck" | "chair" | "wrench" | "more";
+  icon: Extract<
+    IconName,
+    "hammer" | "sparkles" | "truck" | "chair" | "wrench" | "more"
+  >;
   accent: string;
-  includes: string[];
+  includes: { label: string; icon: IconName }[];
   subServices?: string[];
   steps: string[];
   benefits: string[];
@@ -32,15 +38,16 @@ export const services: Service[] = [
     hero:
       "Kom hem till en renare vardag. Vi hjälper dig med återkommande städning, storstädning och flyttstäd med varm och professionell känsla.",
     heroImage: "/stad-hero-img.webp",
+    summaryTitle: "Städning med omsorg om helheten",
     summary:
       "HemVända städar med omsorg om både detaljerna och helheten, så att ditt hem känns lättare att leva i.",
     icon: "sparkles",
     accent: "Hemstädning",
     includes: [
-      "Regelbunden hemstädning",
-      "Storstädning inför nystart eller särskilda tillfällen",
-      "Flyttstädning och extra städtillfällen",
-      "Tydliga instruktioner för varje hem",
+      { label: "Regelbunden hemstädning", icon: "calendar" },
+      { label: "Storstädning inför nystart eller särskilda tillfällen", icon: "sparkles" },
+      { label: "Flyttstädning och extra städtillfällen", icon: "truck" },
+      { label: "Tydliga instruktioner för varje hem", icon: "clipboard" },
     ],
     steps: [
       "Välj vilken typ av städning du behöver.",
@@ -79,15 +86,16 @@ export const services: Service[] = [
     hero:
       "Från platsbyggda lösningar till renovering och förbättringar. Vi hjälper dig skapa ett hem som fungerar bättre och känns mer genomtänkt.",
     heroImage: "/snickare-hero-bg.webp",
+    summaryTitle: "Renovering med kvalitet och planering",
     summary:
       "Snickeri, bygg och renovering för dig som vill förnya hemmet med kvalitet, tydlig planering och känsla för detaljer.",
     icon: "hammer",
     accent: "Renovering",
     includes: [
-      "Snickeriarbeten och specialanpassade lösningar",
-      "Mindre byggprojekt och hemförbättringar",
-      "Renovering av utvalda ytor och rum",
-      "Planering, materialråd och tydlig tidsplan",
+      { label: "Snickeriarbeten och specialanpassade lösningar", icon: "hammer" },
+      { label: "Mindre byggprojekt och hemförbättringar", icon: "layers" },
+      { label: "Renovering av utvalda ytor och rum", icon: "home" },
+      { label: "Planering, materialråd och tydlig tidsplan", icon: "clipboard" },
     ],
     steps: [
       "Berätta vad du vill bygga, ändra eller renovera.",
@@ -125,15 +133,16 @@ export const services: Service[] = [
       "Flexibel hjälp med montering, upphängning, reparationer och praktiska vardagsjobb.",
     hero:
       "När listan med småsaker växer hjälper HemVända dig att få ordning. Vi tar hand om fixet så att hemmet fungerar smidigare.",
+    summaryTitle: "Praktisk hjälp i vardagen",
     summary:
       "Handyman-tjänster för praktiska uppdrag i hemmet, från montering och upphängning till enklare reparationer.",
     icon: "wrench",
     accent: "Hemfix",
     includes: [
-      "Montering av möbler och inredning",
-      "Upphängning av hyllor, tavlor och gardiner",
-      "Enklare reparationer och justeringar",
-      "Praktisk hjälp inför flytt, styling eller renovering",
+      { label: "Montering av möbler och inredning", icon: "box" },
+      { label: "Upphängning av hyllor, tavlor och gardiner", icon: "layers" },
+      { label: "Enklare reparationer och justeringar", icon: "wrench" },
+      { label: "Praktisk hjälp inför flytt, styling eller renovering", icon: "truck" },
     ],
     steps: [
       "Samla dina fixpunkter i en bokning.",
@@ -171,15 +180,16 @@ export const services: Service[] = [
       "Inredning och styling som lyfter hemmet inför vardag, fotografering eller försäljning.",
     hero:
       "Vi skapar hem som känns rätt. Med färg, möblering och detaljer hjälper vi varje rum att hitta sin form.",
+    summaryTitle: "Inredning som lyfter helheten",
     summary:
       "HemVända inredning är för dig som vill få fram värmen, balansen och potentialen i ditt hem.",
     icon: "chair",
     accent: "Styling",
     includes: [
-      "Homestyling inför försäljning",
-      "Rumsförnyelse och möbleringsförslag",
-      "Färg- och materialrådgivning",
-      "Detaljer som skapar rätt helhetskänsla",
+      { label: "Homestyling inför försäljning", icon: "chair" },
+      { label: "Rumsförnyelse och möbleringsförslag", icon: "sparkles" },
+      { label: "Färg- och materialrådgivning", icon: "leaf" },
+      { label: "Detaljer som skapar rätt helhetskänsla", icon: "heart" },
     ],
     steps: [
       "Berätta vilket rum eller mål du har.",
@@ -217,15 +227,16 @@ export const services: Service[] = [
       "Vi kan även erbjuda rörmokare, elektriker, besiktningsman och flytthjälp via vårt nätverk.",
     hero:
       "Alla behov passar inte i en standardtjänst. Därför samlar HemVända övriga tjänster som rörmokare, elektriker, besiktningsman och flytt.",
+    summaryTitle: "Specialister när hemmet behöver mer",
     summary:
       "Övriga tjänster fungerar som en huvudsida för specialistuppdrag och kompletterande hjälp runt hemmet.",
     icon: "more",
     accent: "Specialister",
     includes: [
-      "Rörmokare för VVS-relaterade uppdrag",
-      "Elektriker för elarbeten och installationer",
-      "Besiktningsman inför köp, försäljning eller åtgärder",
-      "Flytthjälp när hemmet ska byta adress",
+      { label: "Rörmokare för VVS-relaterade uppdrag", icon: "droplet" },
+      { label: "Elektriker för elarbeten och installationer", icon: "bolt" },
+      { label: "Besiktningsman inför köp, försäljning eller åtgärder", icon: "search" },
+      { label: "Flytthjälp när hemmet ska byta adress", icon: "truck" },
     ],
     subServices: ["Rörmokare", "Elektriker", "Besiktningsman", "Flytt"],
     steps: [

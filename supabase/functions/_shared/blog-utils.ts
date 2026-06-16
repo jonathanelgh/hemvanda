@@ -41,3 +41,18 @@ export async function ensureUniqueSlug(admin: SupabaseClient, baseSlug: string) 
     suffix += 1;
   }
 }
+
+const metaHeadingPattern =
+  /^(inledning|introduktion|bakgrund|huvuddel|sammanfattning|slutsats|avslutning(\s+och\s+cta)?|cta|call\s*to\s*action|n[aä]sta\s+steg)$/i;
+
+export function sanitizeArticleContent(html: string) {
+  return html.replace(/<h([23])[^>]*>([\s\S]*?)<\/h\1>/gi, (match, _level, inner) => {
+    const text = inner.replace(/<[^>]+>/g, "").trim();
+
+    if (metaHeadingPattern.test(text) || /\bcta\b/i.test(text)) {
+      return "";
+    }
+
+    return match;
+  });
+}

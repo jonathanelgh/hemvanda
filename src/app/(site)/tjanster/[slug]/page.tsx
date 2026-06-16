@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BookingCta } from "@/components/booking-cta";
+import { BlogPostsSection } from "@/components/blog/blog-posts-section";
 import { Icon } from "@/components/icons";
+import { PageHero } from "@/components/page-hero";
 import { ServiceCard } from "@/components/service-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -16,6 +18,8 @@ type Props = {
 export function generateStaticParams() {
   return services.map((service) => ({ slug: service.slug }));
 }
+
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -45,39 +49,19 @@ export default async function ServicePage({ params }: Props) {
     <div className="min-h-screen bg-background text-green">
       <SiteHeader />
       <main>
-        <section
-          className={`relative overflow-hidden py-20 ${service.heroImage ? "" : "bg-ivory"}`}
+        <PageHero
+          imageSrc={service.heroImage ?? "/hemvanda-bg.webp"}
+          imageClassName="object-cover object-center"
         >
-          {service.heroImage ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={service.heroImage}
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover object-center"
-                aria-hidden
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--background)_0%,rgba(248,245,239,0.96)_10%,rgba(248,245,239,0.88)_38%,rgba(248,245,239,0.72)_58%,var(--background)_100%)] lg:hidden" />
-              <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,var(--background)_0%,rgba(248,245,239,0.94)_22%,rgba(248,245,239,0.55)_48%,rgba(248,245,239,0.15)_68%,transparent_82%)] lg:block" />
-              <div className="absolute inset-0 hidden bg-[linear-gradient(180deg,transparent_0%,transparent_62%,rgba(248,245,239,0.35)_82%,var(--background)_100%)] lg:block" />
-              <div className="absolute inset-0 hidden bg-[radial-gradient(circle_at_18%_20%,rgba(201,164,106,0.12),transparent_42%)] lg:block" />
-            </>
-          ) : null}
-          <div className="relative z-10 container-shell grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="grid w-full items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
             <div>
-              <p
-                className={`text-xs font-bold uppercase tracking-[0.34em] text-gold ${service.heroImage ? "drop-shadow-[0_1px_8px_rgba(248,245,239,0.85)]" : ""}`}
-              >
+              <p className="text-xs font-bold uppercase tracking-[0.34em] text-gold drop-shadow-[0_1px_8px_rgba(248,245,239,0.85)]">
                 {service.eyebrow}
               </p>
-              <h1
-                className={`mt-5 font-display text-6xl leading-none md:text-8xl ${service.heroImage ? "text-black drop-shadow-[0_1px_12px_rgba(248,245,239,0.85)]" : "text-green"}`}
-              >
+              <h1 className="mt-5 font-display text-6xl leading-none text-black drop-shadow-[0_1px_12px_rgba(248,245,239,0.85)] md:text-8xl">
                 {service.title}
               </h1>
-              <p
-                className={`mt-7 max-w-2xl text-lg leading-8 ${service.heroImage ? "text-black/80 max-lg:text-black/90" : "text-muted"}`}
-              >
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-black/80 max-lg:text-black/90">
                 {service.hero}
               </p>
             </div>
@@ -96,22 +80,25 @@ export default async function ServicePage({ params }: Props) {
               <BookingCta compact defaultService={service.slug} formId="boka" />
             </div>
           </div>
-        </section>
+        </PageHero>
 
         <section className="py-24">
           <div className="container-shell grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
             <SectionHeading
               eyebrow="Vad ingår?"
-              title={service.summary}
+              title={service.summaryTitle}
+              description={service.summary}
             />
             <div className="grid gap-4 sm:grid-cols-2">
               {service.includes.map((item) => (
                 <div
-                  key={item}
+                  key={item.label}
                   className="rounded-xl border border-green/10 bg-card p-6"
                 >
-                  <span className="text-lg text-gold">—</span>
-                  <p className="mt-4 text-sm leading-7 text-muted">{item}</p>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 bg-background text-green">
+                    <Icon name={item.icon} className="h-6 w-6" />
+                  </div>
+                  <p className="mt-4 text-sm leading-7 text-muted">{item.label}</p>
                 </div>
               ))}
             </div>
@@ -208,6 +195,8 @@ export default async function ServicePage({ params }: Props) {
             </div>
           </div>
         </section>
+
+        <BlogPostsSection />
 
         <section className="py-24">
           <div className="container-shell rounded-xl bg-green p-8 text-white md:p-14">
