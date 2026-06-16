@@ -54,12 +54,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Mitt {BRAND_NAME}
             </p>
             <h1 className="mt-5 max-w-2xl font-display text-6xl leading-none md:text-8xl">
-              Logga in med e-post.
+              Välkommen tillbaka.
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-muted">
-              Använd samma e-postadress som vid bokning. Vi skickar en säker
-              inloggningslänk så att du snabbt kommer åt dina bokningar och
-              uppgifter.
+              Mitt {BRAND_NAME} samlar dina bokningar och uppgifter. Ange samma
+              e-post som vid bokning så skickar vi en säker länk – inget lösenord
+              behövs.
             </p>
           </section>
 

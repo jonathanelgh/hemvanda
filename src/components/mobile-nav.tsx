@@ -105,13 +105,20 @@ export function MobileNav() {
             </div>
           ) : null}
 
-          <a
-            href="#sa-fungerar-det"
+          <Link
+            href="/om-oss"
+            onClick={closeMenu}
+            className="block rounded-lg px-4 py-3 text-base font-semibold text-green transition hover:bg-ivory hover:text-gold"
+          >
+            Om oss
+          </Link>
+          <Link
+            href="/#sa-fungerar-det"
             onClick={closeMenu}
             className="block rounded-lg px-4 py-3 text-base font-semibold text-green transition hover:bg-ivory hover:text-gold"
           >
             Så fungerar det
-          </a>
+          </Link>
         </div>
 
         <div className="mt-6 space-y-3 border-t border-green/10 pt-6">

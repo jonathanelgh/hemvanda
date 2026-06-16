@@ -19,7 +19,9 @@ import { CleaningSchedulePicker } from "@/components/booking/cleaning-schedule-p
 import { readApiError } from "@/lib/api-client";
 import {
   getCleaningBookingCopy,
+  buildBookingSearchUrl,
   isHomeCleaningBooking,
+  isOneTimeCleaningProperty,
   keyAccessOptions,
   type BookingParams,
   type CleaningFrequency,
@@ -52,7 +54,9 @@ export function CleaningDirectForm({
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [squareMeters, setSquareMeters] = useState("");
   const [hasPets, setHasPets] = useState<PetAnswer | "">("");
-  const [frequency, setFrequency] = useState<CleaningFrequency>("varannan-vecka");
+  const [frequency, setFrequency] = useState<CleaningFrequency>(
+    isOneTimeCleaningProperty(plats) ? "storstadning" : "varannan-vecka",
+  );
   const [tidying, setTidying] = useState<TidyingOption>("nej");
   const [weekdayPreference, setWeekdayPreference] =
     useState<WeekdayPreference>("flexibel");
@@ -328,6 +332,17 @@ export function CleaningDirectForm({
         squareMetersLabel={copy.squareMetersLabel}
         petsLabel={copy.petsLabel}
         tidyingDescription={copy.tidyingDescription}
+        propertyType={plats}
+        storstadBookingHref={
+          isHomeCleaningBooking(plats)
+            ? buildBookingSearchUrl({
+                tjanst,
+                postnummer,
+                kommun,
+                plats: "storstad",
+              })
+            : undefined
+        }
       />
 
       <div className="space-y-3">

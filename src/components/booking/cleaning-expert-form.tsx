@@ -15,7 +15,9 @@ import {
 } from "@/components/booking/cleaning-price-bar";
 import {
   getCleaningBookingCopy,
+  buildBookingSearchUrl,
   isHomeCleaningBooking,
+  isOneTimeCleaningProperty,
   type BookingParams,
   type CleaningFrequency,
   type ContactPreference,
@@ -43,7 +45,9 @@ export function CleaningExpertForm({
 }: CleaningExpertFormProps) {
   const [squareMeters, setSquareMeters] = useState("");
   const [hasPets, setHasPets] = useState<PetAnswer | "">("");
-  const [frequency, setFrequency] = useState<CleaningFrequency>("varannan-vecka");
+  const [frequency, setFrequency] = useState<CleaningFrequency>(
+    isOneTimeCleaningProperty(plats) ? "storstadning" : "varannan-vecka",
+  );
   const [tidying, setTidying] = useState<TidyingOption>("nej");
   const [weekdayPreference, setWeekdayPreference] =
     useState<WeekdayPreference>("flexibel");
@@ -152,6 +156,17 @@ export function CleaningExpertForm({
         squareMetersLabel={copy.squareMetersLabel}
         petsLabel={copy.petsLabel}
         tidyingDescription={copy.tidyingDescription}
+        propertyType={plats}
+        storstadBookingHref={
+          isHomeCleaningBooking(plats)
+            ? buildBookingSearchUrl({
+                tjanst,
+                postnummer,
+                kommun,
+                plats: "storstad",
+              })
+            : undefined
+        }
       />
 
       <section className={bookingSectionClassName}>

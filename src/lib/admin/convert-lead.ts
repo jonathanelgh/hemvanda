@@ -204,6 +204,7 @@ export async function convertCleaningLeadToBooking(input: ConvertCleaningLeadInp
       | "hem"
       | "kontor"
       | "ovrigt"
+      | "storstad"
       | undefined,
     sourceLeadId: lead.id,
   });

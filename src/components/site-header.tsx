@@ -57,22 +57,19 @@ export function SiteHeader() {
               </div>
             </div>
           ) : null}
-          <a href="#sa-fungerar-det" className="transition hover:text-gold">
+          <Link href="/om-oss" className="transition hover:text-gold">
+            Om oss
+          </Link>
+          <a href="/#sa-fungerar-det" className="transition hover:text-gold">
             Så fungerar det
           </a>
         </nav>
         <div className="flex items-center gap-3">
           <Link
             href="/logga-in"
-            className="hidden text-sm font-semibold text-green/80 transition hover:text-gold lg:inline"
+            className="hidden rounded-full border border-green/15 px-5 py-3 text-sm font-semibold text-green/80 transition hover:border-gold hover:text-gold lg:inline-flex"
           >
             Logga in
-          </Link>
-          <Link
-            href="#boka"
-            className="hidden rounded-full bg-green px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-ink lg:inline-flex"
-          >
-            Boka hjälp
           </Link>
           <MobileNav />
         </div>

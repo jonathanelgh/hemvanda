@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BookingSummary } from "@/components/booking/booking-summary";
 import { CleaningBookingFlow } from "@/components/booking/cleaning-booking-flow";
 import { InquiryBookingForm } from "@/components/booking/inquiry-booking-form";
+import { ServiceFaq } from "@/components/booking/service-faq";
 import { BookingHeader } from "@/components/booking-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BRAND_NAME } from "@/lib/brand";
@@ -75,6 +76,7 @@ export default async function BookingPage({ searchParams }: Props) {
                 Beskriv vad du behöver hjälp med så återkommer vi med förslag,
                 offert eller nästa steg.
               </p>
+              <ServiceFaq service={context.service} compact />
               <div className="mt-8 lg:hidden">
                 <BookingSummary
                   service={context.service}

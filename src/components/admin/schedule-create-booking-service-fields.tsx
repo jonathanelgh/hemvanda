@@ -187,7 +187,7 @@ export function ScheduleCreateBookingServiceFields({
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <FieldLabel>Typ av städ</FieldLabel>
-              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 {cleaningPropertyOptions.map((option) => (
                   <label
                     key={option.value}

@@ -49,7 +49,7 @@ export default function Home() {
               description="Boka en huvudtjänst eller gå via Övriga tjänster när du behöver rörmokare, elektriker, besiktningsman eller flytt."
               centered
             />
-            <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-5">
+            <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {services.map((service) => (
                 <ServiceCard key={service.slug} service={service} />
               ))}

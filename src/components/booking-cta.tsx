@@ -25,6 +25,34 @@ export function BookingCta({
   const initialService = defaultService ?? services[0]?.slug ?? "";
   const serviceInputName = `${formId}-service`;
   const isLocationMode = selectionMode === "locations";
+  const showLocationStepInitially = isLocationMode;
+
+  const locationOptions = (
+    <div className="grid gap-3">
+      {cleaningPropertyOptions.map((option) => (
+        <label
+          key={option.value}
+          className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-green/10 bg-white px-4 py-4 text-left text-sm text-green/80 transition has-checked:border-gold has-checked:bg-ivory has-checked:text-green hover:border-gold/50"
+        >
+          <span>
+            <span className="block font-semibold">{option.label}</span>
+            <span className="mt-1 block text-sm leading-6 text-muted">
+              {option.description}
+            </span>
+          </span>
+          <input
+            type="radio"
+            name={`${formId}-plats`}
+            value={option.value}
+            defaultChecked={option.value === "hem"}
+            required
+            data-location-input
+            className="ml-4 h-4 w-4 shrink-0 accent-gold"
+          />
+        </label>
+      ))}
+    </div>
+  );
 
   return (
     <>
@@ -85,10 +113,9 @@ export function BookingCta({
         <p
           id={`${formId}-hint`}
           data-postal-hint
-          className="mt-4 text-xs leading-5 text-muted"
-        >
-          Ange fem siffror - vi formaterar automatiskt till 123 45.
-        </p>
+          className="mt-4 hidden text-xs leading-5 text-muted"
+          aria-live="polite"
+        />
       </form>
 
       {selectionMode !== "fixed" ? (
@@ -136,115 +163,102 @@ export function BookingCta({
             <div className="px-10 text-center md:px-12">
               <h2
                 id={`${formId}-services-title`}
-                className="font-display text-3xl text-green"
+                data-modal-title-service
+                className={`font-display text-3xl text-green ${showLocationStepInitially ? "hidden" : ""}`}
               >
-                {isLocationMode ? "Var ska vi städa?" : "Hur kan vi hjälpa dig?"}
+                Hur kan vi hjälpa dig?
               </h2>
-              {!isLocationMode ? (
-                <p className="mt-2 text-sm text-muted">
-                  Där du bor i{" "}
-                  <span data-modal-place className="font-semibold text-green" />
-                  <span
-                    data-modal-place-loading
-                    className="hidden text-muted"
-                    aria-hidden="true"
-                  >
-                    ...
-                  </span>
-                  , erbjuder vi följande tjänster
-                </p>
-              ) : null}
-            </div>
-          </div>
-
-          {isLocationMode ? (
-            <div className="flex min-h-0 flex-1 flex-col">
-              <div className="flex-1 overflow-y-auto p-5 md:p-6">
-                <div className="grid gap-3">
-                  {cleaningPropertyOptions.map((option) => (
-                    <label
-                      key={option.value}
-                      className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-green/10 bg-white px-4 py-4 text-left text-sm text-green/80 transition has-checked:border-gold has-checked:bg-ivory has-checked:text-green hover:border-gold/50"
-                    >
-                      <span>
-                        <span className="block font-semibold">{option.label}</span>
-                        <span className="mt-1 block text-sm leading-6 text-muted">
-                          {option.description}
-                        </span>
-                      </span>
-                      <input
-                        type="radio"
-                        name="plats"
-                        value={option.value}
-                        defaultChecked={option.value === "hem"}
-                        required
-                        data-location-input
-                        className="ml-4 h-4 w-4 shrink-0 accent-gold"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="sticky bottom-0 border-t border-green/10 bg-card p-4 md:p-6">
-                <p
-                  data-modal-hint
-                  className="mb-3 hidden text-sm text-red-700"
-                  aria-live="polite"
-                />
-                <button
-                  type="button"
-                  data-modal-continue
-                  className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink"
+              <h2
+                data-modal-title-location
+                className={`font-display text-3xl text-green ${showLocationStepInitially ? "" : "hidden"}`}
+              >
+                Var ska vi städa?
+              </h2>
+              <p
+                data-modal-subtitle
+                className={`mt-2 text-sm text-muted ${showLocationStepInitially ? "hidden" : ""}`}
+              >
+                Där du bor i{" "}
+                <span data-modal-place className="font-semibold text-green" />
+                <span
+                  data-modal-place-loading
+                  className="hidden text-muted"
+                  aria-hidden="true"
                 >
-                  Fortsätt
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-          <div className="flex-1 overflow-y-auto p-5 md:p-6">
-            <div className="grid gap-3">
-              {services.map((service) => (
-                    <label
-                      key={service.slug}
-                      className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-green/10 bg-white px-4 py-4 text-left text-sm text-green/80 transition has-checked:border-gold has-checked:bg-ivory has-checked:text-green hover:border-gold/50"
-                    >
-                      <span>
-                        <span className="block font-semibold">{service.title}</span>
-                        <span className="mt-1 block text-sm leading-6 text-muted">
-                          {service.description}
-                        </span>
-                      </span>
-                      <input
-                        type="radio"
-                        name={serviceInputName}
-                        value={service.slug}
-                        defaultChecked={service.slug === initialService}
-                        data-service-input
-                        className="ml-4 h-4 w-4 shrink-0 accent-gold"
-                      />
-                    </label>
-                  ))}
+                  ...
+                </span>
+                , erbjuder vi följande tjänster
+              </p>
             </div>
           </div>
 
-          <div className="sticky bottom-0 border-t border-green/10 bg-card p-4 md:p-6">
-            <p
-              data-modal-hint
-              className="mb-3 hidden text-sm text-red-700"
-              aria-live="polite"
-            />
-            <button
-              type="button"
-              data-modal-continue
-              className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink"
-            >
-              Fortsätt
-            </button>
+          <div
+            data-service-step
+            className={`flex min-h-0 flex-1 flex-col ${showLocationStepInitially ? "hidden" : ""}`}
+          >
+            <div className="flex-1 overflow-y-auto p-5 md:p-6">
+              <div className="grid gap-3">
+                {services.map((service) => (
+                  <label
+                    key={service.slug}
+                    className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-green/10 bg-white px-4 py-4 text-left text-sm text-green/80 transition has-checked:border-gold has-checked:bg-ivory has-checked:text-green hover:border-gold/50"
+                  >
+                    <span>
+                      <span className="block font-semibold">{service.title}</span>
+                      <span className="mt-1 block text-sm leading-6 text-muted">
+                        {service.description}
+                      </span>
+                    </span>
+                    <input
+                      type="radio"
+                      name={serviceInputName}
+                      value={service.slug}
+                      defaultChecked={service.slug === initialService}
+                      data-service-input
+                      className="ml-4 h-4 w-4 shrink-0 accent-gold"
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 border-t border-green/10 bg-card p-4 md:p-6">
+              <p
+                data-modal-hint
+                className="mb-3 hidden text-sm text-red-700"
+                aria-live="polite"
+              />
+              <button
+                type="button"
+                data-modal-continue
+                className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink"
+              >
+                Fortsätt
+              </button>
+            </div>
           </div>
-            </>
-          )}
+
+          <div
+            data-location-step
+            className={`flex min-h-0 flex-1 flex-col ${showLocationStepInitially ? "" : "hidden"}`}
+          >
+            <div className="flex-1 overflow-y-auto p-5 md:p-6">{locationOptions}</div>
+
+            <div className="sticky bottom-0 border-t border-green/10 bg-card p-4 md:p-6">
+              <p
+                data-modal-hint
+                className="mb-3 hidden text-sm text-red-700"
+                aria-live="polite"
+              />
+              <button
+                type="button"
+                data-modal-continue
+                className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink"
+              >
+                Fortsätt
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       ) : null}

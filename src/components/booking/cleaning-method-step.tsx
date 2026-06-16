@@ -14,9 +14,14 @@ import {
 type CleaningMethodStepProps = {
   plats?: CleaningPropertyType;
   onSelect: (path: CleaningBookingPath) => void;
+  showOptions?: boolean;
 };
 
-export function CleaningMethodStep({ plats, onSelect }: CleaningMethodStepProps) {
+export function CleaningMethodStep({
+  plats,
+  onSelect,
+  showOptions = true,
+}: CleaningMethodStepProps) {
   const copy = getCleaningBookingCopy(plats);
 
   return (
@@ -42,7 +47,7 @@ export function CleaningMethodStep({ plats, onSelect }: CleaningMethodStepProps)
         ))}
       </ul>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className={showOptions ? "grid gap-4 md:grid-cols-2" : "hidden"}>
         {copy.methodOptions.map((option) => (
           <button
             key={option.value}

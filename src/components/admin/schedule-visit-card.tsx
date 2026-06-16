@@ -47,6 +47,7 @@ const bookingPathLabels: Record<string, string> = {
   hem: "Hemstäd",
   kontor: "Kontorsstäd",
   ovrigt: "Övrigt",
+  storstad: "Storstäd",
 };
 
 function serviceTitle(slug: string) {

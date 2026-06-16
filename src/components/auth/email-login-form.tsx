@@ -69,8 +69,8 @@ export function EmailLoginForm({
           </p>
           <h2 className="mt-3 font-display text-4xl">Länk skickad</h2>
           <p className="mt-3 text-sm leading-6 text-white/70">
-            Vi skickade en inloggningslänk till {email.trim()}. Öppna mejlet och
-            klicka på länken för att komma till Mitt HemVända.
+            Öppna mejlet vi skickade till {email.trim()} och klicka på länken
+            för att gå vidare till Mitt HemVända.
           </p>
         </div>
         <button
@@ -89,14 +89,10 @@ export function EmailLoginForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="rounded-xl bg-green p-6 text-white">
-        <p className="text-xs font-bold uppercase tracking-[0.26em] text-gold">
-          Logga in
-        </p>
-        <h2 className="mt-3 font-display text-4xl">Din e-post</h2>
-        <p className="mt-3 text-sm leading-6 text-white/70">
-          Ange samma e-postadress som du använde när du bokade. Vi skickar en
-          säker inloggningslänk till dig.
+      <div>
+        <h2 className="font-display text-3xl text-green">Fortsätt till ditt konto</h2>
+        <p className="mt-3 text-sm leading-7 text-muted">
+          Vi skickar en engångslänk till din inkorg. Den är giltig en begränsad tid.
         </p>
       </div>
 

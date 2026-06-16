@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { bookingSectionClassName } from "@/components/booking/booking-styles";
 import { CheckIcon } from "@/components/booking/check-icon";
 import {
   cleaningFrequencyPlans,
   weekdayPreferenceOptions,
   type CleaningFrequency,
+  type CleaningPropertyType,
   type PetAnswer,
   type TidyingOption,
   type WeekdayPreference,
@@ -53,6 +55,8 @@ type CleaningInfoSectionsProps = {
   squareMetersLabel?: string;
   petsLabel?: string;
   tidyingDescription?: string;
+  propertyType?: CleaningPropertyType;
+  storstadBookingHref?: string;
 };
 
 export function CleaningInfoSections({
@@ -69,7 +73,11 @@ export function CleaningInfoSections({
   squareMetersLabel = "Bostadsyta (kvm)",
   petsLabel = "Har du husdjur hemma?",
   tidyingDescription = "När du bokar undanplockning slipper du förbereda hemmet själv. Vi börjar med att plocka undan, så att vi därefter kan fokusera fullt ut på städningen av ditt hem.",
+  propertyType,
+  storstadBookingHref,
 }: CleaningInfoSectionsProps) {
+  const isStorstad = propertyType === "storstad";
+
   return (
     <>
       <section className={bookingSectionClassName}>
@@ -108,6 +116,7 @@ export function CleaningInfoSections({
         </div>
       </section>
 
+      {!isStorstad ? (
       <section className={bookingSectionClassName}>
         <FieldLegend label="Välj städfrekvens" required learnMore />
         <div className="grid gap-3">
@@ -153,16 +162,16 @@ export function CleaningInfoSections({
             </label>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={() => onFrequencyChange("storstadning")}
-          className={`mt-4 text-sm font-semibold underline-offset-2 hover:underline ${
-            frequency === "storstadning" ? "text-green" : "text-gold"
-          }`}
-        >
-          Vill du bara boka en enskild storstädning? Klicka här.
-        </button>
+        {storstadBookingHref ? (
+          <Link
+            href={storstadBookingHref}
+            className="mt-4 inline-block text-sm font-semibold text-gold underline-offset-2 hover:underline"
+          >
+            Vill du bara boka en enskild storstädning? Klicka här.
+          </Link>
+        ) : null}
       </section>
+      ) : null}
 
       <section className={bookingSectionClassName}>
         <FieldLegend

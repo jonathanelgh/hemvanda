@@ -3,8 +3,18 @@ import { BRAND_NAME } from "@/lib/brand";
 import { services } from "@/lib/services";
 import { BrandLogo } from "./brand-logo";
 
-const companyLinks = [`Om ${BRAND_NAME}`, "Trygghet", "Hållbarhet", "Karriär"];
-const supportLinks = ["Kontakta oss", "FAQ", "Villkor", "Integritet"];
+const companyLinks = [
+  { label: "Om oss", href: "/om-oss" },
+  { label: "Trygghet", href: "#" },
+  { label: "Hållbarhet", href: "#" },
+  { label: "Karriär", href: "#" },
+];
+const supportLinks = [
+  { label: "Kontakta oss", href: "mailto:info@hemvanda.se" },
+  { label: "FAQ", href: "#" },
+  { label: "Villkor", href: "/villkor" },
+  { label: "Integritet", href: "/integritet" },
+];
 
 export function SiteFooter() {
   return (
@@ -39,16 +49,16 @@ export function SiteFooter() {
           </FooterColumn>
           <FooterColumn title={BRAND_NAME}>
             {companyLinks.map((link) => (
-              <a key={link} href="#">
-                {link}
-              </a>
+              <Link key={link.label} href={link.href}>
+                {link.label}
+              </Link>
             ))}
           </FooterColumn>
           <FooterColumn title="Hjälp">
             {supportLinks.map((link) => (
-              <a key={link} href="#">
-                {link}
-              </a>
+              <Link key={link.label} href={link.href}>
+                {link.label}
+              </Link>
             ))}
           </FooterColumn>
         </div>

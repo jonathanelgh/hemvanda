@@ -4,7 +4,7 @@ import { getService, type Service } from "@/lib/services";
 
 export const WEB_BOOKING_SERVICE_SLUG = "stad";
 
-export type CleaningPropertyType = "hem" | "kontor" | "ovrigt";
+export type CleaningPropertyType = "hem" | "kontor" | "ovrigt" | "storstad";
 
 export type BookingParams = {
   tjanst: string;
@@ -32,6 +32,11 @@ export const cleaningPropertyOptions: {
     value: "ovrigt",
     label: "Övrigt",
     description: "Till exempel butik, föreningslokal eller annan yta.",
+  },
+  {
+    value: "storstad",
+    label: "Storstäd",
+    description: "Grundlig engångsstädning av bostad eller lokal.",
   },
 ];
 
@@ -211,6 +216,34 @@ const cleaningBookingCopyByPlats: Record<CleaningPropertyType, CleaningBookingCo
       },
     ],
   },
+  storstad: {
+    methodTitle: "Boka storstäd",
+    methodDescription:
+      "Fyll i dina uppgifter och önskemål så återkommer vi med pris och förslag på upplägg anpassat efter ditt hem.",
+    highlights: [
+      "Offert efter behov",
+      "Grundlig genomgång",
+      "Anpassat efter ditt hem",
+    ],
+    methodOptions: [
+      {
+        value: "direct",
+        title: "Skicka förfrågan online",
+        description:
+          "Fyll i dina uppgifter och önskemål så återkommer vi med pris och förslag på upplägg.",
+      },
+    ],
+    directSuccessMessage:
+      "Vi har tagit emot din förfrågan om storstäd och återkommer med pris och bekräftad tid baserat på dina uppgifter och önskemål.",
+    expertSuccessMessage: (kommun) =>
+      `En av våra experter kontaktar dig för att diskutera upplägg och pris för din storstäd i ${kommun}.`,
+    submitButtonLabel: "Skicka förfrågan",
+    squareMetersLabel: "Bostadsyta (kvm)",
+    petsLabel: "Har du husdjur hemma?",
+    tidyingDescription:
+      "När du bokar undanplockning slipper du förbereda hemmet själv. Vi börjar med att plocka undan, så att vi därefter kan fokusera fullt ut på storstädningen.",
+    contactPreferenceOptions: contactPreferenceOptions,
+  },
 };
 
 export function getCleaningBookingCopy(plats?: CleaningPropertyType): CleaningBookingCopy {
@@ -219,6 +252,10 @@ export function getCleaningBookingCopy(plats?: CleaningPropertyType): CleaningBo
 
 export function isHomeCleaningBooking(plats?: CleaningPropertyType) {
   return !plats || plats === "hem";
+}
+
+export function isOneTimeCleaningProperty(plats?: CleaningPropertyType) {
+  return plats === "storstad";
 }
 
 export const cleaningHighlights = cleaningBookingCopyByPlats.hem.highlights;
@@ -295,6 +332,29 @@ export const keyAccessOptions: { value: KeyAccess; label: string }[] = [
 
 export function isWebBookingService(slug: string) {
   return slug === WEB_BOOKING_SERVICE_SLUG;
+}
+
+export function buildBookingSearchUrl(params: Partial<BookingParams>) {
+  const search = new URLSearchParams();
+
+  if (params.tjanst) {
+    search.set("tjanst", params.tjanst);
+  }
+
+  if (params.postnummer) {
+    search.set("postnummer", params.postnummer);
+  }
+
+  if (params.kommun) {
+    search.set("kommun", params.kommun);
+  }
+
+  if (params.plats) {
+    search.set("plats", params.plats);
+  }
+
+  const query = search.toString();
+  return query ? `/booking?${query}` : "/booking";
 }
 
 export function parseBookingSearchParams(

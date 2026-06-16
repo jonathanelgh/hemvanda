@@ -1,5 +1,6 @@
 (function () {
   var lookupIds = new WeakMap();
+  var CLEANING_SERVICE_SLUG = "stad";
 
   function digits(value) {
     return (value || "").replace(/\D/g, "").slice(0, 5);
@@ -67,25 +68,70 @@
 
   function setHint(hint, text, isError) {
     if (!hint) return;
-    hint.textContent = text;
-    hint.className = isError
-      ? "mt-4 text-xs leading-5 text-red-700"
-      : "mt-4 text-xs leading-5 text-muted";
-  }
-
-  function setModalHint(modal, text) {
-    if (!modal) return;
-    var hint = modal.querySelector("[data-modal-hint]");
-    if (!hint) return;
 
     if (!text) {
       hint.textContent = "";
-      hint.classList.add("hidden");
+      hint.className = "mt-4 hidden text-xs leading-5 text-muted";
       return;
     }
 
     hint.textContent = text;
+    hint.className = isError
+      ? "mt-4 text-xs leading-5 text-red-700"
+      : "mt-4 text-xs leading-5 text-muted";
     hint.classList.remove("hidden");
+  }
+
+  function setModalHint(modal, text) {
+    if (!modal) return;
+    modal.querySelectorAll("[data-modal-hint]").forEach(function (hint) {
+      if (!text) {
+        hint.textContent = "";
+        hint.classList.add("hidden");
+        return;
+      }
+
+      hint.textContent = text;
+      hint.classList.remove("hidden");
+    });
+  }
+
+  function setModalStep(modal, step) {
+    if (!modal) return;
+
+    var isLocation = step === "location";
+    var serviceStep = modal.querySelector("[data-service-step]");
+    var locationStep = modal.querySelector("[data-location-step]");
+    var serviceTitle = modal.querySelector("[data-modal-title-service]");
+    var locationTitle = modal.querySelector("[data-modal-title-location]");
+    var subtitle = modal.querySelector("[data-modal-subtitle]");
+
+    if (serviceStep) serviceStep.classList.toggle("hidden", isLocation);
+    if (locationStep) locationStep.classList.toggle("hidden", !isLocation);
+    if (serviceTitle) serviceTitle.classList.toggle("hidden", isLocation);
+    if (locationTitle) locationTitle.classList.toggle("hidden", !isLocation);
+    if (subtitle) subtitle.classList.toggle("hidden", isLocation);
+
+    modal.dataset.activeStep = step;
+  }
+
+  function resetModalStep(modal, form) {
+    if (!modal) return;
+
+    if (selectionMode(form, modal) === "locations") {
+      setModalStep(modal, "location");
+      return;
+    }
+
+    setModalStep(modal, "service");
+  }
+
+  function isOnLocationStep(modal, form) {
+    if (!modal) return false;
+    if (selectionMode(form, modal) === "locations") return true;
+
+    var locationStep = modal.querySelector("[data-location-step]");
+    return Boolean(locationStep && !locationStep.classList.contains("hidden"));
   }
 
   function placeFromLabel(label, masked) {
@@ -143,7 +189,7 @@
     if (state === "idle") {
       submit.disabled = true;
       submit.textContent = "Fortsätt";
-      setHint(hint, "Ange fem siffror - vi formaterar automatiskt till 123 45.", false);
+      setHint(hint, "", false);
       return;
     }
 
@@ -245,6 +291,7 @@
     if (form.dataset.fixedService) {
       modal.dataset.fixedService = form.dataset.fixedService;
     }
+    resetModalStep(modal, form);
     syncModalPlaceFromForm(form);
     modal.classList.remove("hidden");
     modal.classList.add("flex");
@@ -258,6 +305,7 @@
     modal.classList.add("hidden");
     modal.classList.remove("flex");
     modal.setAttribute("aria-hidden", "true");
+    resetModalStep(modal, form);
 
     if (!document.querySelector("[data-service-modal]:not(.hidden)")) {
       document.body.style.overflow = "";
@@ -270,9 +318,10 @@
     var hint = form.querySelector("[data-postal-hint]");
     var zip = digits(input ? input.value : "") || getResolvedZip(form);
     var place = getResolvedPlace(form);
-    var isLocations = selectionMode(form, modal) === "locations";
+    var mode = selectionMode(form, modal);
+    var onLocationStep = isOnLocationStep(modal, form);
     var service = selectedService(form, modal);
-    var propertyType = isLocations ? selectedLocation(modal) : "";
+    var propertyType = onLocationStep ? selectedLocation(modal) : "";
 
     if (zip.length !== 5) {
       setHint(hint, "Ogiltigt postnummer. Ange fem siffror.", true);
@@ -287,7 +336,13 @@
       return;
     }
 
-    if (isLocations) {
+    if (!onLocationStep && mode === "services" && service === CLEANING_SERVICE_SLUG) {
+      setModalStep(modal, "location");
+      setModalHint(modal, "");
+      return;
+    }
+
+    if (onLocationStep) {
       if (!propertyType) {
         setHint(hint, "Välj plats för att fortsätta.", true);
         setModalHint(modal, "Välj plats för att fortsätta.");
