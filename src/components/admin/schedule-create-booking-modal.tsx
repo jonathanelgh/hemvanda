@@ -17,6 +17,7 @@ import {
 import {
   formatDayHeading,
   parseDateKey,
+  resolveWeekStartKey,
   type AssignableStaffMember,
 } from "@/lib/admin/schedule";
 import {
@@ -34,6 +35,7 @@ type ScheduleCreateBookingModalProps = {
   weekStartKey: string;
   staffMembers: AssignableStaffMember[];
   onClose: () => void;
+  allowEditDateTime?: boolean;
 };
 
 type ClientMode = "search" | "create";
@@ -48,13 +50,16 @@ const emptyNewClient = {
 };
 
 export function ScheduleCreateBookingModal({
-  visitDate,
-  visitTime,
-  weekStartKey,
+  visitDate: initialVisitDate,
+  visitTime: initialVisitTime,
+  weekStartKey: _weekStartKey,
   staffMembers,
   onClose,
+  allowEditDateTime = false,
 }: ScheduleCreateBookingModalProps) {
   const router = useRouter();
+  const [visitDate, setVisitDate] = useState(initialVisitDate);
+  const [visitTime, setVisitTime] = useState(initialVisitTime);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [clientMode, setClientMode] = useState<ClientMode>("search");
@@ -148,6 +153,7 @@ export function ScheduleCreateBookingModal({
     const needsManualPricing = requiresManualPricing(serviceSlug, cleaningPropertyType);
 
     startTransition(async () => {
+      const weekStartKey = resolveWeekStartKey(visitDate);
       const result = await createScheduleBookingAction({
         serviceSlug,
         profileId: client.profileId,
@@ -220,9 +226,32 @@ export function ScheduleCreateBookingModal({
                 id="create-booking-title"
                 className="mt-1 font-display text-2xl text-green md:text-3xl"
               >
-                {formatDayHeading(parseDateKey(visitDate))}
+                {allowEditDateTime ? "Skapa bokning" : formatDayHeading(parseDateKey(visitDate))}
               </h2>
-              <p className="mt-1 text-sm text-muted">Kl. {visitTime}</p>
+              {allowEditDateTime ? (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <label className="block text-sm font-semibold text-green">
+                    Datum
+                    <input
+                      type="date"
+                      value={visitDate}
+                      onChange={(event) => setVisitDate(event.target.value)}
+                      className="mt-1 w-full rounded-xl border border-green/15 bg-white px-4 py-3 text-sm text-green outline-none transition focus:border-gold"
+                    />
+                  </label>
+                  <label className="block text-sm font-semibold text-green">
+                    Tid
+                    <input
+                      type="time"
+                      value={visitTime}
+                      onChange={(event) => setVisitTime(event.target.value)}
+                      className="mt-1 w-full rounded-xl border border-green/15 bg-white px-4 py-3 text-sm text-green outline-none transition focus:border-gold"
+                    />
+                  </label>
+                </div>
+              ) : (
+                <p className="mt-1 text-sm text-muted">Kl. {visitTime}</p>
+              )}
             </div>
             <button
               type="button"

@@ -28,7 +28,7 @@ export default async function AdminLeadsPage() {
   return (
     <AdminShell
       profile={profile}
-      title="Leads"
+      title="Förfrågningar"
     >
       {leads.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-green/15 bg-white px-6 py-12 text-center text-sm text-muted">

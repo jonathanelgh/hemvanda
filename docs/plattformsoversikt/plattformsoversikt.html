@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HemVända – Plattformsöversikt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --background: #ffffff;
+        --green: #2f3a33;
+        --sage: #7d8b74;
+        --ivory: #f5f5f5;
+        --sand: #e8e8e8;
+        --gold: #c9a46a;
+        --ink: #1f2421;
+        --muted: #6f726b;
+        --card: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--background);
+        color: var(--green);
+        font-family: "Montserrat", Arial, sans-serif;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      @page cover {
+        size: A4;
+        margin: 0;
+      }
+
+      @page content {
+        size: A4;
+        margin: 14mm 16mm 18mm;
+      }
+
+      .cover {
+        page: cover;
+        position: relative;
+        width: 210mm;
+        height: 297mm;
+        overflow: hidden;
+        break-after: page;
+      }
+
+      .cover-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 22%;
+      }
+
+      .cover-gradient-a {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          #ffffff 0%,
+          rgba(255, 255, 255, 0.96) 22%,
+          rgba(255, 255, 255, 0.72) 48%,
+          rgba(255, 255, 255, 0.28) 68%,
+          transparent 82%
+        );
+      }
+
+      .cover-gradient-b {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          transparent 62%,
+          rgba(255, 255, 255, 0.45) 82%,
+          #ffffff 100%
+        );
+      }
+
+      .cover-glow {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 18% 20%, rgba(201, 164, 106, 0.08), transparent 42%);
+      }
+
+      .cover-inner {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        padding: 22mm 18mm 18mm;
+      }
+
+      .brand-mark {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand-icon {
+        position: relative;
+        display: flex;
+        width: 52px;
+        height: 52px;
+        align-items: flex-end;
+        justify-content: center;
+        border: 1px solid rgba(201, 164, 106, 0.55);
+        border-radius: 999px;
+        color: var(--green);
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .brand-icon::before {
+        content: "";
+        position: absolute;
+        top: 10px;
+        width: 18px;
+        height: 18px;
+        border-left: 1px solid currentColor;
+        border-top: 1px solid currentColor;
+        transform: rotate(45deg);
+      }
+
+      .brand-name {
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1;
+        color: var(--green);
+      }
+
+      .brand-tagline {
+        margin-top: 4px;
+        font-size: 7pt;
+        font-weight: 600;
+        letter-spacing: 0.34em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+
+      .cover-copy {
+        max-width: 72%;
+      }
+
+      .cover-eyebrow {
+        margin: 0 0 10px;
+        font-size: 8pt;
+        font-weight: 700;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+
+      .cover-title {
+        margin: 0;
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: 42pt;
+        font-weight: 600;
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        text-shadow: 0 1px 12px rgba(255, 255, 255, 0.9);
+      }
+
+      .cover-subtitle {
+        margin: 18px 0 0;
+        max-width: 34em;
+        font-size: 12pt;
+        line-height: 1.65;
+        color: rgba(31, 36, 33, 0.82);
+      }
+
+      .cover-footer {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        border-top: 1px solid rgba(47, 58, 51, 0.12);
+        padding-top: 14px;
+      }
+
+      .cover-meta {
+        font-size: 8.5pt;
+        color: var(--muted);
+      }
+
+      .cover-meta strong {
+        display: block;
+        margin-bottom: 2px;
+        font-size: 7pt;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--green);
+      }
+
+      .cover-badge {
+        padding: 10px 16px;
+        border: 1px solid rgba(201, 164, 106, 0.45);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.88);
+        font-size: 8pt;
+        font-weight: 600;
+        color: var(--green);
+      }
+
+      .content {
+        page: content;
+      }
+
+      .section {
+        break-inside: avoid-page;
+        margin-bottom: 18px;
+      }
+
+      .section-header {
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(47, 58, 51, 0.1);
+      }
+
+      .eyebrow {
+        margin: 0 0 4px;
+        font-size: 7.5pt;
+        font-weight: 700;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+
+      h2 {
+        margin: 0;
+        font-family: "Playfair Display", Georgia, serif;
+        font-size: 18pt;
+        font-weight: 600;
+        line-height: 1.15;
+        color: var(--green);
+      }
+
+      h3 {
+        margin: 14px 0 6px;
+        font-size: 10.5pt;
+        font-weight: 700;
+        color: var(--green);
+      }
+
+      p {
+        margin: 0 0 8px;
+        color: var(--green);
+      }
+
+      .lead {
+        font-size: 11pt;
+        line-height: 1.65;
+        color: rgba(47, 58, 51, 0.92);
+      }
+
+      ul,
+      ol {
+        margin: 0 0 10px;
+        padding-left: 18px;
+      }
+
+      li {
+        margin-bottom: 4px;
+      }
+
+      .pill-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 12px 0 4px;
+      }
+
+      .pill {
+        padding: 12px 14px;
+        border: 1px solid rgba(47, 58, 51, 0.08);
+        border-radius: 12px;
+        background: var(--card);
+      }
+
+      .pill strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 9pt;
+        color: var(--green);
+      }
+
+      .pill span {
+        font-size: 8.5pt;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 8px 0 12px;
+        font-size: 9pt;
+      }
+
+      th,
+      td {
+        padding: 8px 10px;
+        border: 1px solid rgba(47, 58, 51, 0.1);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #f7f7f7;
+        font-size: 8pt;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--green);
+      }
+
+      tr:nth-child(even) td {
+        background: #fafafa;
+      }
+
+      .flow-box {
+        margin: 10px 0;
+        padding: 14px 16px;
+        border: 1px solid rgba(47, 58, 51, 0.12);
+        border-radius: 14px;
+        background: #ffffff;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 8.5pt;
+        line-height: 1.7;
+        white-space: pre-line;
+        color: var(--ink);
+      }
+
+      .note {
+        margin-top: 8px;
+        padding: 10px 12px;
+        border-left: 3px solid var(--gold);
+        border-radius: 0 10px 10px 0;
+        background: #fafafa;
+        font-size: 9pt;
+        color: var(--muted);
+      }
+
+      .status-ok {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(125, 139, 116, 0.18);
+        color: var(--green);
+        font-size: 8pt;
+        font-weight: 600;
+      }
+
+      .status-pending {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(201, 164, 106, 0.18);
+        color: #7a5b24;
+        font-size: 8pt;
+        font-weight: 600;
+      }
+
+      .conclusion,
+      .next-steps {
+        padding: 16px 18px;
+        border-radius: 16px;
+        border: 1px solid rgba(47, 58, 51, 0.12);
+        background: #ffffff;
+      }
+
+      .conclusion h2,
+      .next-steps h2 {
+        color: var(--green);
+        font-size: 16pt;
+      }
+
+      .conclusion p,
+      .next-steps p {
+        color: var(--green);
+      }
+
+      .next-steps ul {
+        margin-top: 8px;
+      }
+
+      .status-waiting {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(201, 164, 106, 0.14);
+        color: #7a5b24;
+        font-size: 8pt;
+        font-weight: 600;
+      }
+
+      .page-break {
+        break-before: page;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="cover">
+      <img class="cover-bg" src="assets/hemvanda-bg.webp" alt="" />
+      <div class="cover-gradient-a"></div>
+      <div class="cover-gradient-b"></div>
+      <div class="cover-glow"></div>
+      <div class="cover-inner">
+        <div class="brand-mark">
+          <div class="brand-icon">H</div>
+          <div>
+            <div class="brand-name">HemVända</div>
+            <div class="brand-tagline">Vi ger hem nytt liv</div>
+          </div>
+        </div>
+
+        <div class="cover-copy">
+          <p class="cover-eyebrow">Plattformsdokumentation</p>
+          <h1 class="cover-title">Plattforms&shy;översikt</h1>
+          <p class="cover-subtitle">
+            En sammanfattning av webbplatsen, dess funktioner och hur systemet fungerar i praktiken.
+          </p>
+        </div>
+
+        <div class="cover-footer">
+          <div class="cover-meta">
+            <strong>Dokument</strong>
+            HemVända webbplattform<br />
+            Version 1.0 · Juni 2026
+          </div>
+          <div class="cover-badge">Konfidentiellt · För beställare &amp; intressenter</div>
+        </div>
+      </div>
+    </section>
+
+    <main class="content">
+      <section class="section">
+        <div class="section-header">
+          <p class="eyebrow">Sammanfattning</p>
+          <h2>Executive summary</h2>
+        </div>
+        <p class="lead">
+          HemVända är en komplett webbplattform för att presentera tjänster, ta emot bokningar och förfrågningar,
+          hantera kundrelationer och driva innehållsmarknadsföring.
+        </p>
+        <div class="pill-grid">
+          <div class="pill">
+            <strong>Publik webbplats</strong>
+            <span>Marknadsföring, tjänstesidor, bokning och innehåll</span>
+          </div>
+          <div class="pill">
+            <strong>Kundportal</strong>
+            <span>Inloggning och översikt över egna bokningar och förfrågningar</span>
+          </div>
+          <div class="pill">
+            <strong>Adminpanel</strong>
+            <span>Intern hantering av bokningar, schema, leads, kunder, team och CMS</span>
+          </div>
+        </div>
+        <p>
+          Allt bygger på <strong>Next.js</strong> med <strong>Supabase</strong> som databas, autentisering och
+          fillagring. Systemet är byggt för att skala med verksamheten och är säkrat med rollbaserad åtkomst och
+          databasskydd (Row Level Security).
+        </p>
+      </section>
+
+      <section class="section page-break">
+        <div class="section-header">
+          <p class="eyebrow">Webbplats</p>
+          <h2>Publik webbplats</h2>
+        </div>
+        <h3>Syfte och struktur</h3>
+        <p>
+          Webbplatsen är på svenska och riktar sig till kunder i Stockholm med omnejd. Den förmedlar HemVändas
+          varumärke, tjänster och trygghetslöfte, och leder besökare till bokning eller kontakt.
+        </p>
+        <h3>Sidor och innehåll</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Sida</th>
+              <th>Funktion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Startsida</strong></td><td>Hero, tjänsteöversikt, värdeproposition, “Så fungerar det”, bokningswidget</td></tr>
+            <tr><td><strong>Tjänstesidor</strong></td><td>Dedikerad sida per huvudtjänst med beskrivning, steg, fördelar och FAQ</td></tr>
+            <tr><td><strong>Bokning</strong></td><td>Guidat bokningsflöde baserat på tjänst och postnummer</td></tr>
+            <tr><td><strong>Blogg</strong></td><td>Publicerade artiklar med kategorier</td></tr>
+            <tr><td><strong>Referenser</strong></td><td>Tidigare jobb med bilder, filtrerbara per tjänst</td></tr>
+            <tr><td><strong>Om oss</strong></td><td>Företagsinformation och värderingar</td></tr>
+            <tr><td><strong>Villkor &amp; Integritet</strong></td><td>Juridiska sidor</td></tr>
+            <tr><td><strong>Logga in / Mitt konto</strong></td><td>Kundinloggning och personlig översikt</td></tr>
+          </tbody>
+        </table>
+        <h3>Tjänster som presenteras</h3>
+        <ol>
+          <li><strong>Städ</strong> – enda tjänsten med fullt webbbokningsflöde för hemstäd</li>
+          <li><strong>Snickeri, bygg och renovering</strong></li>
+          <li><strong>Handyman</strong></li>
+          <li><strong>Inredning</strong></li>
+          <li><strong>Övriga tjänster</strong> – t.ex. rörmokare, elektriker, besiktningsman, flytt</li>
+        </ol>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <p class="eyebrow">Bokning</p>
+          <h2>Bokningssystem</h2>
+        </div>
+        <h3>Så hittar kunden dit</h3>
+        <ol>
+          <li>Kunden anger <strong>postnummer</strong> (5 siffror) på startsidan eller via bokningswidgeten.</li>
+          <li>Systemet slår upp <strong>ort/kommun</strong> (Google Geocoding om API-nyckel är konfigurerad).</li>
+          <li>Kunden väljer <strong>tjänst</strong> – för städ även typ av plats (hem, kontor, övrigt, storstäd).</li>
+          <li>Kunden skickas till <strong>/booking</strong> med rätt parametrar.</li>
+        </ol>
+        <div class="two-col">
+          <div>
+            <h3>A. Direkt webbbokning (hemstäd)</h3>
+            <ul>
+              <li>Gäller städ i hem med val “Boka direkt online”.</li>
+              <li>Kunden anger yta, husdjur, frekvens, städnivå, veckodag, datum/tid och kontaktuppgifter.</li>
+              <li>Pris beräknas automatiskt. Bokning skapas med status bekräftad och schemalagda besök.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>B. Förfrågan / lead</h3>
+            <ul>
+              <li>Städ för kontor, övrigt, storstäd, eller “Kontakta mig”.</li>
+              <li>Alla övriga tjänster (snickeri, handyman, inredning m.m.).</li>
+              <li>Hamnar som lead i adminpanelen för manuell uppföljning och konvertering.</li>
+            </ul>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Plats (städ)</th><th>Beteende</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Hem</strong></td><td>Val mellan direktbokning eller “Kontakta mig”</td></tr>
+            <tr><td><strong>Kontor / Övrigt</strong></td><td>Endast förfrågan</td></tr>
+            <tr><td><strong>Storstäd</strong></td><td>Förenklat flöde – direkt till förfrågan</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section page-break">
+        <div class="section-header">
+          <p class="eyebrow">Kund</p>
+          <h2>Kundportal</h2>
+        </div>
+        <h3>Inloggning</h3>
+        <p>
+          Kunder loggar in med <strong>e-post och magisk länk</strong> (engångslänk via e-post, inget lösenord).
+          Konton skapas i samband med bokning/förfrågan.
+        </p>
+        <h3>Mitt konto</h3>
+        <ul>
+          <li><strong>Profil</strong> – telefon och e-post</li>
+          <li><strong>Bokningar</strong> – aktiva städ- och tjänstebokningar med status, plats, frekvens och kommande besök</li>
+          <li><strong>Förfrågningar</strong> – öppna leads kopplade till kontot</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <p class="eyebrow">Internt</p>
+          <h2>Adminpanel</h2>
+        </div>
+        <p>Åtkomst via <strong>/admin</strong>. Team loggar in med e-post och lösenord och måste finnas som aktiv medlem.</p>
+        <table>
+          <thead>
+            <tr><th>Roll</th><th>Behörighet</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Administratör</strong></td>
+              <td>Full åtkomst: alla bokningar, kunder, team, schemaläggning, tilldelning av personal, inställningar</td>
+            </tr>
+            <tr>
+              <td><strong>Personal (staff)</strong></td>
+              <td>Begränsad åtkomst: tilldelade uppdrag, schema, leads, blogg och referenser</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Moduler</h3>
+        <ul>
+          <li><strong>Översikt</strong> – dashboard med nyckeltal</li>
+          <li><strong>Bokningar</strong> – lista, detaljvy, skapa bokning, tilldela personal, besök</li>
+          <li><strong>Schema</strong> – veckovy, klicka ledig tid för ny bokning</li>
+          <li><strong>Förfrågningar</strong> – leads med konvertering till bokning</li>
+          <li><strong>Blogg</strong> – rich text, omslagsbild, kategorier, SEO-fält</li>
+          <li><strong>Referenser</strong> – portfolio med omslagsbild och galleri</li>
+          <li><strong>Kunder &amp; Team</strong> – endast admin</li>
+          <li><strong>Inställningar</strong> – profil och bokningstider</li>
+        </ul>
+      </section>
+
+      <section class="section page-break">
+        <div class="section-header">
+          <p class="eyebrow">Innehåll</p>
+          <h2>Innehållshantering (CMS)</h2>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Innehåll</th><th>Var det visas</th><th>Admin</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Blogg</strong></td><td>/blog, kategorier, artiklar</td><td>Skapa, kategorisera, publicera, SEO</td></tr>
+            <tr><td><strong>Referenser</strong></td><td>/referenser</td><td>Skapa, bilder, koppla till tjänst, publicera</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Bilder laddas upp till Supabase-bucket <strong>cms-media</strong> (max 5 MB, JPG/PNG/WebP/GIF).
+          Endast inloggad personal/admin kan ladda upp.
+        </p>
+
+        <div class="section-header" style="margin-top: 18px">
+          <p class="eyebrow">Synlighet</p>
+          <h2>SEO och synlighet</h2>
+        </div>
+        <ul>
+          <li>Sidtitlar och beskrivningar per sida (Open Graph, Twitter Cards)</li>
+          <li>Canonical URLs och metadataBase</li>
+          <li>Sitemap (/sitemap.xml) och robots.txt</li>
+          <li>Strukturerad data (JSON-LD) – organisation, webbplats, bloggartiklar</li>
+        </ul>
+        <div class="note">
+          Meta Pixel och Google Analytics nämns i integritetspolicyn men är inte implementerade i kod ännu.
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <p class="eyebrow">Säkerhet</p>
+          <h2>Säkerhet och data</h2>
+        </div>
+        <p>Central lagring i Supabase/PostgreSQL med Row Level Security (RLS):</p>
+        <ul>
+          <li><strong>Allmänheten</strong> – kan läsa publicerat innehåll, inte bokningar eller kunddata</li>
+          <li><strong>Kunder</strong> – ser endast egna bokningar, leads och besök</li>
+          <li><strong>Personal</strong> – ser tilldelade uppdrag</li>
+          <li><strong>Administratörer</strong> – full läsåtkomst</li>
+        </ul>
+        <p>
+          Känsliga skrivningar sker via <strong>service role</strong> på servern – nyckeln exponeras aldrig i webbläsaren.
+          Kunder autentiseras med magisk länk; team med e-post + lösenord.
+        </p>
+
+        <h3>Teknisk grund</h3>
+        <table>
+          <thead>
+            <tr><th>Komponent</th><th>Teknik</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Frontend &amp; server</td><td>Next.js 16, React 19, TypeScript</td></tr>
+            <tr><td>Styling</td><td>Tailwind CSS 4, HemVända-tema</td></tr>
+            <tr><td>Databas &amp; auth</td><td>Supabase (PostgreSQL, Auth, Storage)</td></tr>
+            <tr><td>Rich text</td><td>TipTap (blogg &amp; referenser)</td></tr>
+            <tr><td>Hosting</td><td>Vercel (typisk setup)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section page-break">
+        <div class="section-header">
+          <p class="eyebrow">Flöde</p>
+          <h2>Flödesdiagram (översikt)</h2>
+        </div>
+        <div class="flow-box">Besökare → Startsida / tjänstesidor
+    ↓
+Postnummer + tjänstval
+    ↓
+┌─────────────────────────────────────────────────────────┐
+│  Hemstäd (direkt)  →  Bokning + schema + kundkonto      │
+│  Städ (förfrågan)  →  Lead  →  Admin konverterar       │
+│  Övriga tjänster   →  Lead  →  Admin konverterar       │
+└─────────────────────────────────────────────────────────┘
+    ↓
+Kund: Logga in → Mitt konto (bokningar &amp; förfrågningar)
+
+Admin/Staff: Bokningar · Schema · Förfrågningar · Blogg · Referenser</div>
+
+        <div class="section-header" style="margin-top: 18px">
+          <p class="eyebrow">Status</p>
+          <h2>Leveransstatus</h2>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Område</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Marknadswebb med 6 tjänstetyper</td><td><span class="status-ok">Klart</span></td></tr>
+            <tr><td>Bokning &amp; lead-flöden</td><td><span class="status-ok">Klart</span></td></tr>
+            <tr><td>Kundinloggning &amp; Mitt konto</td><td><span class="status-ok">Klart</span></td></tr>
+            <tr><td>Admin: bokningar, schema, leads, konvertering</td><td><span class="status-ok">Klart</span></td></tr>
+            <tr><td>Admin: blogg &amp; referenser med bilduppladdning</td><td><span class="status-ok">Klart</span></td></tr>
+            <tr><td>SEO (metadata, sitemap, robots, JSON-LD)</td><td><span class="status-ok">Klart</span></td></tr>
+            <tr><td>Säkerhet (RLS, roller, admin vs kund)</td><td><span class="status-ok">Klart</span></td></tr>
+            <tr><td>Meta/Google tracking i kod</td><td><span class="status-waiting">Väntar på domän</span></td></tr>
+            <tr><td>Domän &amp; produktionslansering</td><td><span class="status-waiting">Väntar på beställaren</span></td></tr>
+            <tr><td>E-postutskick (transaktionsmail)</td><td><span class="status-waiting">Väntar på domän</span></td></tr>
+            <tr><td>Vissa footer-länkar (FAQ, karriär m.m.)</td><td><span class="status-pending">Platshållare</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section conclusion">
+        <div class="section-header" style="margin-bottom: 12px">
+          <p class="eyebrow">Slutsats</p>
+          <h2>Slutsats för beställaren</h2>
+        </div>
+        <p>
+          HemVända-plattformen är en <strong>integrerad lösning</strong> där marknadsföring, bokning, kundservice och
+          intern drift hänger ihop i ett system. Kunden kan boka hemstäd online eller skicka förfrågningar; teamet
+          hanterar allt från adminpanelen med tydlig rollfördelning mellan administratör och personal.
+        </p>
+        <p>
+          Blogg och referenser ger möjlighet att bygga SEO och förtroende utan extern CMS. Plattformen är förberedd för
+          produktion med säker datahantering och kan utökas med analytics, e-postutskick eller fler tjänsteflöden efter behov.
+        </p>
+      </section>
+
+      <section class="section next-steps page-break">
+        <div class="section-header" style="margin-bottom: 12px">
+          <p class="eyebrow">Nästa steg</p>
+          <h2>Väntar på beställaren</h2>
+        </div>
+        <p>
+          Plattformen är tekniskt klar för lansering. För att koppla ihop allt i produktion behöver beställaren
+          tillhandahålla en <strong>domän</strong> som kan kopplas till webbplatsen. Utan domän kan följande steg inte slutföras:
+        </p>
+        <ul>
+          <li>
+            <strong>Domän &amp; webbplats</strong> – koppla den valda domänen till webbplatsen (DNS, hosting och
+            produktions-URL) så att besökare når den riktiga sajten i stället för utvecklingsmiljön.
+          </li>
+          <li>
+            <strong>Spårning för Facebook och Google Ads</strong> – Meta Pixel och Google Analytics/Ads kräver den
+            slutgiltiga domänen för korrekt installation, verifiering och mätning av annonser och konverteringar.
+          </li>
+          <li>
+            <strong>E-postutskick</strong> – transaktionsmail (t.ex. bokningsbekräftelser och magiska inloggningslänkar)
+            kräver domän för avsändaradress, DNS-inställningar (SPF, DKIM) och leverans i produktion.
+          </li>
+        </ul>
+        <div class="note">
+          När domänen är tillgänglig kan dessa tre delar konfigureras och aktiveras. Integritetspolicyn är redan
+          förberedd med information om Meta- och Google-spårning; implementationen i kod väntar på domän och
+          godkännande från beställaren.
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

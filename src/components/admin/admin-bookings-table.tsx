@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { DashboardBooking } from "@/lib/admin/queries";
 
 const bookingTypeLabels: Record<string, string> = {
@@ -50,7 +51,12 @@ export function AdminBookingsTable({
             {bookings.map((booking) => (
               <tr key={booking.id} className="border-b border-green/5 last:border-0">
                 <td className="px-5 py-4 font-semibold text-green">
-                  {booking.contactName}
+                  <Link
+                    href={`/admin/bookings/${booking.id}`}
+                    className="transition hover:text-gold"
+                  >
+                    {booking.contactName}
+                  </Link>
                 </td>
                 <td className="px-5 py-4 text-muted">
                   {bookingTypeLabels[booking.bookingType] ?? booking.bookingType}
@@ -74,9 +80,17 @@ export function AdminBookingsTable({
                   ) : null}
                 </td>
                 <td className="px-5 py-4">
-                  <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-green">
-                    {statusLabels[booking.status] ?? booking.status}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-green">
+                      {statusLabels[booking.status] ?? booking.status}
+                    </span>
+                    <Link
+                      href={`/admin/bookings/${booking.id}`}
+                      className="text-xs font-semibold text-green/70 transition hover:text-gold"
+                    >
+                      Hantera →
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

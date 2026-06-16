@@ -60,6 +60,12 @@ export function SiteHeader() {
           <Link href="/om-oss" className="transition hover:text-gold">
             Om oss
           </Link>
+          <Link href="/blog" className="transition hover:text-gold">
+            Blogg
+          </Link>
+          <Link href="/referenser" className="transition hover:text-gold">
+            Referenser
+          </Link>
           <a href="/#sa-fungerar-det" className="transition hover:text-gold">
             Så fungerar det
           </a>

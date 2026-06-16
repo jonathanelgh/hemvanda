@@ -50,3 +50,69 @@ select {
   width: min(100% - 2rem, 1180px);
   margin-inline: auto;
 }
+
+.blog-prose {
+  color: var(--hemvanda-green);
+  font-size: 1.05rem;
+  line-height: 1.85;
+}
+
+.blog-prose > * + * {
+  margin-top: 1.25rem;
+}
+
+.blog-prose h2,
+.blog-prose h3,
+.blog-prose h4 {
+  font-family: var(--font-display);
+  color: var(--hemvanda-green);
+  line-height: 1.25;
+  margin-top: 2rem;
+}
+
+.blog-prose h2 {
+  font-size: 2rem;
+}
+
+.blog-prose h3 {
+  font-size: 1.5rem;
+}
+
+.blog-prose h4 {
+  font-size: 1.25rem;
+}
+
+.blog-prose a {
+  color: var(--hemvanda-gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.blog-prose ul,
+.blog-prose ol {
+  padding-left: 1.5rem;
+}
+
+.blog-prose ul {
+  list-style: disc;
+}
+
+.blog-prose ol {
+  list-style: decimal;
+}
+
+.blog-prose blockquote {
+  border-left: 4px solid rgba(201, 164, 106, 0.55);
+  padding-left: 1rem;
+  color: var(--hemvanda-muted);
+  font-style: italic;
+}
+
+.blog-prose img {
+  width: 100%;
+  border-radius: 1rem;
+}
+
+.blog-prose strong {
+  font-weight: 700;
+}

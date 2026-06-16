@@ -889,3 +889,278 @@ export async function listBookingVisits(
 
   return data.map((row) => mapBookingVisitRow(row as BookingVisitQueryRow));
 }
+
+const bookingDetailSelect = `
+  id,
+  booking_type,
+  status,
+  service_slug,
+  contact_name,
+  contact_phone,
+  contact_email,
+  municipality,
+  postal_code,
+  street_address,
+  message,
+  source,
+  profile_id,
+  created_at,
+  cleaning_booking_details(
+    frequency,
+    square_meters,
+    has_pets,
+    tidying,
+    weekday_preference,
+    key_access,
+    preferred_date,
+    preferred_time,
+    quoted_monthly_price_ore,
+    booking_path,
+    admin_pricing_mode,
+    admin_fixed_price_ore
+  ),
+  service_inquiry_details(
+    timeframe,
+    admin_pricing_mode,
+    admin_fixed_price_ore
+  ),
+  booking_status_events(
+    id,
+    status,
+    note,
+    created_at
+  ),
+  cleaning_visits(
+    id,
+    visit_date,
+    visit_time,
+    duration_minutes,
+    status,
+    sequence_number,
+    staff_id,
+    note,
+    staff:profiles!cleaning_visits_staff_id_fkey(full_name)
+  )
+`;
+
+type BookingDetailQueryRow = {
+  id: string;
+  booking_type: string;
+  status: string;
+  service_slug: string;
+  contact_name: string;
+  contact_phone: string;
+  contact_email: string;
+  municipality: string;
+  postal_code: string;
+  street_address: string | null;
+  message: string | null;
+  source: string;
+  profile_id: string | null;
+  created_at: string;
+  cleaning_booking_details:
+    | {
+        frequency: string;
+        square_meters: number;
+        has_pets: boolean;
+        tidying: string;
+        weekday_preference: string;
+        key_access: string | null;
+        preferred_date: string | null;
+        preferred_time: string | null;
+        quoted_monthly_price_ore: number | null;
+        booking_path: string;
+        admin_pricing_mode: string | null;
+        admin_fixed_price_ore: number | null;
+      }
+    | {
+        frequency: string;
+        square_meters: number;
+        has_pets: boolean;
+        tidying: string;
+        weekday_preference: string;
+        key_access: string | null;
+        preferred_date: string | null;
+        preferred_time: string | null;
+        quoted_monthly_price_ore: number | null;
+        booking_path: string;
+        admin_pricing_mode: string | null;
+        admin_fixed_price_ore: number | null;
+      }[]
+    | null;
+  service_inquiry_details:
+    | {
+        timeframe: string;
+        admin_pricing_mode: string | null;
+        admin_fixed_price_ore: number | null;
+      }
+    | {
+        timeframe: string;
+        admin_pricing_mode: string | null;
+        admin_fixed_price_ore: number | null;
+      }[]
+    | null;
+  booking_status_events:
+    | {
+        id: string;
+        status: string;
+        note: string | null;
+        created_at: string;
+      }[]
+    | null;
+  cleaning_visits:
+    | BookingVisitQueryRow[]
+    | BookingVisitQueryRow
+    | null;
+};
+
+export type AdminBookingStatusEvent = {
+  id: string;
+  status: string;
+  note: string | null;
+  createdAt: string;
+};
+
+export type AdminBookingCleaningDetails = {
+  frequency: string;
+  frequencyLabel: string;
+  squareMeters: number;
+  hasPets: boolean;
+  tidying: string;
+  weekdayPreference: string;
+  keyAccess: string | null;
+  preferredDate: string | null;
+  preferredTime: string | null;
+  quotedMonthlyPriceOre: number | null;
+  bookingPath: string;
+  adminPricingMode: string | null;
+  adminFixedPriceOre: number | null;
+};
+
+export type AdminBookingServiceDetails = {
+  timeframe: string;
+  adminPricingMode: string | null;
+  adminFixedPriceOre: number | null;
+};
+
+export type AdminBookingDetail = {
+  id: string;
+  bookingType: string;
+  status: string;
+  serviceSlug: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail: string;
+  municipality: string;
+  postalCode: string;
+  streetAddress: string | null;
+  message: string | null;
+  source: string;
+  profileId: string | null;
+  createdAt: string;
+  cleaningDetails: AdminBookingCleaningDetails | null;
+  serviceDetails: AdminBookingServiceDetails | null;
+  visits: BookingVisitItem[];
+  statusEvents: AdminBookingStatusEvent[];
+};
+
+function mapBookingDetailRow(row: BookingDetailQueryRow): AdminBookingDetail {
+  const cleaningDetails = row.cleaning_booking_details
+    ? Array.isArray(row.cleaning_booking_details)
+      ? row.cleaning_booking_details[0]
+      : row.cleaning_booking_details
+    : null;
+  const serviceDetails = row.service_inquiry_details
+    ? Array.isArray(row.service_inquiry_details)
+      ? row.service_inquiry_details[0]
+      : row.service_inquiry_details
+    : null;
+  const visits = Array.isArray(row.cleaning_visits)
+    ? row.cleaning_visits
+    : row.cleaning_visits
+      ? [row.cleaning_visits]
+      : [];
+  const statusEvents = (row.booking_status_events ?? [])
+    .slice()
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+
+  return {
+    id: row.id,
+    bookingType: row.booking_type,
+    status: row.status,
+    serviceSlug: row.service_slug,
+    contactName: row.contact_name,
+    contactPhone: row.contact_phone,
+    contactEmail: row.contact_email,
+    municipality: row.municipality,
+    postalCode: row.postal_code,
+    streetAddress: row.street_address,
+    message: row.message,
+    source: row.source,
+    profileId: row.profile_id,
+    createdAt: row.created_at,
+    cleaningDetails: cleaningDetails
+      ? {
+          frequency: cleaningDetails.frequency,
+          frequencyLabel: getCleaningFrequencyLabel(cleaningDetails.frequency),
+          squareMeters: cleaningDetails.square_meters,
+          hasPets: cleaningDetails.has_pets,
+          tidying: cleaningDetails.tidying,
+          weekdayPreference: cleaningDetails.weekday_preference,
+          keyAccess: cleaningDetails.key_access,
+          preferredDate: cleaningDetails.preferred_date,
+          preferredTime: formatVisitTime(cleaningDetails.preferred_time),
+          quotedMonthlyPriceOre: cleaningDetails.quoted_monthly_price_ore,
+          bookingPath: cleaningDetails.booking_path,
+          adminPricingMode: cleaningDetails.admin_pricing_mode,
+          adminFixedPriceOre: cleaningDetails.admin_fixed_price_ore,
+        }
+      : null,
+    serviceDetails: serviceDetails
+      ? {
+          timeframe: serviceDetails.timeframe,
+          adminPricingMode: serviceDetails.admin_pricing_mode,
+          adminFixedPriceOre: serviceDetails.admin_fixed_price_ore,
+        }
+      : null,
+    visits: visits
+      .map((visit) => mapBookingVisitRow(visit))
+      .sort((a, b) => {
+        if (a.visitDate === b.visitDate) {
+          return a.visitTime.localeCompare(b.visitTime);
+        }
+
+        return a.visitDate.localeCompare(b.visitDate);
+      }),
+    statusEvents: statusEvents.map((event) => ({
+      id: event.id,
+      status: event.status,
+      note: event.note,
+      createdAt: event.created_at,
+    })),
+  };
+}
+
+export async function getBookingByIdForTeam(
+  profile: TeamProfile,
+  bookingId: string,
+): Promise<AdminBookingDetail | null> {
+  const supabase = await createClient();
+  const bookingIds = await getAssignedBookingIds(profile);
+
+  if (bookingIds !== null && !bookingIds.includes(bookingId)) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("bookings")
+    .select(bookingDetailSelect)
+    .eq("id", bookingId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return mapBookingDetailRow(data as BookingDetailQueryRow);
+}

@@ -5,6 +5,8 @@ import { BrandLogo } from "./brand-logo";
 
 const companyLinks = [
   { label: "Om oss", href: "/om-oss" },
+  { label: "Blogg", href: "/blog" },
+  { label: "Referenser", href: "/referenser" },
   { label: "Trygghet", href: "#" },
   { label: "Hållbarhet", href: "#" },
   { label: "Karriär", href: "#" },

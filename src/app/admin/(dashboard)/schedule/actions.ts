@@ -82,6 +82,7 @@ export async function assignVisitStaffAction(
   }
 
   revalidateSchedule(weekStartKey);
+  revalidatePath("/admin/bookings");
 
   return { ok: true };
 }
@@ -118,6 +119,7 @@ export async function updateVisitStatusAction(
   }
 
   revalidateSchedule(weekStartKey);
+  revalidatePath("/admin/bookings");
 
   return { ok: true };
 }
@@ -154,6 +156,7 @@ export async function updateVisitNoteAction(
   }
 
   revalidateSchedule(weekStartKey);
+  revalidatePath("/admin/bookings");
 
   return { ok: true };
 }

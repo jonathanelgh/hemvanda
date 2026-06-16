@@ -113,6 +113,20 @@ export function MobileNav() {
             Om oss
           </Link>
           <Link
+            href="/blog"
+            onClick={closeMenu}
+            className="block rounded-lg px-4 py-3 text-base font-semibold text-green transition hover:bg-ivory hover:text-gold"
+          >
+            Blogg
+          </Link>
+          <Link
+            href="/referenser"
+            onClick={closeMenu}
+            className="block rounded-lg px-4 py-3 text-base font-semibold text-green transition hover:bg-ivory hover:text-gold"
+          >
+            Referenser
+          </Link>
+          <Link
             href="/#sa-fungerar-det"
             onClick={closeMenu}
             className="block rounded-lg px-4 py-3 text-base font-semibold text-green transition hover:bg-ivory hover:text-gold"

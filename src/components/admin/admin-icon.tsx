@@ -9,6 +9,8 @@ type AdminIconProps = {
     | "customers"
     | "team"
     | "settings"
+    | "blog"
+    | "showcase"
     | "chevron"
     | "menu"
     | "logout";
@@ -95,6 +97,23 @@ export function AdminIcon({ name, className = "h-5 w-5" }: AdminIconProps) {
           <path d="M20 12h2" />
           <path d="m4.93 19.07 1.41-1.41" />
           <path d="m17.66 6.34 1.41-1.41" />
+        </svg>
+      );
+    case "blog":
+      return (
+        <svg {...common}>
+          <path d="M6 4h12a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V6a2 2 0 0 1 2-2z" />
+          <path d="M8 8h8" />
+          <path d="M8 12h8" />
+          <path d="M8 16h5" />
+        </svg>
+      );
+    case "showcase":
+      return (
+        <svg {...common}>
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="M3 15l5-4 4 3 4-5 5 6" />
+          <circle cx="8.5" cy="9.5" r="1.2" fill="currentColor" stroke="none" />
         </svg>
       );
     case "chevron":

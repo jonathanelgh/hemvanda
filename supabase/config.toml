@@ -1,0 +1,4 @@
+project_id = "hemvanda"
+
+[functions.generate-blog-post]
+verify_jwt = true

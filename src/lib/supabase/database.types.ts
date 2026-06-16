@@ -52,6 +52,143 @@ export type Database = {
           },
         ];
       };
+      blog_categories: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          name: string;
+          slug: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name: string;
+          slug: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          slug?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      blog_posts: {
+        Row: {
+          author_id: string | null;
+          category_id: string | null;
+          content: string;
+          cover_image_url: string | null;
+          created_at: string;
+          excerpt: string | null;
+          id: string;
+          published_at: string | null;
+          seo_description: string | null;
+          seo_title: string | null;
+          slug: string;
+          status: Database["public"]["Enums"]["blog_post_status"];
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          author_id?: string | null;
+          category_id?: string | null;
+          content?: string;
+          cover_image_url?: string | null;
+          created_at?: string;
+          excerpt?: string | null;
+          id?: string;
+          published_at?: string | null;
+          seo_description?: string | null;
+          seo_title?: string | null;
+          slug: string;
+          status?: Database["public"]["Enums"]["blog_post_status"];
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          author_id?: string | null;
+          category_id?: string | null;
+          content?: string;
+          cover_image_url?: string | null;
+          created_at?: string;
+          excerpt?: string | null;
+          id?: string;
+          published_at?: string | null;
+          seo_description?: string | null;
+          seo_title?: string | null;
+          slug?: string;
+          status?: Database["public"]["Enums"]["blog_post_status"];
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "blog_categories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      showcases: {
+        Row: {
+          content: string;
+          cover_image_url: string | null;
+          created_at: string;
+          id: string;
+          image_urls: string[];
+          published_at: string | null;
+          seo_description: string | null;
+          seo_title: string | null;
+          service_slug: string;
+          slug: string;
+          status: Database["public"]["Enums"]["showcase_status"];
+          summary: string | null;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          content?: string;
+          cover_image_url?: string | null;
+          created_at?: string;
+          id?: string;
+          image_urls?: string[];
+          published_at?: string | null;
+          seo_description?: string | null;
+          seo_title?: string | null;
+          service_slug: string;
+          slug: string;
+          status?: Database["public"]["Enums"]["showcase_status"];
+          summary?: string | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          content?: string;
+          cover_image_url?: string | null;
+          created_at?: string;
+          id?: string;
+          image_urls?: string[];
+          published_at?: string | null;
+          seo_description?: string | null;
+          seo_title?: string | null;
+          service_slug?: string;
+          slug?: string;
+          status?: Database["public"]["Enums"]["showcase_status"];
+          summary?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       booking_status_events: {
         Row: {
           booking_id: string;
@@ -643,6 +780,8 @@ export type Database = {
       is_staff_or_admin: { Args: never; Returns: boolean };
     };
     Enums: {
+      blog_post_status: "draft" | "published";
+      showcase_status: "draft" | "published";
       booking_status:
         | "submitted"
         | "contacted"
@@ -784,6 +923,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      blog_post_status: ["draft", "published"],
+      showcase_status: ["draft", "published"],
       booking_status: [
         "submitted",
         "contacted",

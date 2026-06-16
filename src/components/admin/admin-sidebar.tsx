@@ -25,12 +25,7 @@ export function AdminSidebar({ profile, collapsed, onToggle }: AdminSidebarProps
     >
       <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
         {!collapsed ? (
-          <div>
-            <p className="font-display text-xl leading-none">{BRAND_NAME}</p>
-            <p className="mt-1 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-gold">
-              CRM
-            </p>
-          </div>
+          <p className="font-display text-xl leading-none">{BRAND_NAME}</p>
         ) : (
           <span className="mx-auto font-display text-lg text-gold">H</span>
         )}

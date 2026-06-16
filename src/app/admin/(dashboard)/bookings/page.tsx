@@ -1,21 +1,27 @@
-import { AdminBookingsTable } from "@/components/admin/admin-bookings-table";
+import { AdminBookingsView } from "@/components/admin/admin-bookings-view";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { isAdmin, requireTeamSession } from "@/lib/admin/auth";
-import { listBookingsForTeam } from "@/lib/admin/queries";
+import { listAssignableStaff, listBookingsForTeam } from "@/lib/admin/queries";
 
 export default async function AdminBookingsPage() {
   const { profile } = await requireTeamSession();
-  const bookings = await listBookingsForTeam(profile, 50);
+  const adminView = isAdmin(profile);
+  const [bookings, staffMembers] = await Promise.all([
+    listBookingsForTeam(profile, 50),
+    adminView ? listAssignableStaff() : Promise.resolve([]),
+  ]);
 
   return (
     <AdminShell
       profile={profile}
-      title={isAdmin(profile) ? "Bokningar" : "Mina uppdrag"}
+      title={adminView ? "Bokningar" : "Mina uppdrag"}
     >
-      <AdminBookingsTable
+      <AdminBookingsView
         bookings={bookings}
+        staffMembers={staffMembers}
+        canCreateBooking={adminView}
         emptyMessage={
-          isAdmin(profile)
+          adminView
             ? "Inga bokningar att visa."
             : "Inga tilldelade uppdrag ännu."
         }

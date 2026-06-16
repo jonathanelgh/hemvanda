@@ -1,6 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Playfair_Display } from "next/font/google";
+import { JsonLd } from "@/components/seo/json-ld";
 import { BRAND_NAME } from "@/lib/brand";
+import {
+  DEFAULT_DESCRIPTION,
+  organizationJsonLd,
+  SITE_URL,
+  websiteJsonLd,
+} from "@/lib/seo";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -16,9 +23,27 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: `${BRAND_NAME} | Förvandlar hem, skapar känsla`,
-  description:
-    `${BRAND_NAME} hjälper dig med städ, snickeri, bygg, renovering, handyman, inredning och utvalda övriga tjänster.`,
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${BRAND_NAME} | Förvandlar hem, skapar känsla`,
+    template: `%s | ${BRAND_NAME}`,
+  },
+  description: DEFAULT_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "sv_SE",
+    siteName: BRAND_NAME,
+    title: `${BRAND_NAME} | Förvandlar hem, skapar känsla`,
+    description: DEFAULT_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${BRAND_NAME} | Förvandlar hem, skapar känsla`,
+    description: DEFAULT_DESCRIPTION,
+  },
   formatDetection: {
     telephone: false,
   },
@@ -41,7 +66,10 @@ export default function RootLayout({
       lang="sv"
       className={`${playfair.variable} ${montserrat.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+        {children}
+      </body>
     </html>
   );
 }
