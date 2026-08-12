@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { services } from "@/lib/services";
+import { getNavServices, services } from "@/lib/services";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -12,9 +12,7 @@ export function MobileNav() {
   const otherServices = services.find(
     (service) => service.slug === "ovriga-tjanster",
   );
-  const primaryServices = services.filter(
-    (service) => service.slug !== "ovriga-tjanster",
-  );
+  const primaryServices = getNavServices();
 
   useEffect(() => {
     setMounted(true);

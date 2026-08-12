@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { services } from "@/lib/services";
+import { getNavServices, services } from "@/lib/services";
 import { BrandLogo } from "./brand-logo";
 import { MobileNav } from "./mobile-nav";
 
@@ -7,9 +7,7 @@ export function SiteHeader() {
   const otherServices = services.find(
     (service) => service.slug === "ovriga-tjanster",
   );
-  const primaryServices = services.filter(
-    (service) => service.slug !== "ovriga-tjanster",
-  );
+  const primaryServices = getNavServices();
 
   return (
     <header className="sticky top-0 z-50 border-b border-green/10 bg-background/90 backdrop-blur-xl">

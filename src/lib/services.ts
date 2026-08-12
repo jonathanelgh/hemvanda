@@ -269,6 +269,12 @@ export const services: Service[] = [
   },
 ];
 
+const NAV_HIDDEN_SERVICE_SLUGS = new Set(["ovriga-tjanster", "inredning"]);
+
+export function getNavServices() {
+  return services.filter((service) => !NAV_HIDDEN_SERVICE_SLUGS.has(service.slug));
+}
+
 export function getService(slug: string) {
   return services.find((service) => service.slug === slug);
 }

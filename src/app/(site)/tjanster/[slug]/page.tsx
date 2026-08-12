@@ -161,7 +161,7 @@ export default async function ServicePage({ params }: Props) {
             <SectionHeading
               eyebrow="Frågor och svar"
               title={`Vanliga frågor om ${service.title.toLowerCase()}.`}
-              description="Här finns den första FAQ-strukturen. Den kan enkelt byggas ut när priser, områden och bokningsregler är klara."
+              description={`Svar på det vi oftast får höra om ${service.title.toLowerCase()} – från pris och bokning till hur vi arbetar.`}
             />
             <div className="space-y-4">
               {service.faqs.map((faq) => (
