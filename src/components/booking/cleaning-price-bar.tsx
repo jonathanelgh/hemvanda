@@ -15,6 +15,10 @@ export function CleaningPriceBar({
   frequency,
   tidying,
   weekdayPreference,
+  propertyType,
+  addons,
+  windowCount,
+  windowMode,
 }: CleaningPriceBarProps) {
   const [expanded, setExpanded] = useState(false);
   const quote = useMemo(
@@ -25,8 +29,22 @@ export function CleaningPriceBar({
         frequency,
         tidying,
         weekdayPreference,
+        propertyType,
+        addons,
+        windowCount,
+        windowMode,
       }),
-    [squareMeters, hasPets, frequency, tidying, weekdayPreference],
+    [
+      squareMeters,
+      hasPets,
+      frequency,
+      tidying,
+      weekdayPreference,
+      propertyType,
+      addons,
+      windowCount,
+      windowMode,
+    ],
   );
 
   return (
@@ -40,8 +58,7 @@ export function CleaningPriceBar({
               </p>
               {quote.isEstimate ? (
                 <p className="mt-2 text-xs text-muted">
-                  Uppskattat pris baserat på {squareMeters.trim() ? "dina" : "standard"}-
-                  uppgifter. Ange bostadsyta för exakt pris.
+                  Uppskattat pris. Fyll i alla uppgifter för exakt pris.
                 </p>
               ) : null}
               <dl className="mt-4 space-y-3">

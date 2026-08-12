@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   bookingSectionClassName,
   bookingSuccessClassName,
@@ -20,15 +20,17 @@ import { readApiError } from "@/lib/api-client";
 import {
   getCleaningBookingCopy,
   buildBookingSearchUrl,
+  defaultFrequencyForProperty,
   isHomeCleaningBooking,
-  isOneTimeCleaningProperty,
   keyAccessOptions,
+  usesFixedCleaningPrice,
   type BookingParams,
+  type CleaningAddons,
   type CleaningFrequency,
   type KeyAccess,
   type PetAnswer,
-  type TidyingOption,
   type WeekdayPreference,
+  type WindowBookingMode,
 } from "@/lib/booking";
 
 type CleaningDirectFormProps = BookingParams & {
@@ -55,11 +57,13 @@ export function CleaningDirectForm({
   const [squareMeters, setSquareMeters] = useState("");
   const [hasPets, setHasPets] = useState<PetAnswer | "">("");
   const [frequency, setFrequency] = useState<CleaningFrequency>(
-    isOneTimeCleaningProperty(plats) ? "storstadning" : "varannan-vecka",
+    defaultFrequencyForProperty(plats),
   );
-  const [tidying, setTidying] = useState<TidyingOption>("nej");
   const [weekdayPreference, setWeekdayPreference] =
     useState<WeekdayPreference>("flexibel");
+  const [addons, setAddons] = useState<CleaningAddons>({});
+  const [windowCount, setWindowCount] = useState("");
+  const [windowMode, setWindowMode] = useState<WindowBookingMode>("engang");
   const [keyAccess, setKeyAccess] = useState<KeyAccess>("hemma");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -68,20 +72,34 @@ export function CleaningDirectForm({
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const copy = getCleaningBookingCopy(plats);
-  const showsFixedPrice = isHomeCleaningBooking(plats);
+  const showsFixedPrice = usesFixedCleaningPrice(plats);
 
-  const infoComplete = isCleaningInfoComplete(squareMeters, hasPets);
+  useEffect(() => {
+    if (plats === "fonster") {
+      setFrequency(windowMode === "engang" ? "fonster" : "varannan-vecka");
+    }
+  }, [plats, windowMode]);
 
-  const priceBar = showsFixedPrice ? (
-    <CleaningPriceBar
-      squareMeters={squareMeters}
-      hasPets={hasPets}
-      frequency={frequency}
-      tidying={tidying}
-      weekdayPreference={weekdayPreference}
-    />
-  ) : null;
+  const infoComplete = isCleaningInfoComplete(
+    squareMeters,
+    hasPets,
+    plats,
+    windowCount,
+  );
 
+  const pricingInput = {
+    squareMeters: plats === "fonster" ? "50" : squareMeters,
+    hasPets,
+    frequency,
+    tidying: "nej" as const,
+    weekdayPreference,
+    propertyType: plats,
+    addons,
+    windowCount: Number(windowCount) || 0,
+    windowMode,
+  };
+
+  const priceBar = showsFixedPrice ? <CleaningPriceBar {...pricingInput} /> : null;
   const contentSpacer = showsFixedPrice ? cleaningPriceBarSpacerClassName : "";
 
   function handleInfoContinue(event: React.FormEvent) {
@@ -112,10 +130,11 @@ export function CleaningDirectForm({
           kommun,
           plats,
           bookingPath: "direct",
-          squareMeters: Number(squareMeters),
+          squareMeters:
+            plats === "fonster" ? Number(windowCount) || 1 : Number(squareMeters),
           hasPets,
           frequency,
-          tidying,
+          tidying: "nej",
           weekdayPreference,
           keyAccess,
           preferredDate: selectedDate,
@@ -124,6 +143,9 @@ export function CleaningDirectForm({
           phone,
           email,
           address,
+          addons,
+          windowCount: Number(windowCount) || 0,
+          windowMode,
         }),
       });
 
@@ -159,19 +181,18 @@ export function CleaningDirectForm({
           {showsFixedPrice ? "Bokning mottagen" : "Förfrågan mottagen"}
         </p>
         <h2 className="mt-3 font-display text-3xl text-green md:text-4xl">
-          Tack, {name || (showsFixedPrice ? "vi har tagit emot din bokning" : "vi har tagit emot din förfrågan")}.
+          Tack,{" "}
+          {name ||
+            (showsFixedPrice
+              ? "vi har tagit emot din bokning"
+              : "vi har tagit emot din förfrågan")}
+          .
         </h2>
-        <p className="mt-4 text-sm leading-7 text-muted">
-          {copy.directSuccessMessage}
-        </p>
+        <p className="mt-4 text-sm leading-7 text-muted">{copy.directSuccessMessage}</p>
         <CleaningBookingSuccessSummary
           selectedDate={selectedDate}
           selectedTime={selectedTime}
-          squareMeters={squareMeters}
-          hasPets={hasPets}
-          frequency={frequency}
-          tidying={tidying}
-          weekdayPreference={weekdayPreference}
+          {...pricingInput}
           showPrice={showsFixedPrice}
         />
         {showsFixedPrice ? <BookingAccountSuccessNote email={email} /> : null}
@@ -200,163 +221,166 @@ export function CleaningDirectForm({
   if (subStep === "details") {
     return (
       <>
-      <form onSubmit={handleSubmit} className={`space-y-8 ${contentSpacer}`}>
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="font-display text-3xl text-green">
-            {showsFixedPrice ? "Slutför bokningen" : "Slutför förfrågan"}
-          </h2>
-          <button
-            type="button"
-            onClick={() => setSubStep("schedule")}
-            className="text-sm font-semibold text-green/60 transition hover:text-gold"
-          >
-            Tillbaka
-          </button>
-        </div>
+        <form onSubmit={handleSubmit} className={`space-y-8 ${contentSpacer}`}>
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="font-display text-3xl text-green">
+              {showsFixedPrice ? "Slutför bokningen" : "Slutför förfrågan"}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setSubStep("schedule")}
+              className="text-sm font-semibold text-green/60 transition hover:text-gold"
+            >
+              Tillbaka
+            </button>
+          </div>
 
-        <section className={bookingSectionClassName}>
-          <h3 className="font-display text-2xl text-green">Åtkomst till nycklar</h3>
-          <div className="mt-4 grid gap-3">
-            {keyAccessOptions.map((option) => (
-              <label
-                key={option.value}
-                className="flex cursor-pointer items-start gap-4 rounded-lg border border-green/10 bg-white px-4 py-4 transition has-checked:border-gold has-checked:bg-ivory"
-              >
+          <section className={bookingSectionClassName}>
+            <h3 className="font-display text-2xl text-green">Åtkomst till nycklar</h3>
+            <div className="mt-4 grid gap-3">
+              {keyAccessOptions.map((option) => (
+                <label
+                  key={option.value}
+                  className="flex cursor-pointer items-start gap-4 rounded-lg border border-green/10 bg-white px-4 py-4 transition has-checked:border-gold has-checked:bg-ivory"
+                >
+                  <input
+                    type="radio"
+                    name="keyAccess"
+                    value={option.value}
+                    checked={keyAccess === option.value}
+                    onChange={() => setKeyAccess(option.value)}
+                    className="mt-1 h-4 w-4 shrink-0 accent-gold"
+                  />
+                  <span className="text-sm leading-6 text-green">{option.label}</span>
+                </label>
+              ))}
+            </div>
+          </section>
+
+          <section className={bookingSectionClassName}>
+            <h3 className="font-display text-2xl text-green">Kontakt och adress</h3>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <label className="block sm:col-span-2">
+                <span className={labelClassName}>Namn</span>
                 <input
-                  type="radio"
-                  name="keyAccess"
-                  value={option.value}
-                  checked={keyAccess === option.value}
-                  onChange={() => setKeyAccess(option.value)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-gold"
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  className={fieldClassName}
                 />
-                <span className="text-sm leading-6 text-green">{option.label}</span>
               </label>
-            ))}
-          </div>
-        </section>
+              <label className="block">
+                <span className={labelClassName}>Telefon</span>
+                <input
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  className={fieldClassName}
+                />
+              </label>
+              <label className="block">
+                <span className={labelClassName}>E-post</span>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className={fieldClassName}
+                />
+              </label>
+              <label className="block sm:col-span-2">
+                <span className={labelClassName}>Adress</span>
+                <input
+                  type="text"
+                  required
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
+                  placeholder="Gatuadress och nummer"
+                  className={fieldClassName}
+                />
+              </label>
+            </div>
+          </section>
 
-        <section className={bookingSectionClassName}>
-          <h3 className="font-display text-2xl text-green">Kontakt och adress</h3>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="block sm:col-span-2">
-              <span className={labelClassName}>Namn</span>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                className={fieldClassName}
-              />
-            </label>
-            <label className="block">
-              <span className={labelClassName}>Telefon</span>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                className={fieldClassName}
-              />
-            </label>
-            <label className="block">
-              <span className={labelClassName}>E-post</span>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className={fieldClassName}
-              />
-            </label>
-            <label className="block sm:col-span-2">
-              <span className={labelClassName}>Adress</span>
-              <input
-                type="text"
-                required
-                value={address}
-                onChange={(event) => setAddress(event.target.value)}
-                placeholder="Gatuadress och nummer"
-                className={fieldClassName}
-              />
-            </label>
-          </div>
-        </section>
+          {status === "error" ? (
+            <p className="text-sm text-red-700">{errorMessage}</p>
+          ) : null}
 
-        {status === "error" ? (
-          <p className="text-sm text-red-700">{errorMessage}</p>
-        ) : null}
-
-        <button
-          type="submit"
-          disabled={status === "loading"}
-          className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-52"
-        >
-          {status === "loading"
-            ? showsFixedPrice
-              ? "Bokar..."
-              : "Skickar..."
-            : copy.submitButtonLabel}
-        </button>
-      </form>
-      {priceBar}
+          <button
+            type="submit"
+            disabled={status === "loading"}
+            className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-52"
+          >
+            {status === "loading"
+              ? showsFixedPrice
+                ? "Bokar..."
+                : "Skickar..."
+              : copy.submitButtonLabel}
+          </button>
+        </form>
+        {priceBar}
       </>
     );
   }
 
   return (
     <>
-    <form onSubmit={handleInfoContinue} className={`space-y-8 ${contentSpacer}`}>
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="font-display text-3xl text-green">Städinformation</h2>
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-sm font-semibold text-green/60 transition hover:text-gold"
-        >
-          Tillbaka
-        </button>
-      </div>
+      <form onSubmit={handleInfoContinue} className={`space-y-8 ${contentSpacer}`}>
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="font-display text-3xl text-green">Städinformation</h2>
+          <button
+            type="button"
+            onClick={onBack}
+            className="text-sm font-semibold text-green/60 transition hover:text-gold"
+          >
+            Tillbaka
+          </button>
+        </div>
 
-      <CleaningInfoSections
-        squareMeters={squareMeters}
-        onSquareMetersChange={setSquareMeters}
-        hasPets={hasPets}
-        onHasPetsChange={setHasPets}
-        frequency={frequency}
-        onFrequencyChange={setFrequency}
-        tidying={tidying}
-        onTidyingChange={setTidying}
-        weekdayPreference={weekdayPreference}
-        onWeekdayPreferenceChange={setWeekdayPreference}
-        squareMetersLabel={copy.squareMetersLabel}
-        petsLabel={copy.petsLabel}
-        tidyingDescription={copy.tidyingDescription}
-        propertyType={plats}
-        storstadBookingHref={
-          isHomeCleaningBooking(plats)
-            ? buildBookingSearchUrl({
-                tjanst,
-                postnummer,
-                kommun,
-                plats: "storstad",
-              })
-            : undefined
-        }
-      />
+        <CleaningInfoSections
+          squareMeters={squareMeters}
+          onSquareMetersChange={setSquareMeters}
+          hasPets={hasPets}
+          onHasPetsChange={setHasPets}
+          frequency={frequency}
+          onFrequencyChange={setFrequency}
+          weekdayPreference={weekdayPreference}
+          onWeekdayPreferenceChange={setWeekdayPreference}
+          squareMetersLabel={copy.squareMetersLabel}
+          petsLabel={copy.petsLabel}
+          propertyType={plats}
+          addons={addons}
+          onAddonsChange={setAddons}
+          windowCount={windowCount}
+          onWindowCountChange={setWindowCount}
+          windowMode={windowMode}
+          onWindowModeChange={setWindowMode}
+          storstadBookingHref={
+            isHomeCleaningBooking(plats)
+              ? buildBookingSearchUrl({
+                  tjanst,
+                  postnummer,
+                  kommun,
+                  plats: "storstad",
+                })
+              : undefined
+          }
+        />
 
-      <div className="space-y-3">
-        <button
-          type="submit"
-          disabled={!infoComplete}
-          className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-52"
-        >
-          Fortsätt
-        </button>
-        <p className="text-xs text-muted">*Fyll i dessa fält för att fortsätta</p>
-      </div>
-    </form>
-    {priceBar}
+        <div className="space-y-3">
+          <button
+            type="submit"
+            disabled={!infoComplete}
+            className="h-14 w-full rounded-full bg-green px-7 text-sm font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-52"
+          >
+            Fortsätt
+          </button>
+          <p className="text-xs text-muted">*Fyll i dessa fält för att fortsätta</p>
+        </div>
+      </form>
+      {priceBar}
     </>
   );
 }

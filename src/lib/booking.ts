@@ -4,7 +4,15 @@ import { getService, type Service } from "@/lib/services";
 
 export const WEB_BOOKING_SERVICE_SLUG = "stad";
 
-export type CleaningPropertyType = "hem" | "kontor" | "ovrigt" | "storstad";
+export type CleaningPropertyType =
+  | "hem"
+  | "flyttstad"
+  | "fonster"
+  | "storstad"
+  /** @deprecated Kept for older bookings/admin records */
+  | "kontor"
+  /** @deprecated Kept for older bookings/admin records */
+  | "ovrigt";
 
 export type BookingParams = {
   tjanst: string;
@@ -20,23 +28,23 @@ export const cleaningPropertyOptions: {
 }[] = [
   {
     value: "hem",
-    label: "Hem",
-    description: "Städning i bostad, villa eller lägenhet.",
-  },
-  {
-    value: "kontor",
-    label: "Kontor",
-    description: "Städning på arbetsplats eller i kontorslokal.",
-  },
-  {
-    value: "ovrigt",
-    label: "Övrigt",
-    description: "Till exempel butik, föreningslokal eller annan yta.",
+    label: "Hemstäd",
+    description: "Återkommande städning hemma – varje, varannan eller var fjärde vecka.",
   },
   {
     value: "storstad",
     label: "Storstäd",
-    description: "Grundlig engångsstädning av bostad eller lokal.",
+    description: "Grundlig engångsstädning när hemmet behöver en ordentlig genomgång.",
+  },
+  {
+    value: "flyttstad",
+    label: "Flyttstäd",
+    description: "Städning inför inflytt eller avflytt, med tydligt pris efter yta.",
+  },
+  {
+    value: "fonster",
+    label: "Fönster",
+    description: "Fönsterputs engångs eller som abonnemang – du väljer antal fönster.",
   },
 ];
 
@@ -46,13 +54,25 @@ export type CleaningFrequency =
   | "varje-vecka"
   | "varannan-vecka"
   | "var-fjarde-vecka"
-  | "storstadning";
+  | "storstadning"
+  | "flyttstadning"
+  | "fonster";
 
 export type PetAnswer = "ja" | "nej";
+/** @deprecated Undanplockning is no longer offered; always use "nej" for new bookings */
 export type TidyingOption = "nej" | "ja-undanplockning";
 export type WeekdayPreference = "flexibel" | "valj-dag";
 export type ContactPreference = "ring" | "hembesok";
 export type KeyAccess = "hemma" | "lamnar-kontor" | "redan-lamnat";
+export type WindowBookingMode = "engang" | "abonnemang";
+
+export type CleaningAddons = {
+  oven?: boolean;
+  fridge?: boolean;
+  supplies?: boolean;
+  balcony?: boolean;
+  windowsIncluded?: boolean;
+};
 
 export const contactPreferenceOptions: {
   value: ContactPreference;
@@ -87,7 +107,6 @@ export type CleaningBookingCopy = {
   submitButtonLabel: string;
   squareMetersLabel: string;
   petsLabel: string;
-  tidyingDescription: string;
   contactPreferenceOptions: {
     value: ContactPreference;
     label: string;
@@ -97,152 +116,167 @@ export type CleaningBookingCopy = {
 
 const cleaningBookingCopyByPlats: Record<CleaningPropertyType, CleaningBookingCopy> = {
   hem: {
-    methodTitle: "Hur vill du boka din hemstädning?",
+    methodTitle: "Hur vill du boka hemstädning?",
     methodDescription:
-      "Välj om du vill boka direkt eller prata med en av våra experter. Behöver du mer information? Läs mer om våra abonnemang, momentlistor och svar på vanliga frågor.",
-    highlights: ["Fast månadspris", "Kollektivavtal", "Städmaterial ingår"],
+      "Boka online med tydligt pris, eller låt oss kontakta dig om du vill få hjälp att välja rätt upplägg.",
+    highlights: ["Tydligt pris", "Lokalt i Stockholm", "Material ingår"],
     methodOptions: [
       {
         value: "direct",
         title: "Boka direkt online",
-        description:
-          "Fyll i dina uppgifter och boka vår hemstädning med bara några få klick.",
+        description: "Ange yta och frekvens, se priset och boka första tillfället.",
       },
       {
         value: "expert",
         title: "Kontakta mig",
-        description:
-          "Låt en av våra experter hjälpa dig att hitta rätt upplägg för din hemstädning.",
+        description: "Vi hör av oss och hjälper dig välja rätt städintervall.",
       },
     ],
     directSuccessMessage:
-      "Din bokning är registrerad med fast pris enligt dina val. Vi kommer på vald tid för första städtillfället och skickar en bekräftelse till dig.",
+      "Din bokning är registrerad enligt dina val. Vi kommer på vald tid för första städtillfället och skickar en bekräftelse till dig.",
     expertSuccessMessage: (kommun) =>
-      `En av våra experter kontaktar dig för att hitta rätt upplägg för din hemstädning i ${kommun}.`,
+      `Vi kontaktar dig för att hitta rätt hemstädning i ${kommun}.`,
     submitButtonLabel: "Boka hemstädning",
     squareMetersLabel: "Bostadsyta (kvm)",
     petsLabel: "Har du husdjur hemma?",
-    tidyingDescription:
-      "När du bokar undanplockning slipper du förbereda hemmet själv. Vi börjar med att plocka undan, så att vi därefter kan fokusera fullt ut på städningen av ditt hem.",
+    contactPreferenceOptions: contactPreferenceOptions,
+  },
+  storstad: {
+    methodTitle: "Boka storstäd",
+    methodDescription:
+      "Engångsstädning med fast pris efter yta. Lägg till ugn, kyl eller städredskap vid behov.",
+    highlights: ["Fast pris efter yta", "Grundlig genomgång", "Valfria tillägg"],
+    methodOptions: [
+      {
+        value: "direct",
+        title: "Boka direkt online",
+        description: "Se priset direkt och boka tid för din storstädning.",
+      },
+    ],
+    directSuccessMessage:
+      "Din storstädning är bokad. Vi kommer på vald tid och skickar en bekräftelse till dig.",
+    expertSuccessMessage: (kommun) =>
+      `Vi kontaktar dig om storstädning i ${kommun}.`,
+    submitButtonLabel: "Boka storstäd",
+    squareMetersLabel: "Bostadsyta (kvm)",
+    petsLabel: "Har du husdjur hemma?",
+    contactPreferenceOptions: contactPreferenceOptions,
+  },
+  flyttstad: {
+    methodTitle: "Boka flyttstäd",
+    methodDescription:
+      "Städning inför flytt med pris efter yta. Du kan lägga till balkong vid behov.",
+    highlights: ["Fast pris efter yta", "Inför in- eller avflytt", "Valfri balkong"],
+    methodOptions: [
+      {
+        value: "direct",
+        title: "Boka direkt online",
+        description: "Ange yta, se priset och boka tid för flyttstädningen.",
+      },
+    ],
+    directSuccessMessage:
+      "Din flyttstädning är bokad. Vi kommer på vald tid och skickar en bekräftelse till dig.",
+    expertSuccessMessage: (kommun) =>
+      `Vi kontaktar dig om flyttstädning i ${kommun}.`,
+    submitButtonLabel: "Boka flyttstäd",
+    squareMetersLabel: "Bostadsyta (kvm)",
+    petsLabel: "Har du husdjur hemma?",
+    contactPreferenceOptions: contactPreferenceOptions,
+  },
+  fonster: {
+    methodTitle: "Boka fönsterputs",
+    methodDescription:
+      "Välj engångsputs eller abonnemang och ange hur många fönster som ska putsas.",
+    highlights: ["280 kr per fönster", "Engångs eller abonnemang", "Tydligt antal"],
+    methodOptions: [
+      {
+        value: "direct",
+        title: "Boka direkt online",
+        description: "Ange antal fönster, se priset och boka tid.",
+      },
+    ],
+    directSuccessMessage:
+      "Din fönsterputs är bokad. Vi kommer på vald tid och skickar en bekräftelse till dig.",
+    expertSuccessMessage: (kommun) =>
+      `Vi kontaktar dig om fönsterputs i ${kommun}.`,
+    submitButtonLabel: "Boka fönsterputs",
+    squareMetersLabel: "Bostadsyta (kvm)",
+    petsLabel: "Har du husdjur hemma?",
     contactPreferenceOptions: contactPreferenceOptions,
   },
   kontor: {
     methodTitle: "Hur vill du boka er kontorsstädning?",
     methodDescription:
-      "Välj om du vill skicka en förfrågan online eller prata med en av våra experter. Vi återkommer med pris och upplägg anpassat efter er lokal.",
-    highlights: [
-      "Offert efter behov",
-      "Kollektivavtal",
-      "Anpassat efter er verksamhet",
-    ],
+      "Skicka en förfrågan så återkommer vi med upplägg anpassat efter er lokal.",
+    highlights: ["Offert efter behov", "Lokalt i Stockholm", "Anpassat efter verksamheten"],
     methodOptions: [
       {
         value: "direct",
         title: "Skicka förfrågan online",
-        description:
-          "Fyll i era uppgifter och önskemål så återkommer vi med pris och förslag på upplägg.",
+        description: "Fyll i uppgifter så återkommer vi med pris och förslag.",
       },
       {
         value: "expert",
         title: "Kontakta mig",
-        description:
-          "Låt en av våra experter hjälpa er att hitta rätt upplägg för er kontorsstädning.",
+        description: "Vi hjälper er att hitta rätt upplägg för kontorsstädning.",
       },
     ],
     directSuccessMessage:
-      "Vi har tagit emot er förfrågan och återkommer med pris och bekräftad tid baserat på era uppgifter och önskemål.",
+      "Vi har tagit emot er förfrågan och återkommer med pris och tid.",
     expertSuccessMessage: (kommun) =>
-      `En av våra experter kontaktar er för att diskutera upplägg och pris för er kontorsstädning i ${kommun}.`,
+      `Vi kontaktar er om kontorsstädning i ${kommun}.`,
     submitButtonLabel: "Skicka förfrågan",
     squareMetersLabel: "Lokalyta (kvm)",
     petsLabel: "Finns husdjur på arbetsplatsen?",
-    tidyingDescription:
-      "När ni bokar undanplockning slipper ni förbereda lokalen själva. Vi börjar med att plocka undan, så att vi därefter kan fokusera fullt ut på städningen av er lokal.",
     contactPreferenceOptions: [
       {
         value: "ring",
         label: "Ring mig en bokad tid",
-        description:
-          "Vi ringer dig på en tid som passar – smidigt och enkelt när du vill boka med personlig hjälp, utan att behöva planera in ett besök på plats.",
+        description: "Vi ringer dig på en tid som passar.",
       },
       {
         value: "hembesok",
         label: "Boka in ett besök",
-        description:
-          "Vill du ses på plats? Vi kommer till er lokal, lyssnar på era behov och hjälper er att hitta den bästa lösningen för just er verksamhet.",
+        description: "Vi kommer till er lokal och går igenom behoven på plats.",
       },
     ],
   },
   ovrigt: {
     methodTitle: "Hur vill du boka din städning?",
     methodDescription:
-      "Välj om du vill skicka en förfrågan online eller prata med en av våra experter. Vi återkommer med pris och upplägg anpassat efter din lokal.",
-    highlights: ["Offert efter behov", "Kollektivavtal", "Skräddarsytt efter er lokal"],
+      "Skicka en förfrågan så återkommer vi med upplägg anpassat efter lokalen.",
+    highlights: ["Offert efter behov", "Lokalt i Stockholm", "Skräddarsytt"],
     methodOptions: [
       {
         value: "direct",
         title: "Skicka förfrågan online",
-        description:
-          "Fyll i dina uppgifter och önskemål så återkommer vi med pris och förslag på upplägg.",
+        description: "Fyll i uppgifter så återkommer vi med pris och förslag.",
       },
       {
         value: "expert",
         title: "Kontakta mig",
-        description:
-          "Låt en av våra experter hjälpa dig att hitta rätt upplägg för din städning.",
+        description: "Vi hjälper dig att hitta rätt upplägg.",
       },
     ],
     directSuccessMessage:
-      "Vi har tagit emot din förfrågan och återkommer med pris och bekräftad tid baserat på dina uppgifter och önskemål.",
+      "Vi har tagit emot din förfrågan och återkommer med pris och tid.",
     expertSuccessMessage: (kommun) =>
-      `En av våra experter kontaktar dig för att diskutera upplägg och pris för din städning i ${kommun}.`,
+      `Vi kontaktar dig om städning i ${kommun}.`,
     submitButtonLabel: "Skicka förfrågan",
     squareMetersLabel: "Yta (kvm)",
     petsLabel: "Finns husdjur i lokalen?",
-    tidyingDescription:
-      "När du bokar undanplockning slipper du förbereda lokalen själv. Vi börjar med att plocka undan, så att vi därefter kan fokusera fullt ut på städningen.",
     contactPreferenceOptions: [
       {
         value: "ring",
         label: "Ring mig en bokad tid",
-        description:
-          "Vi ringer dig på en tid som passar – smidigt och enkelt när du vill boka med personlig hjälp, utan att behöva planera in ett besök på plats.",
+        description: "Vi ringer dig på en tid som passar.",
       },
       {
         value: "hembesok",
         label: "Boka in ett besök",
-        description:
-          "Vill du ses på plats? Vi kommer till lokalen, lyssnar på dina behov och hjälper dig att hitta den bästa lösningen.",
+        description: "Vi kommer till lokalen och går igenom behoven på plats.",
       },
     ],
-  },
-  storstad: {
-    methodTitle: "Boka storstäd",
-    methodDescription:
-      "Fyll i dina uppgifter och önskemål så återkommer vi med pris och förslag på upplägg anpassat efter ditt hem.",
-    highlights: [
-      "Offert efter behov",
-      "Grundlig genomgång",
-      "Anpassat efter ditt hem",
-    ],
-    methodOptions: [
-      {
-        value: "direct",
-        title: "Skicka förfrågan online",
-        description:
-          "Fyll i dina uppgifter och önskemål så återkommer vi med pris och förslag på upplägg.",
-      },
-    ],
-    directSuccessMessage:
-      "Vi har tagit emot din förfrågan om storstäd och återkommer med pris och bekräftad tid baserat på dina uppgifter och önskemål.",
-    expertSuccessMessage: (kommun) =>
-      `En av våra experter kontaktar dig för att diskutera upplägg och pris för din storstäd i ${kommun}.`,
-    submitButtonLabel: "Skicka förfrågan",
-    squareMetersLabel: "Bostadsyta (kvm)",
-    petsLabel: "Har du husdjur hemma?",
-    tidyingDescription:
-      "När du bokar undanplockning slipper du förbereda hemmet själv. Vi börjar med att plocka undan, så att vi därefter kan fokusera fullt ut på storstädningen.",
-    contactPreferenceOptions: contactPreferenceOptions,
   },
 };
 
@@ -254,8 +288,28 @@ export function isHomeCleaningBooking(plats?: CleaningPropertyType) {
   return !plats || plats === "hem";
 }
 
+/** Fixed online price for hemstäd, storstäd, flyttstäd and fönster */
+export function usesFixedCleaningPrice(plats?: CleaningPropertyType) {
+  return (
+    !plats ||
+    plats === "hem" ||
+    plats === "storstad" ||
+    plats === "flyttstad" ||
+    plats === "fonster"
+  );
+}
+
 export function isOneTimeCleaningProperty(plats?: CleaningPropertyType) {
-  return plats === "storstad";
+  return plats === "storstad" || plats === "flyttstad" || plats === "fonster";
+}
+
+export function defaultFrequencyForProperty(
+  plats?: CleaningPropertyType,
+): CleaningFrequency {
+  if (plats === "storstad") return "storstadning";
+  if (plats === "flyttstad") return "flyttstadning";
+  if (plats === "fonster") return "fonster";
+  return "varannan-vecka";
 }
 
 export const cleaningHighlights = cleaningBookingCopyByPlats.hem.highlights;
@@ -272,33 +326,21 @@ export const cleaningFrequencyPlans: {
   {
     value: "varje-vecka",
     label: "Varje vecka",
-    benefits: [
-      "Samma städare varje gång",
-      "Städmaterial ingår",
-      "Veckoanpassade moment",
-      "Spara upp till 25 % per städning",
-    ],
-    description:
-      "Vår mest bekväma lösning som låter dig släppa städningen helt.",
+    benefits: ["Kontinuerligt rent hem", "Material ingår", "Lägre pris per tillfälle"],
+    description: "Passar dig som vill ha hemmet kontinuerligt omhändertaget.",
   },
   {
     value: "varannan-vecka",
     label: "Varannan vecka",
-    badge: "Mest populär",
-    benefits: [
-      "Samma städare varje gång",
-      "Städmaterial ingår",
-      "Spara upp till 20 % per städning",
-    ],
-    description:
-      "Vår mest populära lösning – smidig, prisvärd och favoriten bland våra kunder.",
+    badge: "Populär",
+    benefits: ["Bra balans mellan pris och frekvens", "Material ingår"],
+    description: "Ett vanligt val för vardagshemmet – regelbundet utan att bli för tätt.",
   },
   {
     value: "var-fjarde-vecka",
     label: "Var fjärde vecka",
-    benefits: ["Städmaterial ingår"],
-    description:
-      "En enklare lösning med längre mellanrum mellan städningarna.",
+    benefits: ["Material ingår", "Enklare intervall"],
+    description: "Längre mellanrum mellan städningarna när behovet är mer sporadiskt.",
   },
 ];
 
@@ -371,7 +413,15 @@ export function parseBookingSearchParams(
   const postnummer = normalized ? formatZipCode(normalized) : postnummerRaw;
   const kommun = read("kommun");
   const platsRaw = read("plats");
-  const plats = cleaningPropertyOptions.some((option) => option.value === platsRaw)
+  const knownPlats: CleaningPropertyType[] = [
+    "hem",
+    "flyttstad",
+    "fonster",
+    "storstad",
+    "kontor",
+    "ovrigt",
+  ];
+  const plats = knownPlats.includes(platsRaw as CleaningPropertyType)
     ? (platsRaw as CleaningPropertyType)
     : undefined;
 

@@ -23,9 +23,9 @@ export default function Home() {
                 Vi ger hem nytt liv.
               </h1>
               <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-black/80 max-lg:text-black/90 lg:mx-0">
-                {BRAND_NAME} samlar städ, snickeri, bygg, renovering, handyman och
+                {BRAND_NAME} samlar städ, måleri, bygg, renovering, handyman och
                 inredning i ett tryggt upplägg. När hemmet behöver mer kan vi
-                även hjälpa med rörmokare, elektriker, besiktningsman och flytt.
+                även hjälpa med rörmokare, elektriker och besiktningsman.
               </p>
             </div>
             <div className="flex w-full items-center">
@@ -39,7 +39,7 @@ export default function Home() {
             <SectionHeading
               eyebrow="Våra tjänster"
               title="Allt ditt hem behöver på ett ställe."
-              description="Boka en huvudtjänst eller gå via Övriga tjänster när du behöver rörmokare, elektriker, besiktningsman eller flytt."
+              description="Boka en huvudtjänst eller gå via Övriga tjänster när du behöver rörmokare, elektriker eller besiktningsman."
               centered
             />
             <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -77,7 +77,7 @@ export default function Home() {
               <SectionHeading
                 eyebrow={`Varför ${BRAND_NAME}`}
                 title="En kontakt för allt som får hemmet att kännas rätt."
-                description={`${BRAND_NAME} gör det enkelt att boka trygg hjälp hemma. Vi bygger flödet runt tjänst, plats och behov – från städ och snickeri till bygg, renovering, handyman, inredning och utvalda specialisttjänster.`}
+                description={`${BRAND_NAME} gör det enkelt att boka trygg hjälp hemma. Vi bygger flödet runt tjänst, plats och behov – från städ och måleri till bygg, renovering, handyman, inredning och utvalda specialisttjänster.`}
               />
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {["Personlig plan", "Tydlig kommunikation", "Trygga uppdrag", "Premium känsla"].map(

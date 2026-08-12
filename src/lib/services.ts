@@ -34,9 +34,9 @@ export const services: Service[] = [
     title: "Städ",
     eyebrow: "Rent, lugnt och välkomnande",
     description:
-      "Städning för hem som ska kännas omhändertagna, fräscha och enkla att trivas i.",
+      "Städning för hem i Stockholm – hemstäd, storstäd, flyttstäd och fönsterputs.",
     hero:
-      "Kom hem till en renare vardag. Vi hjälper dig med återkommande städning, storstädning och flyttstäd med varm och professionell känsla.",
+      "Kom hem till ett renare hem. Boka hemstäd, storstäd, flyttstäd eller fönsterputs med tydligt pris och lokalt fokus i Stockholm.",
     heroImage: "/stad-hero-img.webp",
     summaryTitle: "Städning med omsorg om helheten",
     summary:
@@ -44,18 +44,18 @@ export const services: Service[] = [
     icon: "sparkles",
     accent: "Hemstädning",
     includes: [
-      { label: "Regelbunden hemstädning", icon: "calendar" },
-      { label: "Storstädning inför nystart eller särskilda tillfällen", icon: "sparkles" },
-      { label: "Flyttstädning och extra städtillfällen", icon: "truck" },
-      { label: "Tydliga instruktioner för varje hem", icon: "clipboard" },
+      { label: "Återkommande hemstädning", icon: "calendar" },
+      { label: "Storstädning med valfria tillägg", icon: "sparkles" },
+      { label: "Flyttstädning inför in- eller avflytt", icon: "truck" },
+      { label: "Fönsterputs engångs eller abonnemang", icon: "home" },
     ],
     steps: [
-      "Välj vilken typ av städning du behöver.",
-      "Beskriv bostaden och dina önskemål.",
-      "Vi skapar en plan som passar din vardag.",
+      "Välj hemstäd, storstäd, flyttstäd eller fönster.",
+      "Ange yta eller antal fönster och se priset.",
+      "Boka tid online eller låt oss kontakta dig.",
     ],
     benefits: [
-      "Hög kvalitet i varje rum",
+      "Tydliga priser för Stockholm",
       "Flexibla upplägg efter behov",
       "Trygg hantering av hem och nycklar",
     ],
@@ -63,42 +63,42 @@ export const services: Service[] = [
       {
         question: "Kan städningen anpassas efter mitt hem?",
         answer:
-          "Ja, du kan lägga in instruktioner och prioritera rum eller moment som är extra viktiga för dig.",
+          "Ja. Du kan välja frekvens, tillägg som ugn eller kyl vid storstäd, och beskriva särskilda önskemål.",
       },
       {
-        question: "Erbjuder ni både återkommande och enstaka städning?",
+        question: "Vilka städtjänster kan jag boka online?",
         answer:
-          "Ja, HemVända kan presentera både återkommande hemstädning och enstaka städuppdrag.",
+          "Hemstädning, storstädning, flyttstädning och fönsterputs. Priset visas innan du slutför bokningen.",
       },
     ],
     seo: {
       title: "Städ | HemVända",
       description:
-        "Boka städning med HemVända. Hemstädning, storstädning och flyttstädning med trygg kvalitet.",
+        "Boka städning i Stockholm med HemVända. Hemstäd, storstäd, flyttstäd och fönsterputs med tydligt pris.",
     },
   },
   {
     slug: "snickeri-bygg-renovering",
-    title: "Snickeri, bygg och renovering",
+    title: "Måleri, bygg och renovering",
     eyebrow: "Genomtänkta förbättringar",
     description:
-      "Trygg hjälp med snickeri, mindre byggprojekt och renoveringar som lyfter hemmet.",
+      "Trygg hjälp med måleri, mindre byggprojekt och renoveringar som lyfter hemmet.",
     hero:
-      "Från platsbyggda lösningar till renovering och förbättringar. Vi hjälper dig skapa ett hem som fungerar bättre och känns mer genomtänkt.",
+      "Från målning och förbättringar till renovering. Vi hjälper dig skapa ett hem som fungerar bättre och känns mer genomtänkt.",
     heroImage: "/snickare-hero-bg.webp",
     summaryTitle: "Renovering med kvalitet och planering",
     summary:
-      "Snickeri, bygg och renovering för dig som vill förnya hemmet med kvalitet, tydlig planering och känsla för detaljer.",
+      "Måleri, bygg och renovering för dig som vill förnya hemmet med kvalitet, tydlig planering och känsla för detaljer.",
     icon: "hammer",
     accent: "Renovering",
     includes: [
-      { label: "Snickeriarbeten och specialanpassade lösningar", icon: "hammer" },
+      { label: "Måleri och ytskikt", icon: "hammer" },
       { label: "Mindre byggprojekt och hemförbättringar", icon: "layers" },
       { label: "Renovering av utvalda ytor och rum", icon: "home" },
       { label: "Planering, materialråd och tydlig tidsplan", icon: "clipboard" },
     ],
     steps: [
-      "Berätta vad du vill bygga, ändra eller renovera.",
+      "Berätta vad du vill måla, bygga eller renovera.",
       "Vi går igenom omfattning, material och tid.",
       "Rätt hantverkare hjälper dig från start till färdigt resultat.",
     ],
@@ -109,7 +109,7 @@ export const services: Service[] = [
     ],
     faqs: [
       {
-        question: "Kan jag boka mindre snickeri- och byggjobb?",
+        question: "Kan jag boka mindre måleri- och byggjobb?",
         answer:
           "Ja, HemVända passar för både mindre förbättringar och tydligt avgränsade renoveringsuppdrag.",
       },
@@ -120,9 +120,9 @@ export const services: Service[] = [
       },
     ],
     seo: {
-      title: "Snickeri, bygg och renovering | HemVända",
+      title: "Måleri, bygg och renovering | HemVända",
       description:
-        "Boka snickeri, bygg och renovering med HemVända. Trygg hjälp med hemförbättringar och genomtänkta lösningar.",
+        "Boka måleri, bygg och renovering med HemVända. Trygg hjälp med hemförbättringar och genomtänkta lösningar.",
     },
   },
   {
@@ -142,7 +142,7 @@ export const services: Service[] = [
       { label: "Montering av möbler och inredning", icon: "box" },
       { label: "Upphängning av hyllor, tavlor och gardiner", icon: "layers" },
       { label: "Enklare reparationer och justeringar", icon: "wrench" },
-      { label: "Praktisk hjälp inför flytt, styling eller renovering", icon: "truck" },
+      { label: "Praktisk hjälp inför styling eller renovering", icon: "truck" },
     ],
     steps: [
       "Samla dina fixpunkter i en bokning.",
@@ -224,9 +224,9 @@ export const services: Service[] = [
     title: "Övriga tjänster",
     eyebrow: "Rätt hjälp när hemmet behöver mer",
     description:
-      "Vi kan även erbjuda rörmokare, elektriker, besiktningsman och flytthjälp via vårt nätverk.",
+      "Vi kan även erbjuda rörmokare, elektriker och besiktningsman via vårt nätverk.",
     hero:
-      "Alla behov passar inte i en standardtjänst. Därför samlar HemVända övriga tjänster som rörmokare, elektriker, besiktningsman och flytt.",
+      "Alla behov passar inte i en standardtjänst. Därför samlar HemVända övriga tjänster som rörmokare, elektriker och besiktningsman.",
     summaryTitle: "Specialister när hemmet behöver mer",
     summary:
       "Övriga tjänster fungerar som en huvudsida för specialistuppdrag och kompletterande hjälp runt hemmet.",
@@ -236,9 +236,9 @@ export const services: Service[] = [
       { label: "Rörmokare för VVS-relaterade uppdrag", icon: "droplet" },
       { label: "Elektriker för elarbeten och installationer", icon: "bolt" },
       { label: "Besiktningsman inför köp, försäljning eller åtgärder", icon: "search" },
-      { label: "Flytthjälp när hemmet ska byta adress", icon: "truck" },
+      { label: "Råd om rätt specialist för ditt behov", icon: "clipboard" },
     ],
-    subServices: ["Rörmokare", "Elektriker", "Besiktningsman", "Flytt"],
+    subServices: ["Rörmokare", "Elektriker", "Besiktningsman"],
     steps: [
       "Beskriv vilken typ av specialist du behöver.",
       "Vi går igenom uppdragets omfattning och förutsättningar.",
@@ -253,18 +253,18 @@ export const services: Service[] = [
       {
         question: "Är övriga tjänster bokningsbara direkt?",
         answer:
-          "Första versionen presenterar dem som erbjudna tjänster. Bokningsflödet kan senare anpassas per specialistområde.",
+          "Du skickar en förfrågan så återkommer vi med upplägg och nästa steg per specialistområde.",
       },
       {
-        question: "Kan flytt kombineras med städ eller inredning?",
+        question: "Kan specialisttjänster kombineras med städ eller renovering?",
         answer:
-          "Ja, flytt kan kombineras med städ, handyman eller inredning beroende på vad kunden behöver.",
+          "Ja, du kan kombinera med städ, handyman eller måleri/bygg beroende på vad du behöver.",
       },
     ],
     seo: {
       title: "Övriga tjänster | HemVända",
       description:
-        "HemVända erbjuder även rörmokare, elektriker, besiktningsman och flytt som övriga tjänster.",
+        "HemVända erbjuder även rörmokare, elektriker och besiktningsman som övriga tjänster.",
     },
   },
 ];

@@ -2,12 +2,14 @@ import { normalizeZipCode } from "@/lib/coverage";
 import { calculateCleaningPrice } from "@/lib/cleaning-pricing";
 import {
   formatCleaningPropertyMessage,
+  type CleaningAddons,
   type CleaningFrequency,
   type CleaningPropertyType,
   type KeyAccess,
   type PetAnswer,
   type TidyingOption,
   type WeekdayPreference,
+  type WindowBookingMode,
 } from "@/lib/booking";
 import { ensureCustomerAccount } from "@/lib/auth/customer-account";
 import { generateCleaningVisits } from "@/lib/db/cleaning-visits";
@@ -41,6 +43,9 @@ type CleaningBookingInput = {
   message?: string;
   propertyType?: CleaningPropertyType;
   sourceLeadId?: string;
+  addons?: CleaningAddons;
+  windowCount?: number;
+  windowMode?: WindowBookingMode;
 };
 
 async function upsertServiceArea(postalCode: string, municipality: string) {
@@ -109,6 +114,10 @@ export async function saveCleaningBooking(input: CleaningBookingInput) {
     frequency: input.frequency,
     tidying: input.tidying,
     weekdayPreference: input.weekdayPreference,
+    propertyType: input.propertyType,
+    addons: input.addons,
+    windowCount: input.windowCount,
+    windowMode: input.windowMode,
   });
 
   await upsertServiceArea(postalCode, input.municipality);

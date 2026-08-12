@@ -23,29 +23,22 @@ function formatVisitDate(dateKey: string) {
 export function CleaningBookingSuccessSummary({
   selectedDate,
   selectedTime,
-  squareMeters,
-  hasPets,
-  frequency,
-  tidying,
-  weekdayPreference,
   showPrice = true,
+  ...pricingInput
 }: CleaningBookingSuccessSummaryProps) {
-  const quote = showPrice
-    ? calculateCleaningPrice({
-        squareMeters,
-        hasPets,
-        frequency,
-        tidying,
-        weekdayPreference,
-      })
-    : null;
+  const quote = showPrice ? calculateCleaningPrice(pricingInput) : null;
+  const isOneTime =
+    pricingInput.frequency === "storstadning" ||
+    pricingInput.frequency === "flyttstadning" ||
+    pricingInput.frequency === "fonster" ||
+    pricingInput.windowMode === "engang";
 
   return (
     <dl className="mt-6 space-y-3 rounded-xl border border-green/10 bg-ivory/70 p-5 text-sm">
       {selectedDate && selectedTime ? (
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <dt className="font-semibold text-green">
-            {showPrice ? "Första städtillfälle" : "Önskad start"}
+            {showPrice ? "Första tillfälle" : "Önskad start"}
           </dt>
           <dd className="text-muted">
             {formatVisitDate(selectedDate)} kl {selectedTime}
@@ -53,8 +46,8 @@ export function CleaningBookingSuccessSummary({
         </div>
       ) : null}
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <dt className="font-semibold text-green">Frekvens</dt>
-        <dd className="text-muted">{getCleaningFrequencyLabel(frequency)}</dd>
+        <dt className="font-semibold text-green">Typ</dt>
+        <dd className="text-muted">{getCleaningFrequencyLabel(pricingInput.frequency)}</dd>
       </div>
       {quote ? (
         <>
@@ -69,17 +62,11 @@ export function CleaningBookingSuccessSummary({
               ) : null}
             </dd>
           </div>
-          {frequency !== "storstadning" ? (
-            <p className="text-xs leading-5 text-muted">
-              Fast pris per månad baserat på din bostadsyta, frekvens och tillval.
-              Städmaterial ingår.
-            </p>
-          ) : (
-            <p className="text-xs leading-5 text-muted">
-              Fast engångspris baserat på din bostadsyta och tillval. Städmaterial
-              ingår.
-            </p>
-          )}
+          <p className="text-xs leading-5 text-muted">
+            {isOneTime
+              ? "Fast engångspris baserat på dina val och eventuella tillägg."
+              : "Pris per månad baserat på yta, frekvens och tillval."}
+          </p>
         </>
       ) : (
         <p className="text-xs leading-5 text-muted">

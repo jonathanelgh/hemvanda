@@ -1,4 +1,4 @@
-import { formatZipCode, normalizeZipCode } from "@/lib/coverage";
+import { formatZipCode, isStockholmAreaZip, normalizeZipCode } from "@/lib/coverage";
 
 type GoogleAddressComponent = {
   long_name: string;
@@ -35,6 +35,15 @@ export async function GET(request: Request) {
   if (!zip) {
     return Response.json(
       { error: "Ogiltigt postnummer. Ange fem siffror." },
+      { status: 400 },
+    );
+  }
+
+  if (!isStockholmAreaZip(zip)) {
+    return Response.json(
+      {
+        error: "Vi tar för närvarande endast emot bokningar i Stockholm med omnejd.",
+      },
       { status: 400 },
     );
   }

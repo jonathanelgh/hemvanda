@@ -3,12 +3,15 @@ import { calculateCleaningPrice } from "@/lib/cleaning-pricing";
 import {
   formatCleaningLeadScheduleMessage,
   formatCleaningPropertyMessage,
+  usesFixedCleaningPrice,
+  type CleaningAddons,
   type CleaningFrequency,
   type CleaningPropertyType,
   type ContactPreference,
   type PetAnswer,
   type TidyingOption,
   type WeekdayPreference,
+  type WindowBookingMode,
 } from "@/lib/booking";
 import { ensureCustomerAccount } from "@/lib/auth/customer-account";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -33,6 +36,9 @@ type CleaningLeadInput = {
   address?: string;
   message?: string;
   propertyType?: CleaningPropertyType;
+  addons?: CleaningAddons;
+  windowCount?: number;
+  windowMode?: WindowBookingMode;
 };
 
 type ServiceLeadInput = {
@@ -91,15 +97,17 @@ async function linkLeadToCustomer(
 export async function saveCleaningLead(input: CleaningLeadInput) {
   const supabase = createAdminClient();
   const postalCode = normalizeZipCode(input.postalCode) ?? input.postalCode;
-  const isHomeCleaning = !input.propertyType || input.propertyType === "hem";
-
-  const quote = isHomeCleaning
+  const quote = usesFixedCleaningPrice(input.propertyType)
     ? calculateCleaningPrice({
         squareMeters: String(input.squareMeters),
         hasPets: input.hasPets,
         frequency: input.frequency,
         tidying: input.tidying,
         weekdayPreference: input.weekdayPreference,
+        propertyType: input.propertyType,
+        addons: input.addons,
+        windowCount: input.windowCount,
+        windowMode: input.windowMode,
       })
     : null;
 

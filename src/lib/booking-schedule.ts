@@ -10,6 +10,8 @@ const frequencyIntervalDays: Record<CleaningFrequency, number | null> = {
   "varannan-vecka": 14,
   "var-fjarde-vecka": 28,
   storstadning: null,
+  flyttstadning: null,
+  fonster: null,
 };
 
 export function getCleaningIntervalDays(frequency: CleaningFrequency) {
@@ -17,9 +19,12 @@ export function getCleaningIntervalDays(frequency: CleaningFrequency) {
 }
 
 export function getCleaningFrequencyLabel(frequency: string) {
+  if (frequency === "storstadning") return "Storstädning";
+  if (frequency === "flyttstadning") return "Flyttstädning";
+  if (frequency === "fonster") return "Fönsterputs";
+
   return (
-    cleaningFrequencyPlans.find((plan) => plan.value === frequency)?.label ??
-    (frequency === "storstadning" ? "Storstädning" : frequency)
+    cleaningFrequencyPlans.find((plan) => plan.value === frequency)?.label ?? frequency
   );
 }
 
@@ -46,10 +51,6 @@ export function generateVisitDates(
   horizonMonths = VISIT_GENERATION_HORIZON_MONTHS,
 ) {
   const dates = [startDate];
-
-  if (frequency === "storstadning") {
-    return dates;
-  }
 
   const intervalDays = frequencyIntervalDays[frequency];
   if (!intervalDays) {

@@ -45,6 +45,8 @@ const visitStatusLabels: Record<string, string> = {
 
 const bookingPathLabels: Record<string, string> = {
   hem: "Hemstäd",
+  flyttstad: "Flyttstäd",
+  fonster: "Fönster",
   kontor: "Kontorsstäd",
   ovrigt: "Övrigt",
   storstad: "Storstäd",

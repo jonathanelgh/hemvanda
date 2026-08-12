@@ -66,7 +66,14 @@ export function usesCalculatedCleaningPrice(
   serviceSlug: string,
   propertyType?: CleaningPropertyType,
 ) {
-  return isCleaningServiceSlug(serviceSlug) && (!propertyType || propertyType === "hem");
+  return (
+    isCleaningServiceSlug(serviceSlug) &&
+    (!propertyType ||
+      propertyType === "hem" ||
+      propertyType === "storstad" ||
+      propertyType === "flyttstad" ||
+      propertyType === "fonster")
+  );
 }
 
 export function requiresManualPricing(

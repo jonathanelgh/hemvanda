@@ -202,9 +202,11 @@ export async function convertCleaningLeadToBooking(input: ConvertCleaningLeadInp
     message: lead.message ?? undefined,
     propertyType: lead.cleaningDetails.propertyType as
       | "hem"
+      | "flyttstad"
+      | "fonster"
+      | "storstad"
       | "kontor"
       | "ovrigt"
-      | "storstad"
       | undefined,
     sourceLeadId: lead.id,
   });

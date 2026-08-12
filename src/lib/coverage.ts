@@ -8,6 +8,12 @@ export function normalizeZipCode(input: string) {
   return digits;
 }
 
+/** Stockholms län postal codes are in the 1xxxx range. */
+export function isStockholmAreaZip(input: string) {
+  const normalized = normalizeZipCode(input);
+  return Boolean(normalized && normalized.startsWith("1"));
+}
+
 export function formatZipCode(input: string) {
   const normalized = normalizeZipCode(input);
 
@@ -35,6 +41,13 @@ export function verifyPostalCode(zip: string) {
     return {
       available: false,
       error: "Ogiltigt postnummer. Ange fem siffror.",
+    };
+  }
+
+  if (!isStockholmAreaZip(normalized)) {
+    return {
+      available: false,
+      error: "Vi tar för närvarande endast emot bokningar i Stockholm med omnejd.",
     };
   }
 

@@ -220,7 +220,8 @@
       submit.textContent = "Fortsätt";
       setHint(
         hint,
-        "Kunde inte hitta orten för postnumret. Kontrollera och försök igen.",
+        masked ||
+          "Kunde inte hitta orten för postnumret. Kontrollera och försök igen.",
         true,
       );
     }
@@ -417,8 +418,15 @@
 
     fetch("/api/postnummer?zip=" + encodeURIComponent(zip))
       .then(function (response) {
-        if (!response.ok) throw new Error("lookup failed");
-        return response.json();
+        return response.json().then(function (data) {
+          if (!response.ok) {
+            var message =
+              (data && data.error) ||
+              "Kunde inte hitta orten för postnumret. Kontrollera och försök igen.";
+            throw new Error(message);
+          }
+          return data;
+        });
       })
       .then(function (data) {
         if (lookupIds.get(form) !== currentLookup) return;
@@ -430,11 +438,17 @@
         setPostalPlace(form, masked, place, false);
         setSubmitState(form, "ready", masked);
       })
-      .catch(function () {
+      .catch(function (error) {
         if (lookupIds.get(form) !== currentLookup) return;
         storeResolvedZip(form, "");
         setPostalPlace(form, masked, "", false);
-        setSubmitState(form, "error", masked);
+        setSubmitState(
+          form,
+          "error",
+          error && error.message && error.message !== "place missing"
+            ? error.message
+            : "",
+        );
       });
   }
 

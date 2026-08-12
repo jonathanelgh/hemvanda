@@ -168,6 +168,7 @@ export function ScheduleCreateBookingServiceFields({
       frequency,
       tidying,
       weekdayPreference: "valj-dag",
+      propertyType: cleaningPropertyType,
     });
   }, [
     showCalculatedPrice,
@@ -175,6 +176,7 @@ export function ScheduleCreateBookingServiceFields({
     hasPets,
     frequency,
     tidying,
+    cleaningPropertyType,
   ]);
 
   return (

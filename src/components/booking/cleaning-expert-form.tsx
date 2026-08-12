@@ -16,14 +16,16 @@ import {
 import {
   getCleaningBookingCopy,
   buildBookingSearchUrl,
+  defaultFrequencyForProperty,
   isHomeCleaningBooking,
-  isOneTimeCleaningProperty,
+  usesFixedCleaningPrice,
   type BookingParams,
+  type CleaningAddons,
   type CleaningFrequency,
   type ContactPreference,
   type PetAnswer,
-  type TidyingOption,
   type WeekdayPreference,
+  type WindowBookingMode,
 } from "@/lib/booking";
 import { readApiError } from "@/lib/api-client";
 
@@ -46,11 +48,13 @@ export function CleaningExpertForm({
   const [squareMeters, setSquareMeters] = useState("");
   const [hasPets, setHasPets] = useState<PetAnswer | "">("");
   const [frequency, setFrequency] = useState<CleaningFrequency>(
-    isOneTimeCleaningProperty(plats) ? "storstadning" : "varannan-vecka",
+    defaultFrequencyForProperty(plats),
   );
-  const [tidying, setTidying] = useState<TidyingOption>("nej");
   const [weekdayPreference, setWeekdayPreference] =
     useState<WeekdayPreference>("flexibel");
+  const [addons, setAddons] = useState<CleaningAddons>({});
+  const [windowCount, setWindowCount] = useState("");
+  const [windowMode, setWindowMode] = useState<WindowBookingMode>("engang");
   const [contactPreference, setContactPreference] =
     useState<ContactPreference>("ring");
   const [name, setName] = useState("");
@@ -61,10 +65,15 @@ export function CleaningExpertForm({
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const copy = getCleaningBookingCopy(plats);
-  const showsFixedPrice = isHomeCleaningBooking(plats);
+  const showsFixedPrice = usesFixedCleaningPrice(plats);
   const contentSpacer = showsFixedPrice ? cleaningPriceBarSpacerClassName : "";
 
-  const infoComplete = isCleaningInfoComplete(squareMeters, hasPets);
+  const infoComplete = isCleaningInfoComplete(
+    squareMeters,
+    hasPets,
+    plats,
+    windowCount,
+  );
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -83,10 +92,11 @@ export function CleaningExpertForm({
           kommun,
           plats,
           bookingPath: "expert",
-          squareMeters: Number(squareMeters),
+          squareMeters:
+            plats === "fonster" ? Number(windowCount) || 1 : Number(squareMeters),
           hasPets,
           frequency,
-          tidying,
+          tidying: "nej",
           weekdayPreference,
           contactPreference,
           name,
@@ -94,6 +104,9 @@ export function CleaningExpertForm({
           email,
           address,
           message,
+          addons,
+          windowCount: Number(windowCount) || 0,
+          windowMode,
         }),
       });
 
@@ -149,14 +162,17 @@ export function CleaningExpertForm({
         onHasPetsChange={setHasPets}
         frequency={frequency}
         onFrequencyChange={setFrequency}
-        tidying={tidying}
-        onTidyingChange={setTidying}
         weekdayPreference={weekdayPreference}
         onWeekdayPreferenceChange={setWeekdayPreference}
         squareMetersLabel={copy.squareMetersLabel}
         petsLabel={copy.petsLabel}
-        tidyingDescription={copy.tidyingDescription}
         propertyType={plats}
+        addons={addons}
+        onAddonsChange={setAddons}
+        windowCount={windowCount}
+        onWindowCountChange={setWindowCount}
+        windowMode={windowMode}
+        onWindowModeChange={setWindowMode}
         storstadBookingHref={
           isHomeCleaningBooking(plats)
             ? buildBookingSearchUrl({
@@ -269,11 +285,15 @@ export function CleaningExpertForm({
     </form>
     {showsFixedPrice ? (
       <CleaningPriceBar
-        squareMeters={squareMeters}
+        squareMeters={plats === "fonster" ? "50" : squareMeters}
         hasPets={hasPets}
         frequency={frequency}
-        tidying={tidying}
+        tidying="nej"
         weekdayPreference={weekdayPreference}
+        propertyType={plats}
+        addons={addons}
+        windowCount={Number(windowCount) || 0}
+        windowMode={windowMode}
       />
     ) : null}
     </>
