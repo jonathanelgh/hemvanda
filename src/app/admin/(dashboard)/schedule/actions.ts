@@ -11,6 +11,7 @@ import type { BookingVisitItem } from "@/lib/admin/schedule";
 import { ensureCustomerAccount } from "@/lib/auth/customer-account";
 import type { AdminScheduleBookingInput } from "@/lib/admin/schedule-booking";
 import { saveAdminScheduleBooking } from "@/lib/db/bookings";
+import { notifyStaffAssignedToVisit } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -72,6 +73,15 @@ export async function assignVisitStaffAction(
     }
   }
 
+  const visit = await getVisitForAction(visitId);
+
+  if (!visit) {
+    return { ok: false, error: "Besöket hittades inte." };
+  }
+
+  const previousStaffId = visit.staff_id;
+  const isNewAssignment = Boolean(staffId && staffId !== previousStaffId);
+
   const { error } = await admin
     .from("cleaning_visits")
     .update({ staff_id: staffId })
@@ -79,6 +89,10 @@ export async function assignVisitStaffAction(
 
   if (error) {
     return { ok: false, error: "Kunde inte uppdatera tilldelningen." };
+  }
+
+  if (isNewAssignment) {
+    await notifyStaffAssignedToVisit(visitId);
   }
 
   revalidateSchedule(weekStartKey);

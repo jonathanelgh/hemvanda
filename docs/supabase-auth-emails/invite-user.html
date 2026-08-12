@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Du är inbjuden</title>
+</head>
+<body style="margin:0;padding:0;background:#f8f5ef;font-family:Arial,Helvetica,sans-serif;color:#1f2421;">
+  <span style="display:none!important;visibility:hidden;opacity:0;height:0;width:0;overflow:hidden;">Du har blivit inbjuden till HemVändas adminpanel.</span>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8f5ef;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fffaf2;border:1px solid #e7e1d6;border-radius:16px;overflow:hidden;">
+          <tr>
+            <td style="background:#2f3a33;padding:28px 32px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.2;color:#ffffff;letter-spacing:0.02em;">HemVända</p>
+              <p style="margin:8px 0 0;font-size:14px;line-height:1.5;color:#cbbba6;">Vi ger hem nytt liv</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#c9a46a;">Team</p>
+              <h1 style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.25;color:#2f3a33;font-weight:600;">Du är inbjuden</h1>
+              {{ if .Data.full_name }}
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#2f3a33;">Hej {{ .Data.full_name }}!</p>
+              {{ else }}
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#2f3a33;">Hej!</p>
+              {{ end }}
+              <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#2f3a33;">Du har blivit inbjuden att skapa ett konto i HemVändas adminpanel. Klicka nedan för att acceptera inbjudan och slutföra registreringen.</p>
+              <p style="margin:0 0 28px;">
+                <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#c9a46a;color:#2f3a33;text-decoration:none;font-size:15px;font-weight:700;padding:14px 28px;border-radius:999px;">Acceptera inbjudan</a>
+              </p>
+              <p style="margin:0;font-size:14px;line-height:1.65;color:#6f726b;">Länken gäller en begränsad tid. Mejlet skickades till {{ .Email }}.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px 28px;">
+              <p style="margin:0;font-size:13px;line-height:1.6;color:#6f726b;">
+                Frågor? <a href="mailto:info@hemvanda.se" style="color:#c9a46a;text-decoration:none;">info@hemvanda.se</a>
+                · <a href="https://hemvanda.se" style="color:#c9a46a;text-decoration:none;">hemvanda.se</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

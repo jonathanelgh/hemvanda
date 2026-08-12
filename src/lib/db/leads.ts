@@ -14,6 +14,10 @@ import {
   type WindowBookingMode,
 } from "@/lib/booking";
 import { ensureCustomerAccount } from "@/lib/auth/customer-account";
+import {
+  notifyCleaningInquiryReceived,
+  notifyServiceInquiryReceived,
+} from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -169,6 +173,22 @@ export async function saveCleaningLead(input: CleaningLeadInput) {
     municipality: input.municipality,
   });
 
+  await notifyCleaningInquiryReceived({
+    leadId: lead.id,
+    serviceSlug: input.serviceSlug,
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    postalCode,
+    municipality: input.municipality,
+    address: input.address,
+    squareMeters: input.squareMeters,
+    frequency: input.frequency,
+    propertyType: input.propertyType,
+    message: combinedMessage,
+    priceKr: quote?.total ?? null,
+  });
+
   return {
     leadId: lead.id,
     quotedMonthlyPriceOre: quote ? Math.round(quote.total * 100) : null,
@@ -218,6 +238,18 @@ export async function saveServiceLead(input: ServiceLeadInput) {
     email: input.email,
     postalCode,
     municipality: input.municipality,
+  });
+
+  await notifyServiceInquiryReceived({
+    leadId: lead.id,
+    serviceSlug: input.serviceSlug,
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    postalCode,
+    municipality: input.municipality,
+    timeframe: input.timeframe,
+    message: input.message.trim(),
   });
 
   return lead.id;

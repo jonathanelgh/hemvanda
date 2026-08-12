@@ -18,6 +18,11 @@ import {
   isCleaningServiceSlug,
   usesCalculatedCleaningPrice,
 } from "@/lib/admin/schedule-booking";
+import {
+  notifyCleaningBookingCreated,
+  notifyServiceBookingCreated,
+  notifyStaffAssignedToVisit,
+} from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   getAvailableTimesForDate,
@@ -185,6 +190,23 @@ export async function saveCleaningBooking(input: CleaningBookingInput) {
     municipality: input.municipality,
   });
 
+  await notifyCleaningBookingCreated({
+    bookingId: booking.id,
+    serviceSlug: input.serviceSlug,
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    postalCode,
+    municipality: input.municipality,
+    address: input.address,
+    squareMeters: input.squareMeters,
+    frequency: input.frequency,
+    propertyType: input.propertyType,
+    preferredDate: input.preferredDate,
+    preferredTime: input.preferredTime,
+    priceKr: quote.total,
+  });
+
   return booking.id;
 }
 
@@ -204,20 +226,30 @@ async function insertSingleScheduleVisit(
 ) {
   const supabase = createAdminClient();
 
-  const { error } = await supabase.from("cleaning_visits").insert({
-    booking_id: bookingId,
-    visit_date: input.visitDate,
-    visit_time: toDbTime(input.visitTime),
-    sequence_number: 1,
-    status: "scheduled",
-    staff_id: input.staffId ?? null,
-    note: input.note?.trim() || null,
-    duration_minutes: input.durationMinutes ?? 120,
-  });
+  const { data: visit, error } = await supabase
+    .from("cleaning_visits")
+    .insert({
+      booking_id: bookingId,
+      visit_date: input.visitDate,
+      visit_time: toDbTime(input.visitTime),
+      sequence_number: 1,
+      status: "scheduled",
+      staff_id: input.staffId ?? null,
+      note: input.note?.trim() || null,
+      duration_minutes: input.durationMinutes ?? 120,
+    })
+    .select("id")
+    .single();
 
-  if (error) {
+  if (error || !visit) {
     throw new Error("Kunde inte skapa schemalagt besök.");
   }
+
+  if (input.staffId) {
+    await notifyStaffAssignedToVisit(visit.id);
+  }
+
+  return visit.id;
 }
 
 async function updateFirstCleaningVisit(
@@ -254,12 +286,18 @@ async function updateFirstCleaningVisit(
     return;
   }
 
-  await supabase
+  const { data: visit } = await supabase
     .from("cleaning_visits")
     .update(visitUpdate)
     .eq("booking_id", bookingId)
     .eq("visit_date", input.visitDate)
-    .eq("visit_time", visitTime);
+    .eq("visit_time", visitTime)
+    .select("id")
+    .maybeSingle();
+
+  if (visit?.id && input.staffId) {
+    await notifyStaffAssignedToVisit(visit.id);
+  }
 }
 
 async function linkBookingProfile(
@@ -398,6 +436,28 @@ async function saveAdminCleaningScheduleBooking(input: AdminScheduleBookingInput
 
   await linkBookingProfile(booking.id, input, postalCode);
 
+  const priceKr =
+    quote?.total ??
+    (input.pricingMode === "fixed" && input.fixedPriceKr ? input.fixedPriceKr : null);
+
+  await notifyCleaningBookingCreated({
+    bookingId: booking.id,
+    serviceSlug: input.serviceSlug,
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    postalCode,
+    municipality: input.municipality,
+    address: input.address,
+    squareMeters: input.squareMeters,
+    frequency: input.frequency!,
+    propertyType,
+    preferredDate: input.visitDate,
+    preferredTime: input.visitTime,
+    priceKr,
+    isConfirmed: true,
+  });
+
   return booking.id;
 }
 
@@ -465,6 +525,24 @@ async function saveAdminServiceScheduleBooking(input: AdminScheduleBookingInput)
   });
 
   await linkBookingProfile(booking.id, input, postalCode);
+
+  const priceKr =
+    input.pricingMode === "fixed" && input.fixedPriceKr ? input.fixedPriceKr : null;
+
+  await notifyServiceBookingCreated({
+    bookingId: booking.id,
+    serviceSlug: input.serviceSlug,
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    postalCode,
+    municipality: input.municipality,
+    address: input.address,
+    message: input.message.trim(),
+    visitDate: input.visitDate,
+    visitTime: input.visitTime,
+    priceKr,
+  });
 
   return booking.id;
 }
