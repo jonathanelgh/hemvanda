@@ -27,6 +27,7 @@ import {
   type PetAnswer,
   type TidyingOption,
 } from "@/lib/booking";
+import { MAX_CLEANING_SQM, MIN_CLEANING_SQM } from "@/lib/cleaning-pricing";
 import { services } from "@/lib/services";
 
 type ScheduleCreateBookingModalProps = {
@@ -151,6 +152,16 @@ export function ScheduleCreateBookingModal({
     const parsedDuration = Number(durationMinutes);
     const parsedFixedPrice = fixedPriceKr ? Number(fixedPriceKr) : undefined;
     const needsManualPricing = requiresManualPricing(serviceSlug, cleaningPropertyType);
+
+    if (
+      isCleaningServiceSlug(serviceSlug) &&
+      (Number.isNaN(parsedSquareMeters) ||
+        parsedSquareMeters < MIN_CLEANING_SQM ||
+        parsedSquareMeters > MAX_CLEANING_SQM)
+    ) {
+      setError(`Ange en yta mellan ${MIN_CLEANING_SQM} och ${MAX_CLEANING_SQM} kvm.`);
+      return;
+    }
 
     startTransition(async () => {
       const weekStartKey = resolveWeekStartKey(visitDate);

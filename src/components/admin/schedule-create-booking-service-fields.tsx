@@ -20,7 +20,13 @@ import {
   type PetAnswer,
   type TidyingOption,
 } from "@/lib/booking";
-import { calculateCleaningPrice, formatKr } from "@/lib/cleaning-pricing";
+import {
+  calculateCleaningPrice,
+  formatKr,
+  MAX_CLEANING_SQM,
+  MIN_CLEANING_SQM,
+  sanitizeSquareMetersInput,
+} from "@/lib/cleaning-pricing";
 
 const inputClassName =
   "mt-1 w-full rounded-xl border border-green/15 bg-white px-4 py-3 text-sm text-green outline-none transition focus:border-gold";
@@ -218,9 +224,12 @@ export function ScheduleCreateBookingServiceFields({
               <FieldLabel>{cleaningCopy.squareMetersLabel}</FieldLabel>
               <input
                 type="number"
-                min={10}
+                min={MIN_CLEANING_SQM}
+                max={MAX_CLEANING_SQM}
                 value={squareMeters}
-                onChange={(event) => onSquareMetersChange(event.target.value)}
+                onChange={(event) =>
+                  onSquareMetersChange(sanitizeSquareMetersInput(event.target.value))
+                }
                 className={inputClassName}
               />
             </label>

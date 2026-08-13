@@ -2,7 +2,7 @@ import {
   cleaningPropertyOptions,
   WEB_BOOKING_SERVICE_SLUG,
 } from "@/lib/booking";
-import { services } from "@/lib/services";
+import { getBookingModalServices } from "@/lib/services";
 
 type BookingCtaProps = {
   compact?: boolean;
@@ -15,6 +15,7 @@ export function BookingCta({
   defaultService,
   formId = "boka",
 }: BookingCtaProps) {
+  const bookableServices = getBookingModalServices();
   const hasFixedService = Boolean(defaultService);
   const isCleaningService = defaultService === WEB_BOOKING_SERVICE_SLUG;
   const selectionMode = isCleaningService
@@ -22,7 +23,7 @@ export function BookingCta({
     : hasFixedService
       ? "fixed"
       : "services";
-  const initialService = defaultService ?? services[0]?.slug ?? "";
+  const initialService = defaultService ?? bookableServices[0]?.slug ?? "";
   const serviceInputName = `${formId}-service`;
   const isLocationMode = selectionMode === "locations";
   const showLocationStepInitially = isLocationMode;
@@ -198,7 +199,7 @@ export function BookingCta({
           >
             <div className="flex-1 overflow-y-auto p-5 md:p-6">
               <div className="grid gap-3">
-                {services.map((service) => (
+                {bookableServices.map((service) => (
                   <label
                     key={service.slug}
                     className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-green/10 bg-white px-4 py-4 text-left text-sm text-green/80 transition has-checked:border-gold has-checked:bg-ivory has-checked:text-green hover:border-gold/50"

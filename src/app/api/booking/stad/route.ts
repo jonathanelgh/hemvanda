@@ -18,6 +18,7 @@ import {
 } from "@/lib/booking";
 import { saveCleaningBooking } from "@/lib/db/bookings";
 import { saveCleaningLead } from "@/lib/db/leads";
+import { MAX_CLEANING_SQM, MIN_CLEANING_SQM } from "@/lib/cleaning-pricing";
 import { isTimeAvailableForBooking } from "@/lib/db/weekly-availability";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
@@ -93,8 +94,12 @@ function validateCleaningInfo(payload: CleaningBookingPayload) {
     if (!payload.windowCount || payload.windowCount < 1) {
       return "Ange antal fönster.";
     }
-  } else if (!payload.squareMeters || payload.squareMeters < 10) {
-    return "Ange bostadsyta i kvm.";
+  } else if (
+    !payload.squareMeters ||
+    payload.squareMeters < MIN_CLEANING_SQM ||
+    payload.squareMeters > MAX_CLEANING_SQM
+  ) {
+    return `Ange bostadsyta mellan ${MIN_CLEANING_SQM} och ${MAX_CLEANING_SQM} kvm.`;
   }
 
   if (payload.hasPets !== "ja" && payload.hasPets !== "nej") {

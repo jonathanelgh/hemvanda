@@ -48,38 +48,65 @@ export const ADDON_PRICES = {
 const PET_SURCHARGE = 149;
 const WEEKDAY_SURCHARGE = 49;
 const DEFAULT_SQM = 50;
+export const MIN_CLEANING_SQM = 10;
+export const MAX_CLEANING_SQM = 500;
 
-const HEMSTAD_PER_VISIT: Record<
-  "49" | "50" | "100",
-  Record<"varje-vecka" | "varannan-vecka" | "var-fjarde-vecka", number>
-> = {
-  "49": {
-    "var-fjarde-vecka": 1409,
-    "varannan-vecka": 764,
-    "varje-vecka": 707,
-  },
-  "50": {
-    "var-fjarde-vecka": 1409,
-    "varannan-vecka": 949,
-    "varje-vecka": 857,
-  },
-  "100": {
-    "var-fjarde-vecka": 1799,
-    "varannan-vecka": 1280,
-    "varje-vecka": 1130,
-  },
-};
+/** Begränsar kvm-input till max 500. Tom sträng tillåts medan man skriver. */
+export function sanitizeSquareMetersInput(value: string) {
+  if (value.trim() === "") return "";
 
-const STORSTAD_TIERS: { maxSqm: number; price: number }[] = [
-  { maxSqm: 50, price: 2290 },
-  { maxSqm: 100, price: 3690 },
-  { maxSqm: 120, price: 4290 },
-  { maxSqm: 150, price: 5090 },
+  const digits = value.replace(/[^\d]/g, "");
+  if (digits === "") return "";
+
+  const parsed = Number(digits);
+  if (Number.isNaN(parsed)) return "";
+
+  return String(Math.min(parsed, MAX_CLEANING_SQM));
+}
+
+type HemstadFrequency = "varje-vecka" | "varannan-vecka" | "var-fjarde-vecka";
+
+/** Riktpriser per kvm – mellanliggande ytor interpoleras linjärt. */
+const HEMSTAD_ANCHORS: {
+  sqm: number;
+  prices: Record<HemstadFrequency, number>;
+}[] = [
+  {
+    sqm: 49,
+    prices: {
+      "var-fjarde-vecka": 1409,
+      "varannan-vecka": 764,
+      "varje-vecka": 707,
+    },
+  },
+  {
+    sqm: 50,
+    prices: {
+      "var-fjarde-vecka": 1409,
+      "varannan-vecka": 949,
+      "varje-vecka": 857,
+    },
+  },
+  {
+    sqm: 100,
+    prices: {
+      "var-fjarde-vecka": 1799,
+      "varannan-vecka": 1280,
+      "varje-vecka": 1130,
+    },
+  },
 ];
 
-const FLYTTSTAD_TIERS: { maxSqm: number; price: number }[] = [
-  { maxSqm: 50, price: 3499 },
-  { maxSqm: 100, price: 5600 },
+const STORSTAD_ANCHORS: { sqm: number; price: number }[] = [
+  { sqm: 50, price: 2290 },
+  { sqm: 100, price: 3690 },
+  { sqm: 120, price: 4290 },
+  { sqm: 150, price: 5090 },
+];
+
+const FLYTTSTAD_ANCHORS: { sqm: number; price: number }[] = [
+  { sqm: 50, price: 3499 },
+  { sqm: 100, price: 5600 },
 ];
 
 const frequencyConfig: Record<
@@ -100,40 +127,89 @@ export function formatKr(amount: number) {
 
 function resolveSquareMeters(squareMeters: string) {
   const parsed = Number(squareMeters);
-  if (!squareMeters.trim() || Number.isNaN(parsed) || parsed < 10) {
+  if (!squareMeters.trim() || Number.isNaN(parsed) || parsed < MIN_CLEANING_SQM) {
     return { sqm: DEFAULT_SQM, isEstimate: true };
   }
 
-  return { sqm: parsed, isEstimate: false };
+  return {
+    sqm: Math.min(Math.round(parsed), MAX_CLEANING_SQM),
+    isEstimate: false,
+  };
 }
 
-function hemstadTier(sqm: number): "49" | "50" | "100" {
-  if (sqm <= 49) return "49";
-  if (sqm <= 99) return "50";
-  return "100";
-}
-
-function tierPrice(
+/**
+ * Beräknar pris från riktpunkter (kvm → pris).
+ * - Under första punkten: samma pris som första punkten
+ * - Mellan punkter: linjär interpolering per kvm
+ * - Över sista punkten: extrapolering med samma lutning som sista segmentet
+ */
+function priceFromAnchors(
   sqm: number,
-  tiers: { maxSqm: number; price: number }[],
+  anchors: { sqm: number; price: number }[],
 ): { price: number; isEstimate: boolean; label: string } {
-  for (const tier of tiers) {
-    if (sqm <= tier.maxSqm) {
+  if (anchors.length === 0) {
+    throw new Error("Saknar prisriktpunkter.");
+  }
+
+  const first = anchors[0]!;
+  const last = anchors[anchors.length - 1]!;
+
+  if (sqm <= first.sqm) {
+    return {
+      price: first.price,
+      isEstimate: false,
+      label: sqm === first.sqm ? `${sqm} kvm` : `upp till ${first.sqm} kvm`,
+    };
+  }
+
+  for (let i = 0; i < anchors.length - 1; i += 1) {
+    const from = anchors[i]!;
+    const to = anchors[i + 1]!;
+
+    if (sqm <= to.sqm) {
+      if (sqm === to.sqm) {
+        return { price: to.price, isEstimate: false, label: `${sqm} kvm` };
+      }
+
+      const t = (sqm - from.sqm) / (to.sqm - from.sqm);
+      const price = Math.round(from.price + t * (to.price - from.price));
+
       return {
-        price: tier.price,
+        price,
         isEstimate: false,
-        label: `Upp till ${tier.maxSqm} kvm`,
+        label: `${sqm} kvm`,
       };
     }
   }
 
-  const last = tiers[tiers.length - 1]!;
-  const scaled = Math.round((last.price / last.maxSqm) * sqm);
+  if (anchors.length === 1) {
+    const rate = last.price / last.sqm;
+    return {
+      price: Math.round(rate * sqm),
+      isEstimate: true,
+      label: `${sqm} kvm`,
+    };
+  }
+
+  const prev = anchors[anchors.length - 2]!;
+  const rate = (last.price - prev.price) / (last.sqm - prev.sqm);
+  const price = Math.round(last.price + (sqm - last.sqm) * rate);
+
   return {
-    price: scaled,
+    price,
     isEstimate: true,
-    label: `${sqm} kvm (beräknat från ${last.maxSqm} kvm)`,
+    label: `${sqm} kvm`,
   };
+}
+
+function hemstadPerVisit(sqm: number, frequency: HemstadFrequency) {
+  return priceFromAnchors(
+    sqm,
+    HEMSTAD_ANCHORS.map((anchor) => ({
+      sqm: anchor.sqm,
+      price: anchor.prices[frequency],
+    })),
+  );
 }
 
 function addonLines(addons?: CleaningAddons, windowCount = 0): CleaningPriceLine[] {
@@ -203,7 +279,7 @@ export function calculateCleaningPrice(input: CleaningPricingInput): CleaningPri
       amount: perVisit,
     });
   } else if (propertyType === "storstad" || input.frequency === "storstadning") {
-    const tier = tierPrice(sqm, STORSTAD_TIERS);
+    const tier = priceFromAnchors(sqm, STORSTAD_ANCHORS);
     perVisit = tier.price;
     isOneTime = true;
     visitsPerMonth = 1;
@@ -214,7 +290,7 @@ export function calculateCleaningPrice(input: CleaningPricingInput): CleaningPri
       amount: tier.price,
     });
   } else if (propertyType === "flyttstad" || input.frequency === "flyttstadning") {
-    const tier = tierPrice(sqm, FLYTTSTAD_TIERS);
+    const tier = priceFromAnchors(sqm, FLYTTSTAD_ANCHORS);
     perVisit = tier.price;
     isOneTime = true;
     visitsPerMonth = 1;
@@ -225,21 +301,20 @@ export function calculateCleaningPrice(input: CleaningPricingInput): CleaningPri
       amount: tier.price,
     });
   } else {
-    const tier = hemstadTier(sqm);
-    const freq =
+    const freq: HemstadFrequency =
       input.frequency === "varje-vecka" ||
       input.frequency === "varannan-vecka" ||
       input.frequency === "var-fjarde-vecka"
         ? input.frequency
         : "varannan-vecka";
-    perVisit = HEMSTAD_PER_VISIT[tier][freq];
+    const quote = hemstadPerVisit(sqm, freq);
+    perVisit = quote.price;
     visitsPerMonth = frequencyConfig[freq].visitsPerMonth;
     isOneTime = false;
+    isEstimate = isEstimate || quote.isEstimate;
     priceLabel = "Pris per månad";
-    const tierLabel =
-      tier === "49" ? "upp till 49 kvm" : tier === "50" ? "50–99 kvm" : "från 100 kvm";
     lines.push({
-      label: `Hemstädning ${frequencyLabel.toLowerCase()} (${tierLabel})`,
+      label: `Hemstädning ${frequencyLabel.toLowerCase()} (${quote.label})`,
       amount: perVisit,
     });
   }

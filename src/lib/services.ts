@@ -270,9 +270,16 @@ export const services: Service[] = [
 ];
 
 const NAV_HIDDEN_SERVICE_SLUGS = new Set(["ovriga-tjanster", "inredning"]);
+const BOOKING_MODAL_HIDDEN_SERVICE_SLUGS = new Set(["inredning"]);
 
 export function getNavServices() {
   return services.filter((service) => !NAV_HIDDEN_SERVICE_SLUGS.has(service.slug));
+}
+
+export function getBookingModalServices() {
+  return services.filter(
+    (service) => !BOOKING_MODAL_HIDDEN_SERVICE_SLUGS.has(service.slug),
+  );
 }
 
 export function getService(slug: string) {

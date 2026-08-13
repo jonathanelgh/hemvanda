@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { bookingSectionClassName } from "@/components/booking/booking-styles";
 import { CheckIcon } from "@/components/booking/check-icon";
-import { ADDON_PRICES } from "@/lib/cleaning-pricing";
+import {
+  ADDON_PRICES,
+  MAX_CLEANING_SQM,
+  MIN_CLEANING_SQM,
+  sanitizeSquareMetersInput,
+} from "@/lib/cleaning-pricing";
 import {
   cleaningFrequencyPlans,
   weekdayPreferenceOptions,
@@ -175,14 +180,19 @@ export function CleaningInfoSections({
           <FieldLegend label={squareMetersLabel} required />
           <input
             type="number"
-            min={10}
-            max={500}
+            min={MIN_CLEANING_SQM}
+            max={MAX_CLEANING_SQM}
             required
             value={squareMeters}
-            onChange={(event) => onSquareMetersChange(event.target.value)}
+            onChange={(event) =>
+              onSquareMetersChange(sanitizeSquareMetersInput(event.target.value))
+            }
             placeholder="t.ex. 78"
             className={fieldClassName}
           />
+          <p className="mt-2 text-sm text-muted">
+            Ange yta mellan {MIN_CLEANING_SQM} och {MAX_CLEANING_SQM} kvm.
+          </p>
 
           <div className="mt-6">
             <FieldLegend label={petsLabel} required />
@@ -371,5 +381,9 @@ export function isCleaningInfoComplete(
     return Boolean(windowCount?.trim()) && Number(windowCount) >= 1;
   }
 
-  return squareMeters.trim() !== "" && Number(squareMeters) >= 10;
+  return (
+    squareMeters.trim() !== "" &&
+    Number(squareMeters) >= MIN_CLEANING_SQM &&
+    Number(squareMeters) <= MAX_CLEANING_SQM
+  );
 }

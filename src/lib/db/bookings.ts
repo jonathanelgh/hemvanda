@@ -1,5 +1,5 @@
 import { normalizeZipCode } from "@/lib/coverage";
-import { calculateCleaningPrice } from "@/lib/cleaning-pricing";
+import { calculateCleaningPrice, MAX_CLEANING_SQM, MIN_CLEANING_SQM } from "@/lib/cleaning-pricing";
 import {
   formatCleaningPropertyMessage,
   type CleaningAddons,
@@ -336,8 +336,14 @@ async function saveAdminCleaningScheduleBooking(input: AdminScheduleBookingInput
     propertyType,
   );
 
-  if (!input.squareMeters || input.squareMeters < 10) {
-    throw new Error("Ange en giltig yta (minst 10 kvm).");
+  if (
+    !input.squareMeters ||
+    input.squareMeters < MIN_CLEANING_SQM ||
+    input.squareMeters > MAX_CLEANING_SQM
+  ) {
+    throw new Error(
+      `Ange en giltig yta (${MIN_CLEANING_SQM}–${MAX_CLEANING_SQM} kvm).`,
+    );
   }
 
   if (!input.hasPets || !input.frequency || !input.tidying) {
