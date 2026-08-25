@@ -1,38 +1,42 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EmailLoginForm } from "@/components/auth/email-login-form";
+import { redirect } from "next/navigation";
+import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { BrandLogo } from "@/components/brand-logo";
 import { BRAND_NAME } from "@/lib/brand";
-import { redirectIfCustomerLoggedIn } from "@/lib/auth/customer";
-import { resolveSafeRedirectPath } from "@/lib/auth/login-redirect";
+import { getCustomerSession } from "@/lib/auth/customer";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: `Logga in | ${BRAND_NAME}`,
-  description: `Logga in på Mitt ${BRAND_NAME} med e-post och lösenord eller en säker inloggningslänk.`,
+  title: `Nytt lösenord | ${BRAND_NAME}`,
+  description: `Välj ett nytt lösenord för Mitt ${BRAND_NAME}.`,
 };
 
-type LoginPageProps = {
-  searchParams: Promise<{
-    next?: string;
-    email?: string;
-    error?: string;
-  }>;
-};
+export default async function NewPasswordPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-function loginErrorMessage(error?: string) {
-  if (error === "link_expired") {
-    return "Inloggningslänken har gått ut eller redan använts. Begär en ny länk nedan.";
+  if (!user) {
+    redirect("/glomt-losenord?error=link_expired");
   }
 
-  return null;
-}
+  const session = await getCustomerSession();
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const params = await searchParams;
-  const redirectTo = resolveSafeRedirectPath(params.next);
-  const authError = loginErrorMessage(params.error);
+  // Team accounts should not reset via the customer flow.
+  if (!session.profile) {
+    const { data: teamMember } = await supabase
+      .from("team_members")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .maybeSingle();
 
-  await redirectIfCustomerLoggedIn(redirectTo);
+    if (teamMember) {
+      redirect("/admin");
+    }
+  }
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(201,164,106,0.22),transparent_32%),linear-gradient(135deg,#f8f5ef,#e7e1d6)] px-4 py-8 text-green">
@@ -53,24 +57,16 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Mitt {BRAND_NAME}
             </p>
             <h1 className="mt-5 max-w-2xl font-display text-6xl leading-none md:text-8xl">
-              Välkommen tillbaka.
+              Nästan klart.
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-muted">
-              Mitt {BRAND_NAME} samlar dina bokningar och uppgifter. Logga in med
-              samma e-post som vid bokning – med lösenord eller en säker länk.
+              Välj ett lösenord du kommer ihåg. Sedan kan du logga in med e-post
+              och lösenord när du vill.
             </p>
           </section>
 
           <section className="rounded-xl border border-green/10 bg-card p-6 shadow-[0_24px_80px_rgba(47,58,51,0.14)] md:p-10">
-            {authError ? (
-              <p className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                {authError}
-              </p>
-            ) : null}
-            <EmailLoginForm
-              redirectTo={redirectTo}
-              initialEmail={params.email}
-            />
+            <ResetPasswordForm />
           </section>
         </div>
       </div>

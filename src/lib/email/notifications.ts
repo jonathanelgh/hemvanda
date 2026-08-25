@@ -549,3 +549,48 @@ export async function notifyStaffAssignedToVisit(visitId: string) {
     html,
   });
 }
+
+export type AdminCustomerChangeInput = {
+  title: string;
+  summary: string;
+  customerName: string;
+  customerEmail?: string | null;
+  customerPhone?: string | null;
+  bookingId?: string | null;
+  rows?: { label: string; value: string }[];
+};
+
+export async function notifyAdminCustomerChange(input: AdminCustomerChangeInput) {
+  const detailRows = [
+    { label: "Kund", value: input.customerName },
+    ...(input.customerEmail
+      ? [{ label: "E-post", value: input.customerEmail }]
+      : []),
+    ...(input.customerPhone
+      ? [{ label: "Telefon", value: input.customerPhone }]
+      : []),
+    ...(input.rows ?? []),
+  ];
+
+  const html = wrapEmailHtml({
+    title: input.title,
+    preheader: input.summary,
+    bodyHtml: [
+      emailHeading(input.title),
+      emailParagraph(input.summary),
+      emailDetailsTable(detailRows),
+      emailButton(
+        input.bookingId ? "Öppna bokning" : "Öppna admin",
+        input.bookingId
+          ? `${SITE_URL}/admin/bookings/${input.bookingId}`
+          : `${SITE_URL}/admin/customers`,
+      ),
+    ].join(""),
+  });
+
+  await sendEmailSafely("Admin customer change notification", {
+    to: getInternalNotificationEmail(),
+    subject: `${input.title}: ${input.customerName}`,
+    html,
+  });
+}

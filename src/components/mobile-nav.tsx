@@ -3,15 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { getNavServices, services } from "@/lib/services";
+import { getNavServices } from "@/lib/services";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  const otherServices = services.find(
-    (service) => service.slug === "ovriga-tjanster",
-  );
   const primaryServices = getNavServices();
 
   useEffect(() => {
@@ -60,11 +57,11 @@ export function MobileNav() {
     <div className="fixed inset-0 z-[45] lg:hidden">
       <button
         type="button"
-        className="absolute inset-0 top-20 bg-green/30 backdrop-blur-sm"
+        className="absolute inset-0 top-[7.25rem] bg-green/30 backdrop-blur-sm"
         aria-label="Stäng meny"
         onClick={closeMenu}
       />
-      <nav className="absolute inset-x-0 top-20 z-10 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-b border-green/10 bg-background px-4 py-6 shadow-[0_24px_70px_rgba(47,58,51,0.12)] sm:px-6">
+      <nav className="absolute inset-x-0 top-[7.25rem] z-10 max-h-[calc(100dvh-7.25rem)] overflow-y-auto overscroll-contain border-b border-green/10 bg-background px-4 py-6 shadow-[0_24px_70px_rgba(47,58,51,0.12)] sm:px-6">
         <div className="space-y-1">
           {primaryServices.map((service) => (
             <Link
@@ -76,32 +73,6 @@ export function MobileNav() {
               {service.title}
             </Link>
           ))}
-
-          {otherServices ? (
-            <div className="pt-2">
-              <Link
-                href={`/tjanster/${otherServices.slug}`}
-                onClick={closeMenu}
-                className="block rounded-lg px-4 py-3 text-base font-semibold text-green transition hover:bg-ivory hover:text-gold"
-              >
-                {otherServices.title}
-              </Link>
-              <div className="mt-1 space-y-1 pl-3">
-                {otherServices.subServices?.map((item) => (
-                  <Link
-                    key={item}
-                    href={`/tjanster/${otherServices.slug}#${item
-                      .toLowerCase()
-                      .replaceAll(" ", "-")}`}
-                    onClick={closeMenu}
-                    className="block rounded-lg px-4 py-2.5 text-sm font-medium text-green/75 transition hover:bg-ivory hover:text-gold"
-                  >
-                    {item}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ) : null}
 
           <Link
             href="/om-oss"

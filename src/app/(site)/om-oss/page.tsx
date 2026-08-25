@@ -5,7 +5,7 @@ import { PageHero } from "@/components/page-hero";
 import { SectionHeading } from "@/components/sections";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
+import { BRAND_NAME, BRAND_PHONE_DISPLAY, BRAND_PHONE_E164, BRAND_TAGLINE } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: `Om oss | ${BRAND_NAME}`,
@@ -220,10 +220,10 @@ export default function AboutPage() {
                     </a>
                     <br />
                     <a
-                      href="tel:0701234567"
+                      href={`tel:${BRAND_PHONE_E164}`}
                       className="font-semibold text-white transition hover:text-gold"
                     >
-                      070 123 45 67
+                      {BRAND_PHONE_DISPLAY}
                     </a>
                   </dd>
                 </div>

@@ -13,6 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/villkor",
     "/integritet",
     "/logga-in",
+    "/glomt-losenord",
     ...services.map((service) => `/tjanster/${service.slug}`),
   ];
 

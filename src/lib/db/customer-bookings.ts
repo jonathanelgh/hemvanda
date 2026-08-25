@@ -5,6 +5,7 @@ const bookingTypeLabels: Record<string, string> = {
   cleaning_direct: "Direktbokning",
   cleaning_expert: "Expertförfrågan",
   service_inquiry: "Förfrågan",
+  service_booking: "Tjänstebokning",
 };
 
 const statusLabels: Record<string, string> = {
@@ -20,6 +21,9 @@ export type CustomerVisit = {
   visitDate: string;
   visitTime: string;
   sequenceNumber: number;
+  status: string;
+  note: string | null;
+  canModify: boolean;
 };
 
 export type CustomerBooking = {
@@ -33,11 +37,13 @@ export type CustomerBooking = {
   municipality: string;
   postalCode: string;
   streetAddress: string | null;
+  message: string | null;
   frequency: string | null;
   frequencyLabel: string | null;
   preferredDate: string | null;
   preferredTime: string | null;
   upcomingVisits: CustomerVisit[];
+  canCancelBooking: boolean;
 };
 
 function formatTime(time: string | null) {
@@ -48,11 +54,15 @@ function formatTime(time: string | null) {
   return time.slice(0, 5);
 }
 
-export async function getCustomerBookings(profileId: string) {
-  const supabase = await createClient();
-  const today = new Intl.DateTimeFormat("en-CA", {
+function stockholmToday() {
+  return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Stockholm",
   }).format(new Date());
+}
+
+export async function getCustomerBookings(profileId: string) {
+  const supabase = await createClient();
+  const today = stockholmToday();
 
   const { data, error } = await supabase
     .from("bookings")
@@ -66,6 +76,7 @@ export async function getCustomerBookings(profileId: string) {
       municipality,
       postal_code,
       street_address,
+      message,
       cleaning_booking_details (
         preferred_date,
         preferred_time,
@@ -76,7 +87,8 @@ export async function getCustomerBookings(profileId: string) {
         visit_date,
         visit_time,
         sequence_number,
-        status
+        status,
+        note
       )
     `,
     )
@@ -110,6 +122,9 @@ export async function getCustomerBookings(profileId: string) {
         visitDate: visit.visit_date,
         visitTime: formatTime(visit.visit_time) ?? visit.visit_time,
         sequenceNumber: visit.sequence_number,
+        status: visit.status,
+        note: visit.note,
+        canModify: visit.visit_date > today,
       }));
 
     return {
@@ -123,11 +138,45 @@ export async function getCustomerBookings(profileId: string) {
       municipality: row.municipality,
       postalCode: row.postal_code,
       streetAddress: row.street_address,
+      message: row.message,
       frequency,
       frequencyLabel: frequency ? getCleaningFrequencyLabel(frequency) : null,
       preferredDate: details?.preferred_date ?? null,
       preferredTime: formatTime(details?.preferred_time ?? null),
       upcomingVisits,
+      canCancelBooking:
+        row.status !== "cancelled" &&
+        row.status !== "completed" &&
+        upcomingVisits.some((visit) => visit.canModify),
     } satisfies CustomerBooking;
   });
+}
+
+export type CustomerAddress = {
+  streetAddress: string;
+  postalCode: string;
+  municipality: string;
+};
+
+export async function getCustomerPrimaryAddress(
+  profileId: string,
+): Promise<CustomerAddress | null> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("customer_addresses")
+    .select("street_address, postal_code, municipality")
+    .eq("profile_id", profileId)
+    .eq("is_primary", true)
+    .maybeSingle();
+
+  if (!data) {
+    return null;
+  }
+
+  return {
+    streetAddress: data.street_address,
+    postalCode: data.postal_code,
+    municipality: data.municipality,
+  };
 }

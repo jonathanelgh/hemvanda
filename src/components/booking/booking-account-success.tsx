@@ -14,8 +14,9 @@ export function BookingAccountSuccessNote({ email }: BookingAccountSuccessNotePr
     <div className="mt-6 rounded-xl border border-green/10 bg-ivory/70 p-5">
       <p className="text-sm font-semibold text-green">Ditt kundkonto är skapat</p>
       <p className="mt-2 text-sm leading-6 text-muted">
-        Vi har skapat ett konto med din e-postadress. Logga in med en
-        inloggningslänk för att se dina bokningar och uppgifter.
+        Vi har skapat ett konto med din e-postadress. Logga in med lösenord eller
+        en inloggningslänk för att se dina bokningar. Har du inte satt lösenord
+        ännu? Använd &quot;Glömt lösenord&quot; för att välja ett.
       </p>
       <Link
         href={loginHref}

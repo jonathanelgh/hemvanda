@@ -1,38 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EmailLoginForm } from "@/components/auth/email-login-form";
+import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { BrandLogo } from "@/components/brand-logo";
 import { BRAND_NAME } from "@/lib/brand";
 import { redirectIfCustomerLoggedIn } from "@/lib/auth/customer";
-import { resolveSafeRedirectPath } from "@/lib/auth/login-redirect";
 
 export const metadata: Metadata = {
-  title: `Logga in | ${BRAND_NAME}`,
-  description: `Logga in på Mitt ${BRAND_NAME} med e-post och lösenord eller en säker inloggningslänk.`,
+  title: `Glömt lösenord | ${BRAND_NAME}`,
+  description: `Återställ ditt lösenord för Mitt ${BRAND_NAME}.`,
 };
 
-type LoginPageProps = {
+type ForgotPasswordPageProps = {
   searchParams: Promise<{
-    next?: string;
     email?: string;
     error?: string;
   }>;
 };
 
-function loginErrorMessage(error?: string) {
-  if (error === "link_expired") {
-    return "Inloggningslänken har gått ut eller redan använts. Begär en ny länk nedan.";
-  }
-
-  return null;
-}
-
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+export default async function ForgotPasswordPage({
+  searchParams,
+}: ForgotPasswordPageProps) {
   const params = await searchParams;
-  const redirectTo = resolveSafeRedirectPath(params.next);
-  const authError = loginErrorMessage(params.error);
 
-  await redirectIfCustomerLoggedIn(redirectTo);
+  await redirectIfCustomerLoggedIn("/mitt-konto");
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(201,164,106,0.22),transparent_32%),linear-gradient(135deg,#f8f5ef,#e7e1d6)] px-4 py-8 text-green">
@@ -53,24 +43,22 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Mitt {BRAND_NAME}
             </p>
             <h1 className="mt-5 max-w-2xl font-display text-6xl leading-none md:text-8xl">
-              Välkommen tillbaka.
+              Återställ lösenord.
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-muted">
-              Mitt {BRAND_NAME} samlar dina bokningar och uppgifter. Logga in med
-              samma e-post som vid bokning – med lösenord eller en säker länk.
+              Vi skickar en säker länk till din e-post så att du kan välja ett
+              nytt lösenord till ditt konto.
             </p>
           </section>
 
           <section className="rounded-xl border border-green/10 bg-card p-6 shadow-[0_24px_80px_rgba(47,58,51,0.14)] md:p-10">
-            {authError ? (
+            {params.error === "link_expired" ? (
               <p className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                {authError}
+                Återställningslänken har gått ut eller redan använts. Begär en ny
+                länk nedan.
               </p>
             ) : null}
-            <EmailLoginForm
-              redirectTo={redirectTo}
-              initialEmail={params.email}
-            />
+            <ForgotPasswordForm initialEmail={params.email} />
           </section>
         </div>
       </div>

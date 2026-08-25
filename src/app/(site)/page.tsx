@@ -60,11 +60,11 @@ export default function Home() {
                 Mitt {BRAND_NAME}
               </p>
               <h2 className="mt-5 font-display text-5xl leading-tight">
-                E-posten blir nyckeln till dina bokningar.
+                Ditt konto samlar bokningarna.
               </h2>
               <p className="mt-6 text-base leading-8 text-white/72">
-                Logga in med en säker länk till din e-post. Se bokningar,
-                uppdatera instruktioner och följ dina uppdrag.
+                Logga in med e-post och lösenord, eller med en säker länk.
+                Se bokningar, uppdatera instruktioner och följ dina uppdrag.
               </p>
               <Link
                 href="/logga-in"

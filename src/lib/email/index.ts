@@ -1,4 +1,5 @@
 export {
+  notifyAdminCustomerChange,
   notifyCleaningBookingCreated,
   notifyCleaningInquiryReceived,
   notifyServiceBookingCreated,

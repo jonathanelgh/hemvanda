@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BRAND_NAME } from "@/lib/brand";
+import { BRAND_NAME, BRAND_PHONE_DISPLAY, BRAND_PHONE_E164 } from "@/lib/brand";
 import { services } from "@/lib/services";
 import { BrandLogo } from "./brand-logo";
 
@@ -7,9 +7,6 @@ const companyLinks = [
   { label: "Om oss", href: "/om-oss" },
   { label: "Blogg", href: "/blog" },
   { label: "Referenser", href: "/referenser" },
-  { label: "Trygghet", href: "#" },
-  { label: "Hållbarhet", href: "#" },
-  { label: "Karriär", href: "#" },
 ];
 const supportLinks = [
   { label: "Kontakta oss", href: "mailto:info@hemvanda.se" },
@@ -36,8 +33,8 @@ export function SiteFooter() {
             <br />
             info@hemvanda.se
             <br />
-            <a href="tel:0701234567" className="transition hover:text-white">
-              070 123 45 67
+            <a href={`tel:${BRAND_PHONE_E164}`} className="transition hover:text-white">
+              {BRAND_PHONE_DISPLAY}
             </a>
           </p>
         </div>

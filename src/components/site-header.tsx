@@ -1,16 +1,40 @@
 import Link from "next/link";
-import { getNavServices, services } from "@/lib/services";
+import {
+  BRAND_PHONE_DISPLAY,
+  BRAND_PHONE_E164,
+} from "@/lib/brand";
+import { getNavServices } from "@/lib/services";
 import { BrandLogo } from "./brand-logo";
 import { MobileNav } from "./mobile-nav";
 
 export function SiteHeader() {
-  const otherServices = services.find(
-    (service) => service.slug === "ovriga-tjanster",
-  );
   const primaryServices = getNavServices();
 
   return (
     <header className="sticky top-0 z-50 border-b border-green/10 bg-background/90 backdrop-blur-xl">
+      <div className="flex h-9 items-center justify-center bg-green px-4 text-white sm:px-6 lg:px-8">
+        <a
+          href={`tel:${BRAND_PHONE_E164}`}
+          className="inline-flex items-center gap-2 text-sm font-semibold tracking-wide transition hover:text-gold"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-3.5 w-3.5 text-gold"
+            aria-hidden="true"
+          >
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.6.68 2.35a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.75.32 1.54.55 2.35.68A2 2 0 0 1 22 16.92z" />
+          </svg>
+          <span>
+            Ring oss{" "}
+            <span className="font-bold">{BRAND_PHONE_DISPLAY}</span>
+          </span>
+        </a>
+      </div>
       <div className="flex h-20 w-full items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
         <BrandLogo />
         <nav className="hidden items-center gap-7 text-sm font-semibold text-green/80 lg:flex">
@@ -23,38 +47,6 @@ export function SiteHeader() {
               {service.title}
             </Link>
           ))}
-          {otherServices ? (
-            <div className="group relative">
-              <Link
-                href={`/tjanster/${otherServices.slug}`}
-                className="inline-flex items-center gap-2 py-7 transition hover:text-gold"
-              >
-                {otherServices.title}
-                <span className="text-[0.65rem]" aria-hidden="true">
-                  ▾
-                </span>
-              </Link>
-              <div className="invisible absolute left-1/2 top-full w-64 -translate-x-1/2 rounded-lg border border-green/10 bg-card p-3 opacity-0 shadow-[0_24px_70px_rgba(47,58,51,0.16)] transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
-                <Link
-                  href={`/tjanster/${otherServices.slug}`}
-                  className="block rounded-md px-4 py-3 text-green transition hover:bg-ivory hover:text-gold"
-                >
-                  Alla övriga tjänster
-                </Link>
-                {otherServices.subServices?.map((item) => (
-                  <Link
-                    key={item}
-                    href={`/tjanster/${otherServices.slug}#${item
-                      .toLowerCase()
-                      .replaceAll(" ", "-")}`}
-                    className="block rounded-md px-4 py-3 text-green/75 transition hover:bg-ivory hover:text-gold"
-                  >
-                    {item}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ) : null}
           <Link href="/om-oss" className="transition hover:text-gold">
             Om oss
           </Link>

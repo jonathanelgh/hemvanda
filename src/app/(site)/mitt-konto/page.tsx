@@ -1,30 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CustomerBookingCard } from "@/components/account/customer-booking-card";
+import { CustomerProfileForm } from "@/components/account/customer-profile-form";
 import { CustomerSignOutButton } from "@/components/auth/customer-sign-out-button";
 import { BrandLogo } from "@/components/brand-logo";
 import { BRAND_NAME } from "@/lib/brand";
 import { getCustomerSession } from "@/lib/auth/customer";
-import { getCustomerBookings } from "@/lib/db/customer-bookings";
+import {
+  getCustomerBookings,
+  getCustomerPrimaryAddress,
+} from "@/lib/db/customer-bookings";
 import { getCustomerLeads } from "@/lib/db/customer-leads";
-import { formatPhoneDisplay } from "@/lib/phone";
 import { services } from "@/lib/services";
 
 export const metadata: Metadata = {
   title: `Mitt konto | ${BRAND_NAME}`,
-  description: `Se dina bokningar och uppgifter hos ${BRAND_NAME}.`,
+  description: `Se och hantera dina bokningar och uppgifter hos ${BRAND_NAME}.`,
 };
 
 function serviceTitle(slug: string) {
   return services.find((service) => service.slug === slug)?.title ?? slug;
-}
-
-function formatDate(date: string) {
-  return new Date(`${date}T12:00:00`).toLocaleDateString("sv-SE", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }
 
 export default async function CustomerAccountPage() {
@@ -34,11 +30,13 @@ export default async function CustomerAccountPage() {
     redirect("/logga-in?next=/mitt-konto");
   }
 
-  const bookings = await getCustomerBookings(session.profile.id);
-  const leads = await getCustomerLeads(session.profile.id);
-  const displayPhone = session.profile.phone
-    ? formatPhoneDisplay(session.profile.phone)
-    : null;
+  const [bookings, leads, address] = await Promise.all([
+    getCustomerBookings(session.profile.id),
+    getCustomerLeads(session.profile.id),
+    getCustomerPrimaryAddress(session.profile.id),
+  ]);
+
+  const fallbackAddress = bookings.find((booking) => booking.streetAddress);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(201,164,106,0.18),transparent_32%),linear-gradient(135deg,#f8f5ef,#e7e1d6)] px-4 py-8 text-green">
@@ -64,30 +62,33 @@ export default async function CustomerAccountPage() {
             Hej{session.profile.fullName ? `, ${session.profile.fullName}` : ""}.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
-            Här ser du dina bokningar och kontaktuppgifter. Logga in med samma
-            telefonnummer som du använde när du bokade.
+            Här ser du dina bokningar, kan uppdatera dina uppgifter, lägga till
+            instruktioner till städaren samt flytta eller avboka kommande besök.
           </p>
+        </section>
 
-          <dl className="mt-8 grid gap-4 sm:grid-cols-2">
-            {displayPhone ? (
-              <div className="rounded-xl bg-ivory/70 px-5 py-4">
-                <dt className="text-xs font-bold uppercase tracking-[0.2em] text-green/60">
-                  Telefon
-                </dt>
-                <dd className="mt-2 text-lg font-semibold text-green">{displayPhone}</dd>
-              </div>
-            ) : null}
-            {session.profile.email ? (
-              <div className="rounded-xl bg-ivory/70 px-5 py-4">
-                <dt className="text-xs font-bold uppercase tracking-[0.2em] text-green/60">
-                  E-post
-                </dt>
-                <dd className="mt-2 text-lg font-semibold text-green">
-                  {session.profile.email}
-                </dd>
-              </div>
-            ) : null}
-          </dl>
+        <section className="mt-8 rounded-xl border border-green/10 bg-card p-6 md:p-8">
+          <h2 className="font-display text-3xl text-green">Dina uppgifter</h2>
+          <p className="mt-2 text-sm text-muted">
+            Uppdatera namn, telefon och adress. Ändringar speglas i dina aktiva
+            bokningar.
+          </p>
+          <div className="mt-6">
+            <CustomerProfileForm
+              fullName={session.profile.fullName ?? ""}
+              email={session.profile.email}
+              phone={session.profile.phone}
+              streetAddress={
+                address?.streetAddress ?? fallbackAddress?.streetAddress ?? ""
+              }
+              postalCode={
+                address?.postalCode ?? fallbackAddress?.postalCode ?? ""
+              }
+              municipality={
+                address?.municipality ?? fallbackAddress?.municipality ?? ""
+              }
+            />
+          </div>
         </section>
 
         <section className="mt-8">
@@ -115,89 +116,7 @@ export default async function CustomerAccountPage() {
           ) : (
             <div className="space-y-4">
               {bookings.map((booking) => (
-                <article
-                  key={booking.id}
-                  className="rounded-xl border border-green/10 bg-white/80 p-5 md:p-6"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold">
-                        {booking.bookingTypeLabel}
-                      </p>
-                      <h3 className="mt-2 font-display text-2xl text-green">
-                        {serviceTitle(booking.serviceSlug)}
-                      </h3>
-                    </div>
-                    <span className="rounded-full bg-ivory px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-green/70">
-                      {booking.statusLabel}
-                    </span>
-                  </div>
-
-                  <dl className="mt-5 grid gap-3 text-sm text-muted sm:grid-cols-2">
-                    <div>
-                      <dt className="font-semibold text-green">Ort</dt>
-                      <dd className="mt-1">
-                        {booking.municipality} ({booking.postalCode})
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold text-green">Inskickad</dt>
-                      <dd className="mt-1">
-                        {new Date(booking.createdAt).toLocaleDateString("sv-SE")}
-                      </dd>
-                    </div>
-                    {booking.frequencyLabel ? (
-                      <div>
-                        <dt className="font-semibold text-green">Frekvens</dt>
-                        <dd className="mt-1">{booking.frequencyLabel}</dd>
-                      </div>
-                    ) : null}
-                    {booking.preferredDate ? (
-                      <div>
-                        <dt className="font-semibold text-green">Önskat datum</dt>
-                        <dd className="mt-1">{formatDate(booking.preferredDate)}</dd>
-                      </div>
-                    ) : null}
-                    {booking.preferredTime ? (
-                      <div>
-                        <dt className="font-semibold text-green">Önskad tid</dt>
-                        <dd className="mt-1">{booking.preferredTime}</dd>
-                      </div>
-                    ) : null}
-                    {booking.streetAddress ? (
-                      <div className="sm:col-span-2">
-                        <dt className="font-semibold text-green">Adress</dt>
-                        <dd className="mt-1">{booking.streetAddress}</dd>
-                      </div>
-                    ) : null}
-                  </dl>
-
-                  {booking.upcomingVisits.length > 0 ? (
-                    <div className="mt-5 border-t border-green/10 pt-5">
-                      <h4 className="text-sm font-semibold text-green">
-                        Kommande städbesök
-                      </h4>
-                      <ul className="mt-3 space-y-2">
-                        {booking.upcomingVisits.slice(0, 4).map((visit) => (
-                          <li
-                            key={visit.id}
-                            className="flex items-center justify-between rounded-lg bg-ivory/70 px-4 py-3 text-sm"
-                          >
-                            <span className="font-medium text-green">
-                              {formatDate(visit.visitDate)}
-                            </span>
-                            <span className="text-muted">{visit.visitTime}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      {booking.upcomingVisits.length > 4 ? (
-                        <p className="mt-2 text-xs text-muted">
-                          +{booking.upcomingVisits.length - 4} fler besök planerade
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </article>
+                <CustomerBookingCard key={booking.id} booking={booking} />
               ))}
             </div>
           )}
@@ -215,7 +134,8 @@ export default async function CustomerAccountPage() {
 
           {leads.length === 0 ? (
             <div className="rounded-xl border border-dashed border-green/15 bg-white/70 px-6 py-12 text-center text-sm text-muted">
-              När du skickar en förfrågan via webben visas den här tills den blivit en bokning.
+              När du skickar en förfrågan via webben visas den här tills den blivit
+              en bokning.
             </div>
           ) : (
             <div className="space-y-4">

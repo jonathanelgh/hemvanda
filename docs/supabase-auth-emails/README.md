@@ -17,7 +17,7 @@ För säkerhetsmejl: **Authentication** → **Email Templates** → fliken **Sec
 | Inställning | Värde |
 |-------------|--------|
 | **Site URL** | `https://hemvanda.se` |
-| **Redirect URLs** | `https://hemvanda.se/auth/confirm`, `https://hemvanda.se/**` |
+| **Redirect URLs** | `https://hemvanda.se/auth/confirm`, `https://hemvanda.se/**`, `http://localhost:3000/auth/confirm` |
 | **Custom SMTP** | Resend (samma avsändare som övriga mejl, t.ex. `HemVända <noreply@hemvanda.se>`) |
 
 Med Resend som SMTP i Supabase (**Project Settings → Authentication → SMTP**) kommer auth-mejl från samma domän som bokningsbekräftelser.
