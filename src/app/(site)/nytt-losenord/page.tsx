@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { BrandLogo } from "@/components/brand-logo";
 import { BRAND_NAME } from "@/lib/brand";
-import { getCustomerSession } from "@/lib/auth/customer";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -22,21 +21,14 @@ export default async function NewPasswordPage() {
     redirect("/glomt-losenord?error=link_expired");
   }
 
-  const session = await getCustomerSession();
+  const { data: teamMember } = await supabase
+    .from("team_members")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .maybeSingle();
 
-  // Team accounts should not reset via the customer flow.
-  if (!session.profile) {
-    const { data: teamMember } = await supabase
-      .from("team_members")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .maybeSingle();
-
-    if (teamMember) {
-      redirect("/admin");
-    }
-  }
+  const redirectAfterSave = teamMember ? "/admin" : "/mitt-konto";
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(201,164,106,0.22),transparent_32%),linear-gradient(135deg,#f8f5ef,#e7e1d6)] px-4 py-8 text-green">
@@ -66,7 +58,7 @@ export default async function NewPasswordPage() {
           </section>
 
           <section className="rounded-xl border border-green/10 bg-card p-6 shadow-[0_24px_80px_rgba(47,58,51,0.14)] md:p-10">
-            <ResetPasswordForm />
+            <ResetPasswordForm redirectTo={redirectAfterSave} />
           </section>
         </div>
       </div>

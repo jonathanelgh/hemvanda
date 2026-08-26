@@ -12,13 +12,20 @@ const fieldClassName =
 const labelClassName =
   "mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-green/60";
 
-export function ResetPasswordForm() {
+type ResetPasswordFormProps = {
+  redirectTo?: string;
+};
+
+export function ResetPasswordForm({
+  redirectTo = "/mitt-konto",
+}: ResetPasswordFormProps) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const isAdminDestination = redirectTo.startsWith("/admin");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -65,7 +72,7 @@ export function ResetPasswordForm() {
     setLoading(false);
 
     window.setTimeout(() => {
-      router.push("/mitt-konto");
+      router.push(redirectTo);
       router.refresh();
     }, 1200);
   }
@@ -78,7 +85,9 @@ export function ResetPasswordForm() {
         </p>
         <h2 className="mt-3 font-display text-4xl">Lösenord sparat</h2>
         <p className="mt-3 text-sm leading-6 text-white/70">
-          Du skickas vidare till Mitt HemVända.
+          {isAdminDestination
+            ? "Du skickas vidare till adminpanelen."
+            : "Du skickas vidare till Mitt HemVända."}
         </p>
       </div>
     );

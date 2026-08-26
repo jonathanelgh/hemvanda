@@ -24,6 +24,14 @@ function loginErrorMessage(error?: string) {
     return "Inloggningslänken har gått ut eller redan använts. Begär en ny länk nedan.";
   }
 
+  if (error === "team_account") {
+    return "Det här kontot hör till admin. Logga in via adminpanelen istället.";
+  }
+
+  if (error === "no_profile") {
+    return "Vi hittar inget kundkonto kopplat till den e-postadressen. Kontakta oss om du behöver hjälp.";
+  }
+
   return null;
 }
 

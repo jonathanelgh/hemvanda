@@ -17,7 +17,7 @@ För säkerhetsmejl: **Authentication** → **Email Templates** → fliken **Sec
 | Inställning | Värde |
 |-------------|--------|
 | **Site URL** | `https://hemvanda.se` |
-| **Redirect URLs** | `https://hemvanda.se/auth/confirm`, `https://hemvanda.se/**`, `http://localhost:3000/auth/confirm` |
+| **Redirect URLs** | `https://hemvanda.se/auth/confirm`, `https://hemvanda.se/auth/bekrafta`, `https://hemvanda.se/**`, `http://localhost:3000/auth/confirm`, `http://localhost:3000/auth/bekrafta` |
 | **Custom SMTP** | Resend (samma avsändare som övriga mejl, t.ex. `HemVända <noreply@hemvanda.se>`) |
 
 Med Resend som SMTP i Supabase (**Project Settings → Authentication → SMTP**) kommer auth-mejl från samma domän som bokningsbekräftelser.
@@ -46,13 +46,15 @@ Med Resend som SMTP i Supabase (**Project Settings → Authentication → SMTP**
 
 Supabase fyller i automatiskt:
 
-- `{{ .ConfirmationURL }}` – klickbar verifieringslänk
-- `{{ .Token }}` – 6-siffrig engångskod (bra om länken förbrukas av e-postfilter)
+- `{{ .SiteURL }}` – t.ex. `https://hemvanda.se` (Authentication → URL Configuration)
+- `{{ .TokenHash }}` – används i egna länkar till `/auth/bekrafta` (server-side verify)
+- `{{ .Token }}` – 6-siffrig engångskod (reserv om länken strular)
 - `{{ .Email }}` – mottagarens e-post
 - `{{ .Data.full_name }}` – namn från `user_metadata` (sätts vid kundkonto)
 
 ## Tips
 
-- **Länken går ut?** Magic Link-mallen inkluderar både knapp och kod. Vissa företagsmejl skannar länkar i förväg – då fungerar koden bättre.
+- **Magic Link / Reset** pekar till `/auth/bekrafta` med `token_hash`, inte `{{ .ConfirmationURL }}`. Då förbrukas inte OTP av e-postskanners, och session-cookien sätts på servern.
+- **Efter mallbyte:** spara Magic Link + Reset password i dashboarden igen, annars fortsätter gamla ConfirmationURL-länkar.
 - **Testa** med en riktig inkorg efter att SMTP och mallar sparats.
 - Mallarna använder samma färger som webbplatsen: grön `#2f3a33`, guld `#c9a46a`, bakgrund `#f8f5ef`.
