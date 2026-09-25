@@ -11,11 +11,10 @@ export type Service = {
   summary: string;
   icon: Extract<
     IconName,
-    "hammer" | "sparkles" | "truck" | "chair" | "wrench" | "more"
+    "hammer" | "sparkles" | "truck" | "chair" | "wrench"
   >;
   accent: string;
   includes: { label: string; icon: IconName }[];
-  subServices?: string[];
   steps: string[];
   benefits: string[];
   faqs: {
@@ -299,81 +298,14 @@ export const services: Service[] = [
         "Boka inredning och styling med HemVända för ett hem som känns varmt, genomtänkt och personligt.",
     },
   },
-  {
-    slug: "ovriga-tjanster",
-    title: "Övriga tjänster",
-    eyebrow: "Rätt hjälp när hemmet behöver mer",
-    description:
-      "Vi kan även erbjuda rörmokare, elektriker och besiktningsman via vårt nätverk.",
-    hero:
-      "Alla behov passar inte i en standardtjänst. Därför samlar HemVända övriga tjänster som rörmokare, elektriker och besiktningsman.",
-    summaryTitle: "Specialister när hemmet behöver mer",
-    summary:
-      "Övriga tjänster fungerar som en huvudsida för specialistuppdrag och kompletterande hjälp runt hemmet.",
-    icon: "more",
-    accent: "Specialister",
-    includes: [
-      { label: "Rörmokare för VVS-relaterade uppdrag", icon: "droplet" },
-      { label: "Elektriker för elarbeten och installationer", icon: "bolt" },
-      { label: "Besiktningsman inför köp, försäljning eller åtgärder", icon: "search" },
-      { label: "Råd om rätt specialist för ditt behov", icon: "clipboard" },
-    ],
-    subServices: ["Rörmokare", "Elektriker", "Besiktningsman"],
-    steps: [
-      "Beskriv vilken typ av specialist du behöver.",
-      "Vi går igenom uppdragets omfattning och förutsättningar.",
-      "Du får hjälp att komma vidare med rätt kompetens.",
-    ],
-    benefits: [
-      "En tydlig ingång till flera tjänster",
-      "Möjlighet att kombinera med HemVändas huvudtjänster",
-      "Tryggare väg till rätt specialist",
-    ],
-    faqs: [
-      {
-        question: "Vilka övriga tjänster erbjuder ni?",
-        answer:
-          "Via vårt nätverk kan vi hjälpa dig vidare med rörmokare, elektriker och besiktningsman när hemmet behöver specialistkompetens.",
-      },
-      {
-        question: "Kan jag boka specialisttjänster direkt online?",
-        answer:
-          "Du skickar en förfrågan via webbplatsen. Vi återkommer med upplägg och nästa steg utifrån typ av uppdrag.",
-      },
-      {
-        question: "När ska jag välja rörmokare, elektriker eller besiktning?",
-        answer:
-          "Rörmokare passar VVS-relaterade behov, elektriker elarbeten och installationer, och besiktningsman inför köp, försäljning eller åtgärder. Osäker? Beskriv behovet så vägleder vi dig.",
-      },
-      {
-        question: "Kan specialisttjänster kombineras med städ eller renovering?",
-        answer:
-          "Ja. Du kan kombinera med städ, handyman, inredning eller måleri/bygg beroende på vad som behövs i hemmet.",
-      },
-      {
-        question: "Hur snabbt återkommer ni?",
-        answer:
-          "Vi strävar efter att återkomma inom en arbetsdag. Vid akut behov – skriv det tydligt i förfrågan.",
-      },
-    ],
-    seo: {
-      title: "Övriga tjänster | HemVända",
-      description:
-        "HemVända erbjuder även rörmokare, elektriker och besiktningsman som övriga tjänster.",
-    },
-  },
 ];
 
-const MENU_HIDDEN_SERVICE_SLUGS = new Set(["ovriga-tjanster"]);
-
 export function getNavServices() {
-  return services.filter((service) => !MENU_HIDDEN_SERVICE_SLUGS.has(service.slug));
+  return services;
 }
 
 export function getBookingModalServices() {
-  return services.filter(
-    (service) => !MENU_HIDDEN_SERVICE_SLUGS.has(service.slug),
-  );
+  return services;
 }
 
 export function getService(slug: string) {

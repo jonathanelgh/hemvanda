@@ -105,30 +105,6 @@ export default async function ServicePage({ params }: Props) {
           </div>
         </section>
 
-        {service.subServices ? (
-          <section className="bg-ivory py-24">
-            <div className="container-shell">
-              <SectionHeading
-                eyebrow="Tjänster inom området"
-                title="Specialister vi kan erbjuda."
-                description="Övriga tjänster samlar de kompletterande yrkesrollerna som ofta behövs runt ett hemprojekt."
-                centered
-              />
-              <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {service.subServices.map((item) => (
-                  <div
-                    key={item}
-                    id={item.toLowerCase().replaceAll(" ", "-")}
-                    className="rounded-xl border border-green/10 bg-card p-7 text-center"
-                  >
-                    <p className="font-display text-3xl text-green">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        ) : null}
-
         <section className="bg-card py-24">
           <div className="container-shell">
             <SectionHeading

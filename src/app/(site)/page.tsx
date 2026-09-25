@@ -20,12 +20,12 @@ export default function Home() {
           <div className="grid w-full items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="text-center lg:text-left">
               <h1 className="mx-auto max-w-4xl font-display text-6xl leading-[0.95] tracking-tight text-black drop-shadow-[0_1px_12px_rgba(248,245,239,0.85)] md:text-8xl lg:mx-0">
-                Vi ger hem nytt liv.
+                Förvandlar hem, skapar känsla
               </h1>
               <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-black/80 max-lg:text-black/90 lg:mx-0">
                 {BRAND_NAME} samlar städ, måleri, bygg, renovering, handyman och
-                inredning i ett tryggt upplägg. När hemmet behöver mer kan vi
-                även hjälpa med rörmokare, elektriker och besiktningsman.
+                inredning i ett tryggt upplägg – så att hemmet får den hjälp det
+                behöver, på ett ställe.
               </p>
             </div>
             <div className="flex w-full items-center">
@@ -39,7 +39,7 @@ export default function Home() {
             <SectionHeading
               eyebrow="Våra tjänster"
               title="Allt ditt hem behöver på ett ställe."
-              description="Boka en huvudtjänst eller gå via Övriga tjänster när du behöver rörmokare, elektriker eller besiktningsman."
+              description="Välj den tjänst som passar ditt hem – från städ och handyman till måleri, bygg, renovering och inredning."
               centered
             />
             <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -77,7 +77,7 @@ export default function Home() {
               <SectionHeading
                 eyebrow={`Varför ${BRAND_NAME}`}
                 title="En kontakt för allt som får hemmet att kännas rätt."
-                description={`${BRAND_NAME} gör det enkelt att boka trygg hjälp hemma. Vi bygger flödet runt tjänst, plats och behov – från städ och måleri till bygg, renovering, handyman, inredning och utvalda specialisttjänster.`}
+                description={`${BRAND_NAME} gör det enkelt att boka trygg hjälp hemma. Vi bygger flödet runt tjänst, plats och behov – från städ och måleri till bygg, renovering, handyman och inredning.`}
               />
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {["Personlig plan", "Tydlig kommunikation", "Trygga uppdrag", "Premium känsla"].map(

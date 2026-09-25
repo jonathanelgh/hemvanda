@@ -25,8 +25,8 @@ export function SiteFooter() {
           </div>
           <p className="mt-6 max-w-sm text-sm leading-7 text-white/70">
             {BRAND_NAME} hjälper dig att förvandla hemmet med städ, snickeri,
-            bygg, renovering, handyman, inredning och utvalda övriga tjänster.
-            En kontakt, ett tryggt upplägg och ett hem som känns rätt.
+            bygg, renovering, handyman och inredning. En kontakt, ett tryggt
+            upplägg och ett hem som känns rätt.
           </p>
           <p className="mt-6 text-sm text-white/70">
             Stockholm med omnejd

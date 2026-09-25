@@ -8,7 +8,7 @@ export const SITE_URL =
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/stad-hero-img.webp`;
 
 export const DEFAULT_DESCRIPTION =
-  `${BRAND_NAME} hjälper dig med städ, snickeri, bygg, renovering, handyman, inredning och utvalda övriga tjänster i Stockholm med omnejd.`;
+  `${BRAND_NAME} hjälper dig med städ, snickeri, bygg, renovering, handyman och inredning i Stockholm med omnejd.`;
 
 type PageMetadataInput = {
   title: string;

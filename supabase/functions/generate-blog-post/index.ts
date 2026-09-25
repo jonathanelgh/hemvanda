@@ -38,7 +38,7 @@ const STOCKHOLM_AREA =
 
 function buildServicesText(services: ServiceContext[]) {
   if (!services.length) {
-    return "Städ, måleri/bygg/renovering, handyman, inredning samt övriga tjänster (rörmokare, elektriker, besiktningsman).";
+    return "Städ, måleri/bygg/renovering, handyman och inredning.";
   }
 
   return services.map((service) => `- ${service.title} (${service.slug}): ${service.description}`).join("\n");

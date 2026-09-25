@@ -203,8 +203,8 @@ export default function AboutPage() {
                     Tjänster
                   </dt>
                   <dd className="mt-2 text-sm leading-7 text-white/75">
-                    Städ, snickeri, bygg & renovering, handyman, inredning och utvalda
-                    specialisttjänster – samlat under ett varumärke.
+                    Städ, snickeri, bygg & renovering, handyman och inredning –
+                    samlat under ett varumärke.
                   </dd>
                 </div>
                 <div>

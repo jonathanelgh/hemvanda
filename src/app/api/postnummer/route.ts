@@ -16,6 +16,20 @@ type GoogleGeocodeResponse = {
   error_message?: string;
 };
 
+type NominatimAddress = {
+  city?: string;
+  town?: string;
+  village?: string;
+  municipality?: string;
+  suburb?: string;
+  city_district?: string;
+  county?: string;
+};
+
+type NominatimResult = {
+  address?: NominatimAddress;
+};
+
 const placeTypePriority = [
   "postal_town",
   "locality",
@@ -49,54 +63,100 @@ export async function GET(request: Request) {
   }
 
   const formattedZip = formatZipCode(zip);
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const place =
+    (await lookupPlaceWithGoogle(zip)) ?? (await lookupPlaceWithNominatim(zip));
 
-  if (!apiKey) {
-    return Response.json({
-      postalCode: formattedZip,
-      place: null,
-      label: formattedZip,
-      configured: false,
-    });
-  }
-
-  const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
-  url.searchParams.set("components", `postal_code:${zip}|country:SE`);
-  url.searchParams.set("language", "sv");
-  url.searchParams.set("region", "se");
-  url.searchParams.set("key", apiKey);
-
-  const response = await fetch(url, { cache: "no-store" });
-
-  if (!response.ok) {
+  if (!place) {
     return Response.json(
-      { error: "Kunde inte hämta postnummerinformation." },
+      {
+        error: "Kunde inte hitta orten för postnumret. Kontrollera och försök igen.",
+        postalCode: formattedZip,
+        place: null,
+        label: formattedZip,
+      },
       { status: 502 },
     );
   }
 
-  const data = (await response.json()) as GoogleGeocodeResponse;
-
-  if (data.status !== "OK") {
-    return Response.json({
-      postalCode: formattedZip,
-      place: null,
-      label: formattedZip,
-      configured: true,
-    });
-  }
-
-  const place = getPlaceName(data.results?.[0]);
-
   return Response.json({
     postalCode: formattedZip,
     place,
-    label: place ? `${formattedZip} ${place}` : formattedZip,
+    municipality: place,
+    label: `${formattedZip} ${place}`,
     configured: true,
   });
 }
 
-function getPlaceName(result?: GoogleGeocodeResult) {
+async function lookupPlaceWithGoogle(zip: string) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY?.trim();
+
+  if (!apiKey) {
+    return null;
+  }
+
+  try {
+    const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
+    url.searchParams.set("components", `postal_code:${zip}|country:SE`);
+    url.searchParams.set("language", "sv");
+    url.searchParams.set("region", "se");
+    url.searchParams.set("key", apiKey);
+
+    const response = await fetch(url, { cache: "no-store" });
+
+    if (!response.ok) {
+      console.error("Google Geocoding HTTP error:", response.status);
+      return null;
+    }
+
+    const data = (await response.json()) as GoogleGeocodeResponse;
+
+    if (data.status !== "OK") {
+      console.error(
+        "Google Geocoding failed:",
+        data.status,
+        data.error_message ?? "",
+      );
+      return null;
+    }
+
+    return getGooglePlaceName(data.results?.[0]);
+  } catch (error) {
+    console.error("Google Geocoding request failed:", error);
+    return null;
+  }
+}
+
+async function lookupPlaceWithNominatim(zip: string) {
+  try {
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+    url.searchParams.set("postalcode", zip);
+    url.searchParams.set("countrycodes", "se");
+    url.searchParams.set("format", "json");
+    url.searchParams.set("addressdetails", "1");
+    url.searchParams.set("limit", "1");
+
+    const response = await fetch(url, {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "HemVanda/1.0 (info@hemvanda.se)",
+      },
+    });
+
+    if (!response.ok) {
+      console.error("Nominatim HTTP error:", response.status);
+      return null;
+    }
+
+    const data = (await response.json()) as NominatimResult[];
+    return getNominatimPlaceName(data[0]?.address);
+  } catch (error) {
+    console.error("Nominatim request failed:", error);
+    return null;
+  }
+}
+
+function getGooglePlaceName(result?: GoogleGeocodeResult) {
   const components = result?.address_components ?? [];
 
   for (const type of placeTypePriority) {
@@ -108,4 +168,31 @@ function getPlaceName(result?: GoogleGeocodeResult) {
   }
 
   return null;
+}
+
+function getNominatimPlaceName(address?: NominatimAddress) {
+  if (!address) {
+    return null;
+  }
+
+  const preferred = [address.city, address.town, address.village];
+
+  for (const candidate of preferred) {
+    const cleaned = candidate?.trim();
+
+    if (cleaned && !/ kommun$/i.test(cleaned)) {
+      return cleaned;
+    }
+  }
+
+  const administrative = [
+    address.municipality,
+    address.town,
+    address.suburb,
+    address.city_district,
+  ]
+    .map((value) => value?.trim())
+    .find(Boolean);
+
+  return administrative ?? null;
 }

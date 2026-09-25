@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: `Boka | ${BRAND_NAME}`,
   description:
-    `Boka hemstädning direkt online eller skicka en förfrågan för övriga ${BRAND_NAME}-tjänster.`,
+    `Boka hemstädning direkt online eller skicka en förfrågan för andra ${BRAND_NAME}-tjänster.`,
 };
 
 type Props = {
@@ -52,7 +52,7 @@ export default async function BookingPage({ searchParams }: Props) {
             <section>
               <div className="rounded-xl border border-dashed border-green/20 bg-card p-6 text-sm leading-7 text-muted md:p-8">
                 När du har valt postnummer och tjänst visas rätt bokningsformulär
-                här. Hemstädning bokas direkt online, övriga tjänster skickas som
+                här. Hemstädning bokas direkt online, andra tjänster skickas som
                 förfrågan till oss.
               </div>
             </section>

@@ -27,13 +27,13 @@ Med Resend som SMTP i Supabase (**Project Settings → Authentication → SMTP**
 | Mall i Supabase | Fil | Ämnesrad |
 |-----------------|-----|----------|
 | **Magic Link** ⭐ | [magic-link.html](./magic-link.html) | `Din inloggningslänk – HemVända` |
+| **Reset password** ⭐ | [reset-password.html](./reset-password.html) | `Återställ ditt lösenord – HemVända` |
 | Confirm signup | [confirm-signup.html](./confirm-signup.html) | `Bekräfta din e-post – HemVända` |
 | Invite user | [invite-user.html](./invite-user.html) | `Du är inbjuden till HemVända` |
-| Reset password | [reset-password.html](./reset-password.html) | `Återställ ditt lösenord – HemVända` |
 | Change email address | [change-email.html](./change-email.html) | `Bekräfta ny e-postadress – HemVända` |
 | Reauthentication | [reauthentication.html](./reauthentication.html) | `Din verifieringskod – HemVända` |
 
-⭐ **Magic Link** används idag för kundinloggning (`/logga-in` → Mitt HemVända).
+⭐ **Magic Link** och **Reset password** används för kund- och admininloggning (`/logga-in`, `/glomt-losenord`).
 
 ## Säkerhetsnotiser (valfritt)
 
