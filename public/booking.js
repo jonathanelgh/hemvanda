@@ -179,12 +179,27 @@
     );
   }
 
+  function setSubmitLabel(submit, text, showArrow) {
+    if (!submit) return;
+    var labelEl = submit.querySelector("[data-submit-label]");
+    var arrowEl = submit.querySelector("[data-submit-arrow]");
+    if (labelEl) {
+      labelEl.textContent = text;
+      if (arrowEl) {
+        arrowEl.classList.toggle("hidden", !showArrow);
+      }
+      return;
+    }
+    submit.textContent = text;
+  }
+
   function setSubmitState(form, state, masked) {
     var submit = form.querySelector("[data-submit-button]");
     var hint = form.querySelector("[data-postal-hint]");
     var modal = modalFor(form);
     var mode = selectionMode(form, modal);
     var idleLabel = submitIdleLabel(submit);
+    var hasArrow = Boolean(submit && submit.querySelector("[data-submit-arrow]"));
     var readyLabel =
       (submit && submit.getAttribute("data-ready-label")) ||
       (mode === "locations"
@@ -198,14 +213,14 @@
 
     if (state === "idle") {
       submit.disabled = true;
-      submit.textContent = idleLabel;
+      setSubmitLabel(submit, idleLabel, hasArrow);
       setHint(hint, "", false);
       return;
     }
 
     if (state === "loading") {
       submit.disabled = true;
-      submit.textContent = "Verifierar...";
+      setSubmitLabel(submit, "Verifierar...", false);
       setHint(
         hint,
         "Hämtar ort för postnummer " + masked + "...",
@@ -216,7 +231,7 @@
 
     if (state === "ready") {
       submit.disabled = false;
-      submit.textContent = readyLabel;
+      setSubmitLabel(submit, readyLabel, hasArrow && readyLabel === idleLabel);
       setHint(
         hint,
         "Postnumret är verifierat. Klicka " + readyLabel + " för att fortsätta.",
@@ -227,7 +242,7 @@
 
     if (state === "error") {
       submit.disabled = true;
-      submit.textContent = idleLabel;
+      setSubmitLabel(submit, idleLabel, hasArrow);
       setHint(
         hint,
         masked ||

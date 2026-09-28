@@ -77,7 +77,7 @@ export function BookingCta({
     : "relative flex h-14 w-full items-center rounded-full border border-green/15 bg-white px-5";
 
   const submitClassName = isHero
-    ? "h-14 w-full rounded-xl bg-green px-7 text-sm font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-80"
+    ? "inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-green px-7 text-sm font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-80"
     : `h-14 rounded-full bg-gold px-7 text-sm font-bold text-green transition hover:bg-sand disabled:cursor-not-allowed disabled:opacity-60 ${
         compact ? "w-full" : "w-full md:w-auto md:min-w-36"
       }`;
@@ -132,11 +132,28 @@ export function BookingCta({
           <button
             type="submit"
             data-submit-button
-            data-idle-label={isHero ? "Hitta hjälp →" : undefined}
+            data-idle-label={isHero ? "Hitta hjälp" : undefined}
+            data-ready-label={isHero ? "Hitta hjälp" : undefined}
             disabled
             className={submitClassName}
           >
-            {isHero ? "Hitta hjälp →" : "Fortsätt"}
+            <span data-submit-label>{isHero ? "Hitta hjälp" : "Fortsätt"}</span>
+            {isHero ? (
+              <svg
+                data-submit-arrow
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4 shrink-0"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14" />
+                <path d="m13 6 6 6-6 6" />
+              </svg>
+            ) : null}
           </button>
         </div>
         <p
