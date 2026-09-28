@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConvertLeadPanel } from "@/components/admin/convert-lead-panel";
+import { DeleteLeadButton } from "@/components/admin/delete-lead-button";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { getLeadById } from "@/lib/admin/convert-lead";
-import { requireTeamSession } from "@/lib/admin/auth";
+import { isAdmin, requireTeamSession } from "@/lib/admin/auth";
 import { getCleaningFrequencyLabel } from "@/lib/booking-schedule";
 import { services } from "@/lib/services";
 
@@ -30,17 +31,15 @@ export default async function AdminLeadDetailPage({ params }: AdminLeadDetailPag
   }
 
   return (
-    <AdminShell
-      profile={profile}
-      title={lead.contactName}
-    >
-      <div className="mb-6">
+    <AdminShell profile={profile} title={lead.contactName}>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <Link
           href="/admin/leads"
           className="text-sm font-semibold text-gold transition hover:text-green"
         >
           ← Tillbaka till leads
         </Link>
+        {isAdmin(profile) ? <DeleteLeadButton leadId={lead.id} /> : null}
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
@@ -72,7 +71,9 @@ export default async function AdminLeadDetailPage({ params }: AdminLeadDetailPag
               <>
                 <div>
                   <dt className="font-semibold text-green">Yta</dt>
-                  <dd className="mt-1 text-muted">{lead.cleaningDetails.squareMeters} kvm</dd>
+                  <dd className="mt-1 text-muted">
+                    {lead.cleaningDetails.squareMeters} kvm
+                  </dd>
                 </div>
                 <div>
                   <dt className="font-semibold text-green">Frekvens</dt>
@@ -81,14 +82,10 @@ export default async function AdminLeadDetailPage({ params }: AdminLeadDetailPag
                   </dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-green">Husdjur</dt>
-                  <dd className="mt-1 text-muted">
-                    {lead.cleaningDetails.hasPets ? "Ja" : "Nej"}
-                  </dd>
-                </div>
-                <div>
                   <dt className="font-semibold text-green">Veckodag</dt>
-                  <dd className="mt-1 text-muted">{lead.cleaningDetails.weekdayPreference}</dd>
+                  <dd className="mt-1 text-muted">
+                    {lead.cleaningDetails.weekdayPreference}
+                  </dd>
                 </div>
               </>
             ) : null}

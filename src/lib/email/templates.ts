@@ -1,4 +1,4 @@
-import { BRAND_NAME } from "@/lib/brand";
+import { BRAND_NAME, BRAND_PHONE_DISPLAY } from "@/lib/brand";
 import { SITE_URL } from "@/lib/seo";
 
 const BRAND_GREEN = "#1e3d32";
@@ -50,7 +50,9 @@ export function wrapEmailHtml(options: {
           <tr>
             <td style="padding:0 32px 28px;">
               <p style="margin:0;font-size:13px;line-height:1.6;color:${TEXT_MUTED};">
-                Frågor? Kontakta oss på
+                Frågor? Ring
+                <a href="tel:+46700189453" style="color:${BRAND_GOLD};text-decoration:none;">${BRAND_PHONE_DISPLAY}</a>
+                eller mejla
                 <a href="mailto:info@hemvanda.se" style="color:${BRAND_GOLD};text-decoration:none;">info@hemvanda.se</a>
                 · <a href="${SITE_URL}" style="color:${BRAND_GOLD};text-decoration:none;">${SITE_URL.replace(/^https?:\/\//, "")}</a>
               </p>

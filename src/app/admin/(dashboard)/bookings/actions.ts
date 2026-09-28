@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getBookingByIdForTeam } from "@/lib/admin/queries";
-import { requireTeamSession } from "@/lib/admin/auth";
+import { isAdmin, requireTeamSession } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -112,4 +112,57 @@ export async function updateBookingContactAction(
   revalidateBookingPaths(bookingId);
 
   return { ok: true };
+}
+
+export async function deleteBookingAction(bookingId: string): Promise<ActionResult> {
+  const access = await requireBookingAccess(bookingId);
+
+  if (!access.ok) {
+    return access;
+  }
+
+  if (!isAdmin(access.profile)) {
+    return { ok: false, error: "Endast admin kan ta bort bokningar." };
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("bookings").delete().eq("id", bookingId);
+
+  if (error) {
+    return { ok: false, error: "Kunde inte ta bort bokningen." };
+  }
+
+  revalidatePath("/admin/bookings");
+  revalidatePath("/admin/schedule");
+  revalidatePath("/admin");
+
+  return { ok: true };
+}
+
+export async function clearActiveBookingsAction(): Promise<
+  ActionResult & { deleted?: number }
+> {
+  const { profile } = await requireTeamSession();
+
+  if (!isAdmin(profile)) {
+    return { ok: false, error: "Endast admin kan rensa bokningar." };
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("bookings")
+    .delete()
+    .in("status", ["submitted", "contacted", "confirmed"])
+    .in("booking_type", ["cleaning_direct", "service_booking"])
+    .select("id");
+
+  if (error) {
+    return { ok: false, error: "Kunde inte rensa aktiva bokningar." };
+  }
+
+  revalidatePath("/admin/bookings");
+  revalidatePath("/admin/schedule");
+  revalidatePath("/admin");
+
+  return { ok: true, deleted: data?.length ?? 0 };
 }

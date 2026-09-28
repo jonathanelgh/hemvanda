@@ -36,6 +36,7 @@ export default async function AdminBookingDetailPage({ params }: AdminBookingDet
         booking={booking}
         staffMembers={staffMembers}
         canAssignStaff={isAdmin(profile)}
+        canDelete={isAdmin(profile)}
       />
     </AdminShell>
   );

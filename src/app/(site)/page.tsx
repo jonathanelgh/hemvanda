@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BookingCta } from "@/components/booking-cta";
 import { BlogPostsSection } from "@/components/blog/blog-posts-section";
-import { PageHero } from "@/components/page-hero";
+import { HomeHero } from "@/components/home-hero";
 import { ServiceCard } from "@/components/service-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -16,23 +16,7 @@ export default function Home() {
     <div className="min-h-screen bg-background text-green">
       <SiteHeader />
       <main>
-        <PageHero imageClassName="object-cover object-[center_22%] lg:object-center">
-          <div className="grid w-full items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="text-center lg:text-left">
-              <h1 className="mx-auto max-w-4xl font-display text-6xl leading-[0.95] tracking-tight text-black drop-shadow-[0_1px_12px_rgba(248,245,239,0.85)] md:text-8xl lg:mx-0">
-                Förvandlar hem, skapar känsla
-              </h1>
-              <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-black/80 max-lg:text-black/90 lg:mx-0">
-                {BRAND_NAME} samlar städ, måleri, bygg, renovering, handyman och
-                inredning i ett tryggt upplägg – så att hemmet får den hjälp det
-                behöver, på ett ställe.
-              </p>
-            </div>
-            <div className="flex w-full items-center">
-              <BookingCta compact formId="boka" />
-            </div>
-          </div>
-        </PageHero>
+        <HomeHero />
 
         <section className="py-24">
           <div className="container-shell">

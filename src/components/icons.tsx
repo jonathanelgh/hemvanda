@@ -16,7 +16,10 @@ export type IconName =
   | "box"
   | "bolt"
   | "droplet"
-  | "search";
+  | "search"
+  | "broom"
+  | "roller"
+  | "check";
 
 type IconProps = {
   name: IconName;
@@ -43,6 +46,31 @@ export function Icon({ name, className = "h-6 w-6" }: IconProps) {
           <path d="m17 3 4 4-3 3-4-4z" />
           <path d="m3 21 8.5-8.5" />
           <path d="m9 9 6 6" />
+        </svg>
+      );
+    case "broom":
+      return (
+        <svg {...common}>
+          <path d="M12 3v9" />
+          <path d="M9 12h6" />
+          <path d="M8 12c-1.5 2.5-3 5.5-3 8h14c0-2.5-1.5-5.5-3-8" />
+          <path d="M10 16h4" />
+          <path d="M9.5 19h5" />
+        </svg>
+      );
+    case "roller":
+      return (
+        <svg {...common}>
+          <path d="M4 5h10a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H6a2 2 0 0 0-2 2v1" />
+          <path d="M4 5V3.5A1.5 1.5 0 0 1 5.5 2H14" />
+          <path d="M4 14v6" />
+          <path d="M4 20h4" />
+        </svg>
+      );
+    case "check":
+      return (
+        <svg {...common}>
+          <path d="m5 12 4 4L19 6" />
         </svg>
       );
     case "wrench":

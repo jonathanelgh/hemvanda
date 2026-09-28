@@ -19,9 +19,10 @@ import {
   resolveWeekStartKey,
   type AssignableStaffMember,
 } from "@/lib/admin/schedule";
-import { keyAccessOptions } from "@/lib/booking";
+import { keyAccessLabel as resolveKeyAccessLabel } from "@/lib/booking";
 import { formatKr } from "@/lib/cleaning-pricing";
 import { services } from "@/lib/services";
+import { DeleteBookingButton } from "@/components/admin/delete-booking-button";
 
 const bookingTypeLabels: Record<string, string> = {
   cleaning_direct: "Direktbokning",
@@ -64,12 +65,14 @@ type AdminBookingDetailPanelProps = {
   booking: AdminBookingDetail;
   staffMembers: AssignableStaffMember[];
   canAssignStaff: boolean;
+  canDelete?: boolean;
 };
 
 export function AdminBookingDetailPanel({
   booking,
   staffMembers,
   canAssignStaff,
+  canDelete = false,
 }: AdminBookingDetailPanelProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -112,9 +115,7 @@ export function AdminBookingDetailPanel({
     );
   }
 
-  const keyAccessLabel = booking.cleaningDetails?.keyAccess
-    ? keyAccessOptions.find((option) => option.value === booking.cleaningDetails?.keyAccess)?.label
-    : null;
+  const keyAccessLabel = resolveKeyAccessLabel(booking.cleaningDetails?.keyAccess);
 
   const monthlyPrice =
     booking.cleaningDetails?.quotedMonthlyPriceOre != null
@@ -274,10 +275,6 @@ export function AdminBookingDetailPanel({
               />
               <DetailItem label="Frekvens" value={booking.cleaningDetails.frequencyLabel} />
               <DetailItem label="Yta" value={`${booking.cleaningDetails.squareMeters} kvm`} />
-              <DetailItem
-                label="Husdjur"
-                value={booking.cleaningDetails.hasPets ? "Ja" : "Nej"}
-              />
               <DetailItem label="Ordning" value={booking.cleaningDetails.tidying} />
               <DetailItem label="Veckodag" value={booking.cleaningDetails.weekdayPreference} />
               <DetailItem label="Nyckelåtkomst" value={keyAccessLabel} />
@@ -295,6 +292,20 @@ export function AdminBookingDetailPanel({
               <DetailItem label="Tidsram" value={booking.serviceDetails.timeframe} />
               <DetailItem label="Prisupplägg" value={booking.serviceDetails.adminPricingMode} />
             </dl>
+          </section>
+        ) : null}
+
+        {canDelete ? (
+          <section className="rounded-2xl border border-red-100 bg-red-50/40 p-5 shadow-sm md:p-6">
+            <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-red-700/70">
+              Farlig zon
+            </h3>
+            <p className="mt-2 text-sm text-muted">
+              Tar bort bokningen och tillhörande besök permanent.
+            </p>
+            <div className="mt-4">
+              <DeleteBookingButton bookingId={booking.id} />
+            </div>
           </section>
         ) : null}
       </div>

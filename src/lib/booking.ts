@@ -1,5 +1,4 @@
 import { formatZipCode, normalizeZipCode } from "@/lib/coverage";
-import { BRAND_POSSESSIVE } from "@/lib/brand";
 import { getService, type Service } from "@/lib/services";
 
 export const WEB_BOOKING_SERVICE_SLUG = "stad";
@@ -63,7 +62,7 @@ export type PetAnswer = "ja" | "nej";
 export type TidyingOption = "nej" | "ja-undanplockning";
 export type WeekdayPreference = "flexibel" | "valj-dag";
 export type ContactPreference = "ring" | "hembesok";
-export type KeyAccess = "hemma" | "lamnar-kontor" | "redan-lamnat";
+export type KeyAccess = "hemma" | "tillsammans" | "lamnar-kontor" | "redan-lamnat";
 export type WindowBookingMode = "engang" | "abonnemang";
 
 export type CleaningAddons = {
@@ -187,7 +186,7 @@ const cleaningBookingCopyByPlats: Record<CleaningPropertyType, CleaningBookingCo
     methodTitle: "Boka fönsterputs",
     methodDescription:
       "Välj engångsputs eller abonnemang och ange hur många fönster som ska putsas.",
-    highlights: ["280 kr per fönster", "Engångs eller abonnemang", "Tydligt antal"],
+    highlights: ["280 kr/st engångs · 240 kr/st abonnemang", "Engångs eller abonnemang", "Tydligt antal"],
     methodOptions: [
       {
         value: "direct",
@@ -364,12 +363,40 @@ export const weekdayPreferenceOptions: {
 
 export const keyAccessOptions: { value: KeyAccess; label: string }[] = [
   { value: "hemma", label: "Jag är hemma" },
+  { value: "tillsammans", label: "Vi styr upp det tillsammans" },
+];
+
+/** Older key-access values kept for display of existing bookings. */
+export const legacyKeyAccessLabels: Partial<Record<KeyAccess, string>> = {
+  "lamnar-kontor": "Lämnar nycklar på kontoret",
+  "redan-lamnat": "Har redan lämnat nycklar",
+};
+
+export function keyAccessLabel(value?: string | null) {
+  if (!value) return null;
+  const current = keyAccessOptions.find((option) => option.value === value);
+  if (current) return current.label;
+  return legacyKeyAccessLabels[value as KeyAccess] ?? value;
+}
+
+export const windowSubscriptionPlans: {
+  value: Extract<CleaningFrequency, "var-fjarde-vecka" | "varannan-vecka">;
+  label: string;
+  description: string;
+  visitsPerMonth: number;
+}[] = [
   {
-    value: "lamnar-kontor",
-    label:
-      `Jag lämnar nycklar på ${BRAND_POSSESSIVE} kontor senast 3 dagar innan första bokade tiden`,
+    value: "var-fjarde-vecka",
+    label: "1 gång per månad",
+    description: "240 kr per fönster och tillfälle.",
+    visitsPerMonth: 1,
   },
-  { value: "redan-lamnat", label: "Jag har redan lämnat nycklar" },
+  {
+    value: "varannan-vecka",
+    label: "2 gånger per månad",
+    description: "240 kr per fönster × 2 tillfällen per månad.",
+    visitsPerMonth: 2,
+  },
 ];
 
 export function isWebBookingService(slug: string) {

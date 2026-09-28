@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ClearActiveBookingsButton } from "@/components/admin/clear-active-bookings-button";
 import { ScheduleCreateBookingModal } from "@/components/admin/schedule-create-booking-modal";
 import { AdminBookingsTable } from "@/components/admin/admin-bookings-table";
 import type { DashboardBooking } from "@/lib/admin/queries";
@@ -14,6 +15,7 @@ type AdminBookingsViewProps = {
   bookings: DashboardBooking[];
   staffMembers: AssignableStaffMember[];
   canCreateBooking: boolean;
+  canClearBookings?: boolean;
   emptyMessage: string;
 };
 
@@ -28,6 +30,7 @@ export function AdminBookingsView({
   bookings,
   staffMembers,
   canCreateBooking,
+  canClearBookings = false,
   emptyMessage,
 }: AdminBookingsViewProps) {
   const [createOpen, setCreateOpen] = useState(false);
@@ -39,15 +42,18 @@ export function AdminBookingsView({
         <p className="text-sm text-muted">
           Hantera bokningar, kontaktuppgifter och tillhörande besök.
         </p>
-        {canCreateBooking ? (
-          <button
-            type="button"
-            onClick={() => setCreateOpen(true)}
-            className="rounded-full bg-green px-5 py-3 text-sm font-bold text-white transition hover:bg-ink"
-          >
-            Skapa bokning
-          </button>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-3">
+          {canClearBookings ? <ClearActiveBookingsButton /> : null}
+          {canCreateBooking ? (
+            <button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="rounded-full bg-green px-5 py-3 text-sm font-bold text-white transition hover:bg-ink"
+            >
+              Skapa bokning
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <AdminBookingsTable bookings={bookings} emptyMessage={emptyMessage} />

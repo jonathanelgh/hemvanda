@@ -1,12 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireTeamSession } from "@/lib/admin/auth";
+import { isAdmin, requireTeamSession } from "@/lib/admin/auth";
 import {
   convertCleaningLeadToBooking,
   convertServiceLeadToBooking,
 } from "@/lib/admin/convert-lead";
 import type { KeyAccess } from "@/lib/booking";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type ConvertLeadActionResult =
   | { ok: true; bookingId: string }
@@ -26,7 +27,7 @@ export async function convertCleaningLeadAction(
     return { ok: false, error: "Välj datum och tid för bokningen." };
   }
 
-  if (!["hemma", "lamnar-kontor", "redan-lamnat"].includes(keyAccess)) {
+  if (!["hemma", "tillsammans"].includes(keyAccess)) {
     return { ok: false, error: "Välj hur vi får åtkomst till nycklar." };
   }
 
@@ -78,4 +79,52 @@ export async function convertServiceLeadAction(
       error: error instanceof Error ? error.message : "Kunde inte skapa bokningen.",
     };
   }
+}
+
+export async function deleteLeadAction(
+  leadId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { profile } = await requireTeamSession();
+
+  if (!isAdmin(profile)) {
+    return { ok: false, error: "Endast admin kan ta bort förfrågningar." };
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("leads").delete().eq("id", leadId);
+
+  if (error) {
+    return { ok: false, error: "Kunde inte ta bort förfrågan." };
+  }
+
+  revalidatePath("/admin/leads");
+  revalidatePath("/admin");
+
+  return { ok: true };
+}
+
+export async function clearOpenLeadsAction(): Promise<
+  { ok: true; deleted: number } | { ok: false; error: string }
+> {
+  const { profile } = await requireTeamSession();
+
+  if (!isAdmin(profile)) {
+    return { ok: false, error: "Endast admin kan rensa förfrågningar." };
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("leads")
+    .delete()
+    .in("status", ["submitted", "contacted"])
+    .select("id");
+
+  if (error) {
+    return { ok: false, error: "Kunde inte rensa förfrågningar." };
+  }
+
+  revalidatePath("/admin/leads");
+  revalidatePath("/admin");
+
+  return { ok: true, deleted: data?.length ?? 0 };
 }

@@ -28,7 +28,6 @@ import {
   type CleaningAddons,
   type CleaningFrequency,
   type KeyAccess,
-  type PetAnswer,
   type WeekdayPreference,
   type WindowBookingMode,
 } from "@/lib/booking";
@@ -55,7 +54,6 @@ export function CleaningDirectForm({
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [squareMeters, setSquareMeters] = useState("");
-  const [hasPets, setHasPets] = useState<PetAnswer | "">("");
   const [frequency, setFrequency] = useState<CleaningFrequency>(
     defaultFrequencyForProperty(plats),
   );
@@ -76,20 +74,15 @@ export function CleaningDirectForm({
 
   useEffect(() => {
     if (plats === "fonster") {
-      setFrequency(windowMode === "engang" ? "fonster" : "varannan-vecka");
+      setFrequency(windowMode === "engang" ? "fonster" : "var-fjarde-vecka");
     }
   }, [plats, windowMode]);
 
-  const infoComplete = isCleaningInfoComplete(
-    squareMeters,
-    hasPets,
-    plats,
-    windowCount,
-  );
+  const infoComplete = isCleaningInfoComplete(squareMeters, plats, windowCount);
 
   const pricingInput = {
     squareMeters: plats === "fonster" ? "50" : squareMeters,
-    hasPets,
+    hasPets: "nej" as const,
     frequency,
     tidying: "nej" as const,
     weekdayPreference,
@@ -132,7 +125,7 @@ export function CleaningDirectForm({
           bookingPath: "direct",
           squareMeters:
             plats === "fonster" ? Number(windowCount) || 1 : Number(squareMeters),
-          hasPets,
+          hasPets: "nej",
           frequency,
           tidying: "nej",
           weekdayPreference,
@@ -342,14 +335,11 @@ export function CleaningDirectForm({
         <CleaningInfoSections
           squareMeters={squareMeters}
           onSquareMetersChange={setSquareMeters}
-          hasPets={hasPets}
-          onHasPetsChange={setHasPets}
           frequency={frequency}
           onFrequencyChange={setFrequency}
           weekdayPreference={weekdayPreference}
           onWeekdayPreferenceChange={setWeekdayPreference}
           squareMetersLabel={copy.squareMetersLabel}
-          petsLabel={copy.petsLabel}
           propertyType={plats}
           addons={addons}
           onAddonsChange={setAddons}

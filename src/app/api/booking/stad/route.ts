@@ -102,10 +102,6 @@ function validateCleaningInfo(payload: CleaningBookingPayload) {
     return `Ange bostadsyta mellan ${MIN_CLEANING_SQM} och ${MAX_CLEANING_SQM} kvm.`;
   }
 
-  if (payload.hasPets !== "ja" && payload.hasPets !== "nej") {
-    return "Ange om du har husdjur hemma.";
-  }
-
   if (!payload.frequency || !validFrequencies.includes(payload.frequency)) {
     return "Välj städfrekvens.";
   }
@@ -210,7 +206,7 @@ export async function POST(request: Request) {
           postalCode: payload.postnummer!,
           municipality: payload.kommun,
           squareMeters: payload.squareMeters!,
-          hasPets: payload.hasPets!,
+          hasPets: payload.hasPets === "ja" ? "ja" : "nej",
           frequency: payload.frequency as CleaningFrequency,
           tidying,
           weekdayPreference,
@@ -306,7 +302,7 @@ export async function POST(request: Request) {
           postalCode: payload.postnummer!,
           municipality: payload.kommun,
           squareMeters: payload.squareMeters!,
-          hasPets: payload.hasPets!,
+          hasPets: payload.hasPets === "ja" ? "ja" : "nej",
           frequency: payload.frequency as CleaningFrequency,
           tidying,
           weekdayPreference,
@@ -345,7 +341,7 @@ export async function POST(request: Request) {
         postalCode: payload.postnummer!,
         municipality: payload.kommun,
         squareMeters: payload.squareMeters!,
-        hasPets: payload.hasPets!,
+        hasPets: payload.hasPets === "ja" ? "ja" : "nej",
         frequency: payload.frequency as CleaningFrequency,
         tidying,
         weekdayPreference,

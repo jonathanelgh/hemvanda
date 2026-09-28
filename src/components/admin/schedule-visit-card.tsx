@@ -17,7 +17,7 @@ import {
   type BookingVisitItem,
   type ScheduleVisit,
 } from "@/lib/admin/schedule";
-import { keyAccessOptions } from "@/lib/booking";
+import { keyAccessLabel as resolveKeyAccessLabel } from "@/lib/booking";
 import { formatKr } from "@/lib/cleaning-pricing";
 import { services } from "@/lib/services";
 
@@ -161,9 +161,7 @@ export function ScheduleVisitCard({
     };
   }, [visit.bookingId, visit.id, visit.status]);
 
-  const keyAccessLabel = visit.keyAccess
-    ? keyAccessOptions.find((option) => option.value === visit.keyAccess)?.label
-    : null;
+  const keyAccessLabel = resolveKeyAccessLabel(visit.keyAccess);
 
   const monthlyPrice =
     visit.quotedMonthlyPriceOre != null
@@ -455,12 +453,6 @@ export function ScheduleVisitCard({
                   <DetailRow
                     label="Yta"
                     value={visit.squareMeters ? `${visit.squareMeters} kvm` : null}
-                  />
-                  <DetailRow
-                    label="Husdjur"
-                    value={
-                      visit.hasPets == null ? null : visit.hasPets ? "Ja" : "Nej"
-                    }
                   />
                   <DetailRow label="Ordning" value={visit.tidying} />
                   <DetailRow label="Veckodag" value={visit.weekdayPreference} />

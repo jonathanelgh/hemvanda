@@ -164,13 +164,13 @@ export function ScheduleCreateBookingServiceFields({
   const showManualPricing = requiresManualPricing(serviceSlug, cleaningPropertyType);
 
   const calculatedPrice = useMemo(() => {
-    if (!showCalculatedPrice || !squareMeters || !hasPets) {
+    if (!showCalculatedPrice || !squareMeters) {
       return null;
     }
 
     return calculateCleaningPrice({
       squareMeters,
-      hasPets,
+      hasPets: hasPets || "nej",
       frequency,
       tidying,
       weekdayPreference: "valj-dag",
@@ -232,21 +232,6 @@ export function ScheduleCreateBookingServiceFields({
                 }
                 className={inputClassName}
               />
-            </label>
-
-            <label className="block">
-              <FieldLabel>{cleaningCopy.petsLabel}</FieldLabel>
-              <select
-                value={hasPets}
-                onChange={(event) =>
-                  onHasPetsChange(event.target.value as PetAnswer)
-                }
-                className={inputClassName}
-              >
-                <option value="">Välj...</option>
-                <option value="nej">Nej</option>
-                <option value="ja">Ja</option>
-              </select>
             </label>
 
             <label className="block">

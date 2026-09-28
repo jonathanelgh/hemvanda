@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { ClearOpenLeadsButton } from "@/components/admin/clear-open-leads-button";
 import { AdminShell } from "@/components/admin/admin-shell";
-import { requireTeamSession } from "@/lib/admin/auth";
+import { isAdmin, requireTeamSession } from "@/lib/admin/auth";
 import { listLeads } from "@/lib/admin/queries";
 import { getCleaningFrequencyLabel } from "@/lib/booking-schedule";
 import { services } from "@/lib/services";
@@ -24,12 +25,17 @@ function serviceTitle(slug: string) {
 export default async function AdminLeadsPage() {
   const { profile } = await requireTeamSession();
   const leads = await listLeads();
+  const adminView = isAdmin(profile);
 
   return (
-    <AdminShell
-      profile={profile}
-      title="Förfrågningar"
-    >
+    <AdminShell profile={profile} title="Förfrågningar">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <p className="text-sm text-muted">
+          Hantera inkomna förfrågningar och omvandla dem till bokningar.
+        </p>
+        {adminView ? <ClearOpenLeadsButton /> : null}
+      </div>
+
       {leads.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-green/15 bg-white px-6 py-12 text-center text-sm text-muted">
           Inga leads ännu.
@@ -52,7 +58,8 @@ export default async function AdminLeadsPage() {
                     </Link>
                   </h2>
                   <p className="mt-1 text-sm text-muted">
-                    {lead.postal_code} {lead.municipality} · {serviceTitle(lead.service_slug)}
+                    {lead.postal_code} {lead.municipality} ·{" "}
+                    {serviceTitle(lead.service_slug)}
                   </p>
                   {lead.frequency ? (
                     <p className="mt-1 text-sm text-muted">

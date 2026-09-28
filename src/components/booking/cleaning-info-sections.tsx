@@ -10,10 +10,10 @@ import {
 import {
   cleaningFrequencyPlans,
   weekdayPreferenceOptions,
+  windowSubscriptionPlans,
   type CleaningAddons,
   type CleaningFrequency,
   type CleaningPropertyType,
-  type PetAnswer,
   type WeekdayPreference,
   type WindowBookingMode,
 } from "@/lib/booking";
@@ -41,14 +41,11 @@ function FieldLegend({
 type CleaningInfoSectionsProps = {
   squareMeters: string;
   onSquareMetersChange: (value: string) => void;
-  hasPets: PetAnswer | "";
-  onHasPetsChange: (value: PetAnswer) => void;
   frequency: CleaningFrequency;
   onFrequencyChange: (value: CleaningFrequency) => void;
   weekdayPreference: WeekdayPreference;
   onWeekdayPreferenceChange: (value: WeekdayPreference) => void;
   squareMetersLabel?: string;
-  petsLabel?: string;
   propertyType?: CleaningPropertyType;
   storstadBookingHref?: string;
   addons: CleaningAddons;
@@ -89,14 +86,11 @@ function AddonCheckbox({
 export function CleaningInfoSections({
   squareMeters,
   onSquareMetersChange,
-  hasPets,
-  onHasPetsChange,
   frequency,
   onFrequencyChange,
   weekdayPreference,
   onWeekdayPreferenceChange,
   squareMetersLabel = "Bostadsyta (kvm)",
-  petsLabel = "Har du husdjur hemma?",
   propertyType,
   storstadBookingHref,
   addons,
@@ -110,9 +104,14 @@ export function CleaningInfoSections({
   const isFlyttstad = propertyType === "flyttstad";
   const isFonster = propertyType === "fonster";
   const isHem = !propertyType || propertyType === "hem";
-  const showFrequency = isHem || (isFonster && windowMode === "abonnemang");
+  const showHemFrequency = isHem;
+  const showWindowFrequency = isFonster && windowMode === "abonnemang";
   const showWeekday = isHem;
   const showSqm = !isFonster;
+  const windowUnitPrice =
+    windowMode === "abonnemang"
+      ? ADDON_PRICES.windowSubscription
+      : ADDON_PRICES.window;
 
   return (
     <>
@@ -125,12 +124,12 @@ export function CleaningInfoSections({
                 {
                   value: "engang" as const,
                   title: "Engångs",
-                  description: "Putsar fönstren en gång.",
+                  description: `Putsar fönstren en gång · ${ADDON_PRICES.window} kr/st`,
                 },
                 {
                   value: "abonnemang" as const,
                   title: "Abonnemang",
-                  description: "Återkommande fönsterputs med valt intervall.",
+                  description: `Återkommande puts · ${ADDON_PRICES.windowSubscription} kr/st`,
                 },
               ] as const
             ).map((option) => (
@@ -169,7 +168,8 @@ export function CleaningInfoSections({
               className={fieldClassName}
             />
             <p className="mt-2 text-sm text-muted">
-              {ADDON_PRICES.window} kr per fönster
+              {windowUnitPrice} kr per fönster
+              {windowMode === "abonnemang" ? " och tillfälle" : ""}
             </p>
           </div>
         </section>
@@ -193,54 +193,10 @@ export function CleaningInfoSections({
           <p className="mt-2 text-sm text-muted">
             Ange yta mellan {MIN_CLEANING_SQM} och {MAX_CLEANING_SQM} kvm.
           </p>
-
-          <div className="mt-6">
-            <FieldLegend label={petsLabel} required />
-            <div className="grid gap-3 sm:grid-cols-2">
-              {(["ja", "nej"] as PetAnswer[]).map((value) => (
-                <label
-                  key={value}
-                  className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-green/10 bg-white px-4 py-4 text-sm font-semibold text-green transition has-checked:border-gold has-checked:bg-ivory"
-                >
-                  <input
-                    type="radio"
-                    name="hasPets"
-                    value={value}
-                    checked={hasPets === value}
-                    onChange={() => onHasPetsChange(value)}
-                    className="h-4 w-4 accent-gold"
-                  />
-                  {value === "ja" ? "Ja" : "Nej"}
-                </label>
-              ))}
-            </div>
-          </div>
         </section>
-      ) : (
-        <section className={bookingSectionClassName}>
-          <FieldLegend label={petsLabel} required />
-          <div className="grid gap-3 sm:grid-cols-2">
-            {(["ja", "nej"] as PetAnswer[]).map((value) => (
-              <label
-                key={value}
-                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-green/10 bg-white px-4 py-4 text-sm font-semibold text-green transition has-checked:border-gold has-checked:bg-ivory"
-              >
-                <input
-                  type="radio"
-                  name="hasPets"
-                  value={value}
-                  checked={hasPets === value}
-                  onChange={() => onHasPetsChange(value)}
-                  className="h-4 w-4 accent-gold"
-                />
-                {value === "ja" ? "Ja" : "Nej"}
-              </label>
-            ))}
-          </div>
-        </section>
-      )}
+      ) : null}
 
-      {showFrequency ? (
+      {showHemFrequency ? (
         <section className={bookingSectionClassName}>
           <FieldLegend label="Välj städfrekvens" required />
           <div className="grid gap-3">
@@ -294,6 +250,35 @@ export function CleaningInfoSections({
               Vill du i stället boka storstädning? Klicka här.
             </Link>
           ) : null}
+        </section>
+      ) : null}
+
+      {showWindowFrequency ? (
+        <section className={bookingSectionClassName}>
+          <FieldLegend label="Hur ofta ska fönstren putsas?" required />
+          <div className="grid gap-3">
+            {windowSubscriptionPlans.map((plan) => (
+              <label
+                key={plan.value}
+                className="flex cursor-pointer items-start gap-4 rounded-lg border border-green/10 bg-white px-4 py-4 transition has-checked:border-gold has-checked:bg-ivory"
+              >
+                <input
+                  type="radio"
+                  name="windowFrequency"
+                  value={plan.value}
+                  checked={frequency === plan.value}
+                  onChange={() => onFrequencyChange(plan.value)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-gold"
+                />
+                <span>
+                  <span className="block font-semibold text-green">{plan.label}</span>
+                  <span className="mt-1 block text-sm leading-6 text-muted">
+                    {plan.description}
+                  </span>
+                </span>
+              </label>
+            ))}
+          </div>
         </section>
       ) : null}
 
@@ -371,12 +356,9 @@ export function CleaningInfoSections({
 
 export function isCleaningInfoComplete(
   squareMeters: string,
-  hasPets: PetAnswer | "",
   propertyType?: CleaningPropertyType,
   windowCount?: string,
 ) {
-  if (hasPets === "") return false;
-
   if (propertyType === "fonster") {
     return Boolean(windowCount?.trim()) && Number(windowCount) >= 1;
   }

@@ -173,22 +173,32 @@
     return Boolean(loadingEl && !loadingEl.classList.contains("hidden"));
   }
 
+  function submitIdleLabel(submit) {
+    return (
+      (submit && submit.getAttribute("data-idle-label")) || "Fortsätt"
+    );
+  }
+
   function setSubmitState(form, state, masked) {
     var submit = form.querySelector("[data-submit-button]");
     var hint = form.querySelector("[data-postal-hint]");
     var modal = modalFor(form);
     var mode = selectionMode(form, modal);
+    var idleLabel = submitIdleLabel(submit);
     var readyLabel =
-      mode === "locations"
+      (submit && submit.getAttribute("data-ready-label")) ||
+      (mode === "locations"
         ? "Välj plats"
         : mode === "fixed"
-          ? "Fortsätt"
-          : "Välj tjänst";
+          ? idleLabel === "Fortsätt"
+            ? "Fortsätt"
+            : idleLabel
+          : "Välj tjänst");
     if (!submit) return;
 
     if (state === "idle") {
       submit.disabled = true;
-      submit.textContent = "Fortsätt";
+      submit.textContent = idleLabel;
       setHint(hint, "", false);
       return;
     }
@@ -217,7 +227,7 @@
 
     if (state === "error") {
       submit.disabled = true;
-      submit.textContent = "Fortsätt";
+      submit.textContent = idleLabel;
       setHint(
         hint,
         masked ||

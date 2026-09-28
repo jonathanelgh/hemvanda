@@ -4,6 +4,7 @@ import {
   type CleaningFrequency,
   type CleaningPropertyType,
 } from "@/lib/booking";
+import { BRAND_PHONE_DISPLAY } from "@/lib/brand";
 import { formatKr } from "@/lib/cleaning-pricing";
 import {
   getEmailFrom,
@@ -24,6 +25,14 @@ import {
 import { getService } from "@/lib/services";
 import { SITE_URL } from "@/lib/seo";
 import { createAdminClient } from "@/lib/supabase/admin";
+
+const CUSTOMER_SUPPORT_EMAIL = "info@hemvanda.se";
+
+function customerContactParagraph() {
+  return emailParagraph(
+    `Har du frågor eller behöver ändra något? Ring oss på ${BRAND_PHONE_DISPLAY} eller mejla ${CUSTOMER_SUPPORT_EMAIL}.`,
+  );
+}
 
 type SendEmailInput = {
   to: string | string[];
@@ -140,7 +149,7 @@ export async function notifyCleaningBookingCreated(input: CleaningBookingEmailIn
           : "Vi har tagit emot din bokningsförfrågan. Här är en sammanfattning av dina uppgifter – vi återkommer med bekräftelse så snart vi kan.",
       ),
       emailDetailsTable(customerRows),
-      emailParagraph("Har du frågor eller behöver ändra något? Svara på det här mailet eller kontakta oss."),
+      customerContactParagraph(),
     ].join(""),
   });
 
@@ -235,7 +244,7 @@ export async function notifyCleaningInquiryReceived(input: CleaningInquiryEmailI
         "Vi har tagit emot din förfrågan och återkommer till dig så snart vi kan – oftast inom en arbetsdag.",
       ),
       emailDetailsTable(customerRows),
-      emailParagraph("Behöver du komplettera något? Svara gärna på det här mailet."),
+      customerContactParagraph(),
     ].join(""),
   });
 
@@ -319,7 +328,7 @@ export async function notifyServiceInquiryReceived(input: ServiceInquiryEmailInp
           }),
         },
       ]),
-      emailParagraph("Behöver du komplettera något? Svara gärna på det här mailet."),
+      customerContactParagraph(),
     ].join(""),
   });
 
@@ -405,7 +414,7 @@ export async function notifyServiceBookingCreated(input: ServiceBookingEmailInpu
       emailHeading(`Tack för din bokning, ${input.name.split(" ")[0]}!`),
       emailParagraph("Vi har bekräftat din bokning. Här är en sammanfattning."),
       emailDetailsTable(customerRows),
-      emailParagraph("Har du frågor? Svara på det här mailet eller kontakta oss."),
+      customerContactParagraph(),
     ].join(""),
   });
 

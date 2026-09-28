@@ -3,18 +3,29 @@ import {
   WEB_BOOKING_SERVICE_SLUG,
 } from "@/lib/booking";
 import { getBookingModalServices } from "@/lib/services";
+import { Icon } from "@/components/icons";
 
 type BookingCtaProps = {
   compact?: boolean;
+  /** Homepage hero card: green CTA, trust row, mock styling. */
+  variant?: "default" | "hero";
   defaultService?: string;
   formId?: string;
 };
 
+const HERO_TRUST = [
+  "Lokala företag",
+  "Trygga tjänster",
+  "Enkel process",
+] as const;
+
 export function BookingCta({
   compact = false,
+  variant = "default",
   defaultService,
   formId = "boka",
 }: BookingCtaProps) {
+  const isHero = variant === "hero";
   const bookableServices = getBookingModalServices();
   const hasFixedService = Boolean(defaultService);
   const isCleaningService = defaultService === WEB_BOOKING_SERVICE_SLUG;
@@ -55,6 +66,22 @@ export function BookingCta({
     </div>
   );
 
+  const formClassName = isHero
+    ? "w-full rounded-2xl border border-white/55 bg-[#f5f1eb]/94 p-4 shadow-[0_18px_48px_rgba(47,58,51,0.14)] backdrop-blur-md sm:p-6"
+    : compact
+      ? "w-full rounded-xl border border-white/45 bg-white/35 p-6 backdrop-blur"
+      : "rounded-xl border border-green/10 bg-card p-4 shadow-[0_24px_80px_rgba(47,58,51,0.12)] md:p-6";
+
+  const inputWrapClassName = isHero
+    ? "relative flex h-14 w-full items-center rounded-xl border border-green/10 bg-white px-4"
+    : "relative flex h-14 w-full items-center rounded-full border border-green/15 bg-white px-5";
+
+  const submitClassName = isHero
+    ? "h-14 w-full rounded-xl bg-green px-7 text-sm font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-80"
+    : `h-14 rounded-full bg-gold px-7 text-sm font-bold text-green transition hover:bg-sand disabled:cursor-not-allowed disabled:opacity-60 ${
+        compact ? "w-full" : "w-full md:w-auto md:min-w-36"
+      }`;
+
   return (
     <>
       <form
@@ -63,18 +90,20 @@ export function BookingCta({
         data-selection-mode={selectionMode}
         data-fixed-service={hasFixedService ? defaultService : undefined}
         noValidate
-        className={
-          compact
-            ? "w-full rounded-xl border border-white/45 bg-white/35 p-6 backdrop-blur"
-            : "rounded-xl border border-green/10 bg-card p-4 shadow-[0_24px_80px_rgba(47,58,51,0.12)] md:p-6"
-        }
+        className={formClassName}
       >
-        <div className={compact ? "flex flex-col gap-4" : "flex flex-col gap-4 md:max-w-md"}>
+        <div className={compact || isHero ? "flex flex-col gap-4" : "flex flex-col gap-4 md:max-w-md"}>
           <label className="block">
-            <span className="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-green/60">
-              Postnummer
+            <span
+              className={
+                isHero
+                  ? "mb-2.5 block text-[11px] font-bold uppercase tracking-[0.22em] text-green/70"
+                  : "mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-green/60"
+              }
+            >
+              {isHero ? "Ange ditt postnummer" : "Postnummer"}
             </span>
-            <div className="relative flex h-14 w-full items-center rounded-full border border-green/15 bg-white px-5">
+            <div className={inputWrapClassName}>
               <input
                 type="text"
                 inputMode="numeric"
@@ -88,14 +117,14 @@ export function BookingCta({
               />
               <span
                 data-form-postal-loading
-                className="pointer-events-none absolute right-5 hidden text-base text-muted"
+                className="pointer-events-none absolute right-4 hidden text-base text-muted sm:right-5"
                 aria-hidden="true"
               >
                 ...
               </span>
               <span
                 data-form-postal-place
-                className="pointer-events-none absolute right-5 hidden max-w-[58%] truncate text-base font-semibold text-green"
+                className="pointer-events-none absolute right-4 hidden max-w-[58%] truncate text-base font-semibold text-green sm:right-5"
                 aria-hidden="true"
               />
             </div>
@@ -103,20 +132,37 @@ export function BookingCta({
           <button
             type="submit"
             data-submit-button
+            data-idle-label={isHero ? "Hitta hjälp →" : undefined}
             disabled
-            className={`h-14 rounded-full bg-gold px-7 text-sm font-bold text-green transition hover:bg-sand disabled:cursor-not-allowed disabled:opacity-60 ${
-              compact ? "w-full" : "w-full md:w-auto md:min-w-36"
-            }`}
+            className={submitClassName}
           >
-            Fortsätt
+            {isHero ? "Hitta hjälp →" : "Fortsätt"}
           </button>
         </div>
         <p
           id={`${formId}-hint`}
           data-postal-hint
-          className="mt-4 hidden text-xs leading-5 text-muted"
+          className="mt-3 hidden text-xs leading-5 text-muted"
           aria-live="polite"
         />
+        {isHero ? (
+          <ul className="mt-5 flex items-stretch justify-between gap-1 border-t border-green/10 pt-4 sm:gap-2">
+            {HERO_TRUST.map((item, index) => (
+              <li
+                key={item}
+                className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 px-1 text-center text-[11px] font-medium leading-tight text-green/80 sm:text-xs ${
+                  index > 0 ? "border-l border-green/15" : ""
+                }`}
+              >
+                <Icon
+                  name="check"
+                  className="h-3.5 w-3.5 shrink-0 text-[#a67c52]"
+                />
+                <span className="truncate sm:whitespace-normal">{item}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </form>
 
       {selectionMode !== "fixed" ? (

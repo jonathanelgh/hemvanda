@@ -41,11 +41,13 @@ export const ADDON_PRICES = {
   oven: 301,
   fridge: 220,
   supplies: 301,
+  /** Engångs fönsterputs per styck */
   window: 280,
+  /** Abonnemang fönsterputs per styck och tillfälle */
+  windowSubscription: 240,
   balcony: 300,
 } as const;
 
-const PET_SURCHARGE = 149;
 const WEEKDAY_SURCHARGE = 49;
 const DEFAULT_SQM = 50;
 export const MIN_CLEANING_SQM = 10;
@@ -230,7 +232,7 @@ function addonLines(addons?: CleaningAddons, windowCount = 0): CleaningPriceLine
   }
   if (windowCount > 0 && addons.windowsIncluded) {
     lines.push({
-      label: `Fönster (${windowCount} st)`,
+      label: `Fönster (${windowCount} st × ${ADDON_PRICES.window} kr)`,
       amount: windowCount * ADDON_PRICES.window,
     });
   }
@@ -253,7 +255,8 @@ export function calculateCleaningPrice(input: CleaningPricingInput): CleaningPri
     cleaningFrequencyPlans.find((plan) => plan.value === input.frequency)?.label ??
     config.label;
 
-  const petAmount = input.hasPets === "ja" ? PET_SURCHARGE : 0;
+  // Pets are no longer collected in the booking flow.
+  void input.hasPets;
   const weekdayAmount =
     input.weekdayPreference === "valj-dag" && propertyType === "hem"
       ? WEEKDAY_SURCHARGE
@@ -269,14 +272,26 @@ export function calculateCleaningPrice(input: CleaningPricingInput): CleaningPri
   if (propertyType === "fonster") {
     const windows = Math.max(1, Math.round(input.windowCount || 1));
     const windowMode = input.windowMode ?? "engang";
-    perVisit = windows * ADDON_PRICES.window;
+    const unitPrice =
+      windowMode === "abonnemang"
+        ? ADDON_PRICES.windowSubscription
+        : ADDON_PRICES.window;
+    perVisit = windows * unitPrice;
     isOneTime = windowMode === "engang";
-    visitsPerMonth = isOneTime ? 1 : config.visitsPerMonth;
+    visitsPerMonth =
+      windowMode === "abonnemang"
+        ? input.frequency === "varannan-vecka"
+          ? 2
+          : 1
+        : 1;
     isEstimate = !(input.windowCount && input.windowCount > 0);
     priceLabel = isOneTime ? "Engångspris" : "Pris per månad";
     lines.push({
-      label: `Fönsterputs (${windows} st × ${ADDON_PRICES.window} kr)`,
+      label: `Fönsterputs (${windows} st × ${unitPrice} kr)`,
       amount: perVisit,
+      note: isOneTime
+        ? "Engångs"
+        : `${visitsPerMonth} ${visitsPerMonth === 1 ? "gång" : "gånger"}/månad`,
     });
   } else if (propertyType === "storstad" || input.frequency === "storstadning") {
     const tier = priceFromAnchors(sqm, STORSTAD_ANCHORS);
@@ -317,11 +332,6 @@ export function calculateCleaningPrice(input: CleaningPricingInput): CleaningPri
       label: `Hemstädning ${frequencyLabel.toLowerCase()} (${quote.label})`,
       amount: perVisit,
     });
-  }
-
-  if (petAmount > 0) {
-    lines.push({ label: "Husdjurstillägg", amount: petAmount });
-    perVisit += petAmount;
   }
 
   if (weekdayAmount > 0) {

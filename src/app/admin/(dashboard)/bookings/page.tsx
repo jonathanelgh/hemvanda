@@ -20,6 +20,7 @@ export default async function AdminBookingsPage() {
         bookings={bookings}
         staffMembers={staffMembers}
         canCreateBooking={adminView}
+        canClearBookings={adminView}
         emptyMessage={
           adminView
             ? "Inga bokningar att visa."
