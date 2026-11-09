@@ -7,8 +7,14 @@ import type {
   GenerateBlogPostResponse,
 } from "@/lib/ai/blog-generation";
 import { requireTeamSession } from "@/lib/admin/auth";
+import {
+  processBlogAutomationTick,
+  refillTopicsNow,
+} from "@/lib/blog/automation/run";
+import { normalizePublishTimes } from "@/lib/blog/automation/schedule";
 import { slugify } from "@/lib/blog/slug";
 import { services } from "@/lib/services";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
   createBlogCategory,
@@ -273,6 +279,61 @@ export async function generateBlogPostWithAiAction(
     return {
       ok: false,
       error: error instanceof Error ? error.message : "Kunde inte generera blogginlägg.",
+    };
+  }
+}
+
+export async function saveBlogAutomationSettingsAction(input: {
+  enabled: boolean;
+  intervalDays: number;
+  publishTime: string;
+  topicBatchSize: number;
+}) {
+  const { user } = await requireTeamSession();
+  const db = createAdminClient();
+  const { error } = await db
+    .from("blog_automation_settings")
+    .update({
+      enabled: input.enabled,
+      posts_per_day: 1,
+      interval_days: Math.max(1, Math.min(30, Math.round(input.intervalDays) || 3)),
+      publish_times: normalizePublishTimes([input.publishTime]),
+      topic_batch_size: Math.max(4, Math.min(40, Math.round(input.topicBatchSize) || 12)),
+      updated_at: new Date().toISOString(),
+      updated_by: user.id,
+    })
+    .eq("id", 1);
+
+  if (error) {
+    return { ok: false as const, error: error.message };
+  }
+
+  revalidatePath("/admin/blog");
+  return { ok: true as const, message: "Schema sparat." };
+}
+
+export async function runBlogAutomationAction(action: "refill_topics" | "publish_now") {
+  await requireTeamSession();
+
+  try {
+    if (action === "refill_topics") {
+      const result = await refillTopicsNow();
+      revalidatePath("/admin/blog");
+      return { ok: true as const, generated: result.generated };
+    }
+
+    const result = await processBlogAutomationTick({ force: true });
+    revalidatePath("/admin/blog");
+    const failed = "results" in result ? result.results?.find((item) => item.error) : undefined;
+    if (failed) {
+      return { ok: false as const, error: String(failed.error) };
+    }
+
+    return { ok: true as const };
+  } catch (error) {
+    return {
+      ok: false as const,
+      error: error instanceof Error ? error.message : "Kunde inte köra blogg-AI.",
     };
   }
 }

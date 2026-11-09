@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { BlogAiGeneratePanel } from "@/components/admin/blog-ai-generate-panel";
+import { BlogAutomationPanel } from "@/components/admin/blog-automation-panel";
 import { requireTeamSession } from "@/lib/admin/auth";
+import { getBlogAutomationOverview } from "@/lib/blog/automation/run";
 import { listAllBlogPostsAdmin, listBlogCategoriesAdmin } from "@/lib/db/blog";
 
 const statusLabels = {
@@ -9,15 +11,33 @@ const statusLabels = {
   published: "Publicerad",
 } as const;
 
+export const maxDuration = 300;
+
 export default async function AdminBlogPage() {
   const { profile } = await requireTeamSession();
-  const [posts, categories] = await Promise.all([
+  const [posts, categories, automation] = await Promise.all([
     listAllBlogPostsAdmin(),
     listBlogCategoriesAdmin(),
+    getBlogAutomationOverview().catch(() => null),
   ]);
 
   return (
     <AdminShell profile={profile} title="Blogg">
+      {automation ? (
+        <BlogAutomationPanel
+          settings={{
+            enabled: automation.settings.enabled,
+            intervalDays: automation.settings.interval_days,
+            publishTime: automation.settings.publish_times[0] ?? "09:00",
+            topicBatchSize: automation.settings.topic_batch_size,
+            lastRunAt: automation.settings.last_run_at,
+            lastError: automation.settings.last_error,
+          }}
+          counts={automation.counts}
+          topics={automation.topics}
+        />
+      ) : null}
+
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted">
           Skapa och publicera artiklar med kategorier, omslagsbild och SEO-fält.
