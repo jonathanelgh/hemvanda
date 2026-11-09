@@ -8,7 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 import { BRAND_NAME, BRAND_PHONE_DISPLAY, BRAND_PHONE_E164, BRAND_TAGLINE } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: `Om oss | ${BRAND_NAME}`,
+  title: "Om oss",
   description:
     `${BRAND_NAME} samlar städ, hantverk och hemtjänster under ett tak. Läs om vår idé, vårt arbetssätt och varför vi tror på ett hem som känns rätt.`,
 };

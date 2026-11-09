@@ -6,7 +6,7 @@ import { BRAND_NAME } from "@/lib/brand";
 import { redirectIfCustomerLoggedIn } from "@/lib/auth/customer";
 
 export const metadata: Metadata = {
-  title: `Glömt lösenord | ${BRAND_NAME}`,
+  title: "Glömt lösenord",
   description: `Återställ ditt lösenord för Mitt ${BRAND_NAME}.`,
 };
 

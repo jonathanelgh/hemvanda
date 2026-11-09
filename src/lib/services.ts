@@ -91,7 +91,7 @@ export const services: Service[] = [
       },
     ],
     seo: {
-      title: "Städ | HemVända",
+      title: "Städ",
       description:
         "Boka städning i Stockholm med HemVända. Hemstäd, storstäd, flyttstäd och fönsterputs med tydligt pris.",
     },
@@ -159,7 +159,7 @@ export const services: Service[] = [
       },
     ],
     seo: {
-      title: "Måleri, bygg och renovering | HemVända",
+      title: "Måleri, bygg och renovering",
       description:
         "Boka måleri, bygg och renovering med HemVända. Trygg hjälp med hemförbättringar och genomtänkta lösningar.",
     },
@@ -226,7 +226,7 @@ export const services: Service[] = [
       },
     ],
     seo: {
-      title: "Handyman | HemVända",
+      title: "Handyman",
       description:
         "Boka Handyman med HemVända. Få hjälp med montering, upphängning, småfix och enklare reparationer hemma.",
     },
@@ -293,7 +293,7 @@ export const services: Service[] = [
       },
     ],
     seo: {
-      title: "Inredning | HemVända",
+      title: "Inredning",
       description:
         "Boka inredning och styling med HemVända för ett hem som känns varmt, genomtänkt och personligt.",
     },

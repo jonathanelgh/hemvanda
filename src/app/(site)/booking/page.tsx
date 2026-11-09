@@ -14,7 +14,7 @@ import {
 } from "@/lib/booking";
 
 export const metadata: Metadata = {
-  title: `Boka | ${BRAND_NAME}`,
+  title: "Boka",
   description:
     `Boka hemstädning direkt online eller skicka en förfrågan för andra ${BRAND_NAME}-tjänster.`,
 };

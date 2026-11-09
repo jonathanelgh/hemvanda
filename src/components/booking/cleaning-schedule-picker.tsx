@@ -34,14 +34,17 @@ export function CleaningSchedulePicker({
   );
 
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [timesStatus, setTimesStatus] = useState<"idle" | "loading" | "ready">("idle");
 
   useEffect(() => {
     if (!selectedDate) {
       setAvailableTimes([]);
+      setTimesStatus("idle");
       return;
     }
 
     let cancelled = false;
+    setTimesStatus("loading");
 
     fetch(`/api/booking/availability?date=${selectedDate}`)
       .then(async (response) => {
@@ -63,11 +66,13 @@ export function CleaningSchedulePicker({
       .then((data: { times?: string[] }) => {
         if (!cancelled) {
           setAvailableTimes(Array.isArray(data.times) ? data.times : []);
+          setTimesStatus("ready");
         }
       })
       .catch(() => {
         if (!cancelled) {
           setAvailableTimes([]);
+          setTimesStatus("ready");
         }
       });
 
@@ -226,7 +231,24 @@ export function CleaningSchedulePicker({
           <p className="mt-2 text-sm text-muted">
             Välj en tid för din första städning.
           </p>
-          {availableTimes.length > 0 ? (
+          {timesStatus === "loading" ? (
+            <div
+              className="mt-4 flex flex-wrap gap-3"
+              aria-busy="true"
+              aria-live="polite"
+            >
+              <span className="sr-only">Hämtar lediga tider...</span>
+              {[0, 1].map((item) => (
+                <span
+                  key={item}
+                  aria-hidden="true"
+                  className="inline-flex h-12 min-w-24 items-center justify-center rounded-full border border-green/15 bg-white px-6"
+                >
+                  <span className="h-3 w-10 animate-pulse rounded-full bg-ivory" />
+                </span>
+              ))}
+            </div>
+          ) : availableTimes.length > 0 ? (
             <div className="mt-4 flex flex-wrap gap-3">
               {availableTimes.map((time) => (
                 <button

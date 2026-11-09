@@ -6,7 +6,7 @@ import { BRAND_NAME } from "@/lib/brand";
 import { resolveSafeRedirectPath } from "@/lib/auth/login-redirect";
 
 export const metadata: Metadata = {
-  title: `Bekräfta inloggning | ${BRAND_NAME}`,
+  title: "Bekräfta inloggning",
   description: `Slutför inloggningen till Mitt ${BRAND_NAME}.`,
   robots: { index: false, follow: false },
 };

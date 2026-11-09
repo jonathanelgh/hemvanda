@@ -15,7 +15,7 @@ import { getCustomerLeads } from "@/lib/db/customer-leads";
 import { services } from "@/lib/services";
 
 export const metadata: Metadata = {
-  title: `Mitt konto | ${BRAND_NAME}`,
+  title: "Mitt konto",
   description: `Se och hantera dina bokningar och uppgifter hos ${BRAND_NAME}.`,
 };
 

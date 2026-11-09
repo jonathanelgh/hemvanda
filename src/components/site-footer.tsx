@@ -10,7 +10,7 @@ const companyLinks = [
 ];
 const supportLinks = [
   { label: "Kontakta oss", href: "mailto:info@hemvanda.se" },
-  { label: "FAQ", href: "#" },
+  { label: "FAQ", href: "/faq" },
   { label: "Villkor", href: "/villkor" },
   { label: "Integritet", href: "/integritet" },
 ];

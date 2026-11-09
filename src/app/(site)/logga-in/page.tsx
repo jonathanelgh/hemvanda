@@ -7,7 +7,7 @@ import { redirectIfCustomerLoggedIn } from "@/lib/auth/customer";
 import { resolveSafeRedirectPath } from "@/lib/auth/login-redirect";
 
 export const metadata: Metadata = {
-  title: `Logga in | ${BRAND_NAME}`,
+  title: "Logga in",
   description: `Logga in på Mitt ${BRAND_NAME} med e-post och lösenord eller en säker inloggningslänk.`,
 };
 

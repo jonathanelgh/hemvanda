@@ -6,7 +6,7 @@ import {
 import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: `Villkor | ${BRAND_NAME}`,
+  title: "Villkor",
   description: `Allmänna villkor för att boka tjänster via ${BRAND_NAME}.`,
 };
 

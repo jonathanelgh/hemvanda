@@ -6,7 +6,7 @@ import {
 import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: `Integritetspolicy | ${BRAND_NAME}`,
+  title: "Integritetspolicy",
   description: `Läs hur ${BRAND_NAME} behandlar personuppgifter, cookies och marknadsföringssporning via Meta och Google.`,
 };
 

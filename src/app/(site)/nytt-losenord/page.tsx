@@ -7,7 +7,7 @@ import { BRAND_NAME } from "@/lib/brand";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: `Nytt lösenord | ${BRAND_NAME}`,
+  title: "Nytt lösenord",
   description: `Välj ett nytt lösenord för Mitt ${BRAND_NAME}.`,
 };
 
