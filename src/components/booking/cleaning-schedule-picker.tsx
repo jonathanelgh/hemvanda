@@ -98,8 +98,8 @@ export function CleaningSchedulePicker({
     });
   }
 
-  function handleDateSelect(dateKey: string, isPast: boolean, inMonth: boolean) {
-    if (isPast || !inMonth) return;
+  function handleDateSelect(dateKey: string, isSelectable: boolean, inMonth: boolean) {
+    if (!isSelectable || !inMonth) return;
     onDateChange(dateKey);
     onTimeChange(null);
   }
@@ -189,7 +189,7 @@ export function CleaningSchedulePicker({
 
                   {week.days.map((day) => {
                     const isSelected = selectedDate === day.dateKey;
-                    const isDisabled = day.isPast || !day.inMonth;
+                    const isDisabled = !day.isSelectable || !day.inMonth;
 
                     return (
                       <button
@@ -197,18 +197,16 @@ export function CleaningSchedulePicker({
                         type="button"
                         disabled={isDisabled}
                         onClick={() =>
-                          handleDateSelect(day.dateKey, day.isPast, day.inMonth)
+                          handleDateSelect(day.dateKey, day.isSelectable, day.inMonth)
                         }
                         className={`flex h-11 items-center justify-center rounded-lg text-sm font-semibold transition ${
                           isSelected
                             ? "bg-green text-white"
-                            : day.isToday
-                              ? "border border-gold text-green"
-                              : isDisabled
-                                ? "text-green/20"
-                                : day.inMonth
-                                  ? "text-green hover:bg-ivory"
-                                  : "text-green/25"
+                            : isDisabled
+                              ? "text-green/20"
+                              : day.inMonth
+                                ? "text-green hover:bg-ivory"
+                                : "text-green/25"
                         }`}
                       >
                         {day.dayNumber}

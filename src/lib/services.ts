@@ -101,7 +101,7 @@ export const services: Service[] = [
     title: "Måleri, bygg och renovering",
     eyebrow: "Genomtänkta förbättringar",
     description:
-      "Trygg hjälp med måleri, mindre byggprojekt och renoveringar som lyfter hemmet.",
+      "Trygg hjälp med måleri, byggprojekt och renoveringar som lyfter hemmet.",
     hero:
       "Från målning och förbättringar till renovering. Vi hjälper dig skapa ett hem som fungerar bättre och känns mer genomtänkt.",
     heroImage: "/snickare-hero-bg.webp",
@@ -112,7 +112,7 @@ export const services: Service[] = [
     accent: "Renovering",
     includes: [
       { label: "Måleri och ytskikt", icon: "hammer" },
-      { label: "Mindre byggprojekt och hemförbättringar", icon: "layers" },
+      { label: "Byggprojekt och hemförbättringar", icon: "layers" },
       { label: "Renovering av utvalda ytor och rum", icon: "home" },
       { label: "Planering, materialråd och tydlig tidsplan", icon: "clipboard" },
     ],
@@ -130,7 +130,7 @@ export const services: Service[] = [
       {
         question: "Vad ingår i måleri, bygg och renovering?",
         answer:
-          "Vi hjälper med målning och ytskikt, mindre byggprojekt, hemförbättringar och avgränsade renoveringar. Omfattningen går vi igenom tillsammans innan arbetet startar.",
+          "Vi hjälper med målning och ytskikt, byggprojekt, hemförbättringar och avgränsade renoveringar. Omfattningen går vi igenom tillsammans innan arbetet startar.",
       },
       {
         question: "Kan jag boka både små jobb och större renoveringar?",

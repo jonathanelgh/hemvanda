@@ -3,21 +3,14 @@ import {
   WEB_BOOKING_SERVICE_SLUG,
 } from "@/lib/booking";
 import { getBookingModalServices } from "@/lib/services";
-import { Icon } from "@/components/icons";
 
 type BookingCtaProps = {
   compact?: boolean;
-  /** Homepage hero card: green CTA, trust row, mock styling. */
+  /** Homepage hero card: green CTA and mock styling. */
   variant?: "default" | "hero";
   defaultService?: string;
   formId?: string;
 };
-
-const HERO_TRUST = [
-  "Lokala företag",
-  "Trygga tjänster",
-  "Enkel process",
-] as const;
 
 export function BookingCta({
   compact = false,
@@ -162,24 +155,6 @@ export function BookingCta({
           className="mt-3 hidden text-xs leading-5 text-muted"
           aria-live="polite"
         />
-        {isHero ? (
-          <ul className="mt-5 flex items-stretch justify-between gap-1 border-t border-green/10 pt-4 sm:gap-2">
-            {HERO_TRUST.map((item, index) => (
-              <li
-                key={item}
-                className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 px-1 text-center text-[11px] font-medium leading-tight text-green/80 sm:text-xs ${
-                  index > 0 ? "border-l border-green/15" : ""
-                }`}
-              >
-                <Icon
-                  name="check"
-                  className="h-3.5 w-3.5 shrink-0 text-[#a67c52]"
-                />
-                <span className="truncate sm:whitespace-normal">{item}</span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
       </form>
 
       {selectionMode !== "fixed" ? (

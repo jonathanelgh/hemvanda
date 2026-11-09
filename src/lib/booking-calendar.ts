@@ -24,6 +24,7 @@ export type CalendarDayCell = {
   inMonth: boolean;
   isToday: boolean;
   isPast: boolean;
+  isSelectable: boolean;
 };
 
 export type CalendarWeekRow = {
@@ -70,6 +71,30 @@ export function toDateKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+const STOCKHOLM_TIMEZONE = "Europe/Stockholm";
+
+export function getStockholmDateKey(date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: STOCKHOLM_TIMEZONE,
+  }).format(date);
+}
+
+export function addDaysToDateKey(dateKey: string, days: number) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + days);
+  return toDateKey(date);
+}
+
+/** First date a customer can book. Same-day bookings are not allowed. */
+export function getEarliestBookableDateKey(now = new Date()) {
+  return addDaysToDateKey(getStockholmDateKey(now), 1);
+}
+
+export function isCustomerBookableDateKey(dateKey: string, now = new Date()) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(dateKey) && dateKey >= getEarliestBookableDateKey(now);
+}
+
 export function formatSwedishMonthYear(year: number, month: number) {
   const label = SWEDISH_MONTHS[month];
   return `${label.charAt(0).toUpperCase()}${label.slice(1)} ${year}`;
@@ -77,6 +102,7 @@ export function formatSwedishMonthYear(year: number, month: number) {
 
 export function buildMonthGrid(year: number, month: number): CalendarWeekRow[] {
   const today = startOfDay(new Date());
+  const earliestBookableKey = getEarliestBookableDateKey();
   const todayWeek = getISOWeek(today);
   const todayWeekYear = getISOWeekYear(today);
   const monthStart = new Date(year, month, 1);
@@ -97,14 +123,16 @@ export function buildMonthGrid(year: number, month: number): CalendarWeekRow[] {
       const date = new Date(weekStart);
       date.setDate(weekStart.getDate() + i);
       const normalized = startOfDay(date);
+      const dateKey = toDateKey(normalized);
 
       days.push({
         date: normalized,
-        dateKey: toDateKey(normalized),
+        dateKey,
         dayNumber: normalized.getDate(),
         inMonth: normalized.getMonth() === month,
         isToday: normalized.getTime() === today.getTime(),
         isPast: normalized < today,
+        isSelectable: dateKey >= earliestBookableKey,
       });
     }
 

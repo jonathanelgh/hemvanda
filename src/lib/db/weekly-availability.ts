@@ -1,4 +1,7 @@
-import { DEFAULT_AVAILABLE_TIMES } from "@/lib/booking-calendar";
+import {
+  DEFAULT_AVAILABLE_TIMES,
+  isCustomerBookableDateKey,
+} from "@/lib/booking-calendar";
 import { getBookedVisitTimesForDate } from "@/lib/db/cleaning-visits";
 import {
   EMPTY_WEEKLY_SCHEDULE,
@@ -163,6 +166,10 @@ export async function isTimeAvailableForBooking(
   slotDate: string,
   preferredTime: string,
 ) {
+  if (!isCustomerBookableDateKey(slotDate)) {
+    return false;
+  }
+
   const availableTimes = await getAvailableTimesForDate(serviceSlug, slotDate);
   return availableTimes.includes(preferredTime);
 }

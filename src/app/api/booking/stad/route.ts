@@ -1,3 +1,4 @@
+import { isCustomerBookableDateKey } from "@/lib/booking-calendar";
 import { isStockholmAreaZip, normalizeZipCode } from "@/lib/coverage";
 import {
   cleaningFrequencyPlans,
@@ -270,11 +271,14 @@ export async function POST(request: Request) {
       return Response.json({ error: "Välj ett giltigt datum." }, { status: 400 });
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    preferredDate.setHours(0, 0, 0, 0);
-    if (preferredDate < today) {
-      return Response.json({ error: "Välj ett datum i framtiden." }, { status: 400 });
+    if (!isCustomerBookableDateKey(payload.preferredDate!)) {
+      return Response.json(
+        {
+          error:
+            "Det går inte att boka samma dag. Välj ett datum från och med imorgon.",
+        },
+        { status: 400 },
+      );
     }
 
     if (!payload.preferredTime?.trim()) {

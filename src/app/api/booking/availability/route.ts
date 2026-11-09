@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isCustomerBookableDateKey } from "@/lib/booking-calendar";
 import { getDefaultAvailabilityFallback } from "@/lib/db/weekly-availability";
 import { listAvailableTimes } from "@/lib/db/bookings";
 import { WEB_BOOKING_SERVICE_SLUG } from "@/lib/booking";
@@ -12,6 +13,10 @@ export async function GET(request: Request) {
 
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return NextResponse.json({ error: "Ogiltigt datum." }, { status: 400 });
+  }
+
+  if (!isCustomerBookableDateKey(date)) {
+    return NextResponse.json({ times: [] });
   }
 
   if (!isSupabaseAdminConfigured()) {
